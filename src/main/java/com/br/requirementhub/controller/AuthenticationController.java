@@ -1,7 +1,7 @@
 package com.br.requirementhub.controller;
 
-import com.br.requirementhub.dtos.AuthenticationRequest;
-import com.br.requirementhub.dtos.AuthenticationResponse;
+import com.br.requirementhub.dtos.AuthenticationRequestDTO;
+import com.br.requirementhub.dtos.AuthenticationResponseDTO;
 import com.br.requirementhub.services.AuthenticationService;
 import com.br.requirementhub.model.User;
 import org.springframework.http.ResponseEntity;
@@ -23,12 +23,12 @@ public class AuthenticationController {
 
 
     @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponse> register(@RequestBody User request) {
+    public ResponseEntity<AuthenticationResponseDTO> register(@RequestBody User request) {
         return ResponseEntity.ok(authenticationService.register(request));
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
+    public ResponseEntity<AuthenticationResponseDTO> authenticate(@RequestBody AuthenticationRequestDTO request) {
         return ResponseEntity.ok(authenticationService.login(request));
     }
 }

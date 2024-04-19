@@ -1,7 +1,7 @@
 package com.br.requirementhub.services;
 
-import com.br.requirementhub.dtos.AuthenticationRequest;
-import com.br.requirementhub.dtos.AuthenticationResponse;
+import com.br.requirementhub.dtos.AuthenticationRequestDTO;
+import com.br.requirementhub.dtos.AuthenticationResponseDTO;
 import com.br.requirementhub.config.JwtService;
 import com.br.requirementhub.model.User;
 import com.br.requirementhub.repository.UserRepository;
@@ -34,7 +34,7 @@ public class AuthenticationService {
     }
 
 
-    public AuthenticationResponse register(User request) {
+    public AuthenticationResponseDTO register(User request) {
         var user = new User();
         user.setName(request.getName());
         user.setUsername(request.getUsername());
@@ -42,18 +42,18 @@ public class AuthenticationService {
         user.setRole(request.getRole());
         userRepository.save(user);
         String token = jwtService.generateToken(user, generateExtraClaims(user));
-        return new AuthenticationResponse(token);
+        return new AuthenticationResponseDTO(token);
     }
 
 
-    public AuthenticationResponse login(AuthenticationRequest authenticationRequest) {
+    public AuthenticationResponseDTO login(AuthenticationRequestDTO authenticationRequestDTO) {
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                authenticationRequest.getUsername(), authenticationRequest.getPassword()
+                authenticationRequestDTO.getUsername(), authenticationRequestDTO.getPassword()
         );
         authenticationManager.authenticate(authToken);
-        User user = userRepository.findByUsername(authenticationRequest.getUsername()).get();
+        User user = userRepository.findByUsername(authenticationRequestDTO.getUsername()).get();
         String jwt = jwtService.generateToken(user, generateExtraClaims(user));
-        return new AuthenticationResponse(jwt);
+        return new AuthenticationResponseDTO(jwt);
     }
 
 
