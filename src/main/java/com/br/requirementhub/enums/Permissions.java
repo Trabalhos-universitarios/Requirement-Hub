@@ -1,5 +1,7 @@
 package com.br.requirementhub.enums;
 
+import java.util.List;
+
 public enum Permissions {
     APROVAR_REQUISITO,
     EXCLUIR_REQUISITO,
@@ -23,5 +25,5 @@ public enum Permissions {
     VISUALIZAR_DOCUMENTO_PROJETO,
     VALIDAR_PROJETO,
     COMPLEMENTAR_REQUISITO,
-
+    REVISOR_DE_REQUISITOS
 }
