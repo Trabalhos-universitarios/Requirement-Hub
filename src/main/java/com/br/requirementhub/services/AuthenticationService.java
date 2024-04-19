@@ -2,7 +2,6 @@ package com.br.requirementhub.services;
 
 import com.br.requirementhub.dtos.AuthenticationRequestDTO;
 import com.br.requirementhub.dtos.AuthenticationResponseDTO;
-import com.br.requirementhub.config.JwtService;
 import com.br.requirementhub.model.User;
 import com.br.requirementhub.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;

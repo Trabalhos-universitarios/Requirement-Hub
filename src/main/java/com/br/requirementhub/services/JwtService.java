@@ -1,4 +1,4 @@
-package com.br.requirementhub.config;
+package com.br.requirementhub.services;
 
 import com.br.requirementhub.model.User;
 import org.springframework.stereotype.Service;
