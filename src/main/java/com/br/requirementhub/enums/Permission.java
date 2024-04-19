@@ -1,8 +1,6 @@
 package com.br.requirementhub.enums;
 
-import java.util.List;
-
-public enum Permissions {
+public enum Permission {
     APROVAR_REQUISITO,
     EXCLUIR_REQUISITO,
     EDITAR_REQUISITO,
