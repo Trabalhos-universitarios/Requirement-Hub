@@ -35,6 +35,8 @@ public class SecurityFilter {
 
                     authConfig.requestMatchers(HttpMethod.GET, "/cadastrar-requisito").hasAuthority(Permission.APROVAR_DOCUMENTO.name());
                     authConfig.requestMatchers(HttpMethod.POST, "/criar-projeto").hasAuthority(Permission.APROVAR_PROJETO.name());
+                    authConfig.requestMatchers(HttpMethod.GET, "/project/all").permitAll();
+
                     authConfig.anyRequest().denyAll();
 
                 });
