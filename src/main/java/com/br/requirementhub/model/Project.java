@@ -53,4 +53,14 @@ public class Project {
     private Date lastUpdate;
 
 
+    //todo ---
+    /*
+     * DATA INICIO
+     * DATA FIM
+     * OUTRO PROJETO IMPACTADO
+     * DATA PROGRAMADA
+     * ESCOPO
+     * */
+
+
 }
