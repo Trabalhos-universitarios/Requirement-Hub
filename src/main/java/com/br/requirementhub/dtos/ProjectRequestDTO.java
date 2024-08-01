@@ -2,6 +2,8 @@ package com.br.requirementhub.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.Date;
 
 @Data
@@ -9,6 +11,7 @@ import java.util.Date;
 public class ProjectRequestDTO {
 
     private String name;
+    private MultipartFile artifactFile;
     private String manager;
     private String status;
     private String typeProject;

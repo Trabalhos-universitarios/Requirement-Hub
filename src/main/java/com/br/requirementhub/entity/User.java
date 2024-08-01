@@ -1,10 +1,7 @@
-package com.br.requirementhub.model;
+package com.br.requirementhub.entity;
 
 import com.br.requirementhub.enums.Role;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

@@ -2,13 +2,14 @@ package com.br.requirementhub.services;
 
 import com.br.requirementhub.dtos.ProjectRequestDTO;
 import com.br.requirementhub.dtos.ProjectResponseDTO;
-import com.br.requirementhub.model.Project;
+import com.br.requirementhub.entity.Project;
 import com.br.requirementhub.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -19,7 +20,7 @@ public class ProjectService {
 
     private final ProjectRepository projectRepository;
 
-    public ProjectResponseDTO create(ProjectRequestDTO requestDTO) {
+    public ProjectResponseDTO create(ProjectRequestDTO requestDTO) throws IOException {
         Project project = convertToEntity(requestDTO);
         Project savedProject = projectRepository.save(project);
         return convertToDTO(savedProject);
@@ -47,7 +48,7 @@ public class ProjectService {
         dto.setName(project.getName());
         dto.setManager(project.getManager());
         dto.setStatus(project.getStatus());
-        dto.setTypeProject(project.getTypeProject());
+        dto.setTypeProject(project.getProjectType());
         dto.setRequirementsAnalyst(project.getRequirementsAnalyst());
         dto.setBusinessAnalyst(project.getBusinessAnalyst());
         dto.setCommonUser(project.getCommonUser());
@@ -55,22 +56,28 @@ public class ProjectService {
         dto.setVersion(project.getVersion());
         dto.setCreationDate(project.getCreationDate());
         dto.setLastUpdate(project.getLastUpdate());
+        if(project.getArtifactFile() != null){
+            dto.setArtifact_file(project.getArtifactFile());
+        }
         return dto;
     }
 
-    private Project convertToEntity(ProjectRequestDTO dto) {
+    private Project convertToEntity(ProjectRequestDTO dto) throws IOException {
         Project project = new Project();
         project.setName(dto.getName());
         project.setManager(dto.getManager());
         project.setStatus(dto.getStatus());
-        project.setTypeProject(dto.getTypeProject());
+        project.setProjectType(dto.getTypeProject());
         project.setRequirementsAnalyst(dto.getRequirementsAnalyst());
         project.setBusinessAnalyst(dto.getBusinessAnalyst());
         project.setCommonUser(dto.getCommonUser());
         project.setDescription(dto.getDescription());
         project.setVersion(dto.getVersion());
-        project.setCreationDate(dto.getCreationDate());
-        project.setLastUpdate(dto.getLastUpdate());
+//todo datas
+        if (dto.getArtifactFile() != null) {
+            project.setArtifactFile(dto.getArtifactFile().getBytes());
+        }
+
         return project;
     }
 }

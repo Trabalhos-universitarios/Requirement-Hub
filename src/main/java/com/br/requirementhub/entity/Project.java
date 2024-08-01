@@ -1,10 +1,9 @@
-package com.br.requirementhub.model;
+package com.br.requirementhub.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+import java.io.Serializable;
 import java.util.Date;
 
 
@@ -12,8 +11,10 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Getter
+@Setter
 @Table(name = "PROJECTS")
-public class Project {
+public class Project implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,14 +23,18 @@ public class Project {
     @Column(name = "NAME", nullable = false)
     private String name;
 
+//    @Lob
+    @Column(name = "artifact_file", columnDefinition = "bytea")
+    private byte[] artifactFile;
+
     @Column(name = "MANAGER")
     private String manager;
 
     @Column(name = "STATUS")
     private String status;
 
-    @Column(name = "TYPE_PROJECT")
-    private String typeProject;
+    @Column(name = "PROJECT_TYPE")
+    private String projectType;
 
     @Column(name = "REQUIREMENTS_ANALYST")
     private String requirementsAnalyst;
@@ -47,9 +52,11 @@ public class Project {
     private String version;
 
     @Column(name = "CREATION_DATE")
+    @Temporal(TemporalType.DATE)
     private Date creationDate;
 
     @Column(name = "LAST_UPDATE")
+    @Temporal(TemporalType.DATE)
     private Date lastUpdate;
 
 
@@ -61,6 +68,5 @@ public class Project {
      * DATA PROGRAMADA
      * ESCOPO
      * */
-
 
 }

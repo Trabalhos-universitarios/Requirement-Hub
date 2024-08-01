@@ -1,6 +1,7 @@
 package com.br.requirementhub.config;
 
 import com.br.requirementhub.enums.Permission;
+import com.br.requirementhub.enums.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,12 +33,8 @@ public class SecurityFilter {
                     authConfig.requestMatchers(HttpMethod.POST, "/auth/authenticate").permitAll();
                     authConfig.requestMatchers(HttpMethod.POST, "/auth/register").permitAll();
                     authConfig.requestMatchers("/error").permitAll();
-
-                    authConfig.requestMatchers(HttpMethod.GET, "/cadastrar-requisito").hasAuthority(Permission.APROVAR_DOCUMENTO.name());
-                    authConfig.requestMatchers(HttpMethod.POST, "/criar-projeto").hasAuthority(Permission.APROVAR_PROJETO.name());
-                    authConfig.requestMatchers(HttpMethod.GET, "/project/all").permitAll();
-
-                    authConfig.anyRequest().denyAll();
+                    authConfig.requestMatchers(HttpMethod.GET, "/project/**").hasRole("GERENTE_DE_PROJETOS");
+                    authConfig.anyRequest().authenticated();
 
                 });
 
