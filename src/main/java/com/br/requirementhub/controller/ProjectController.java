@@ -4,10 +4,6 @@ import com.br.requirementhub.dtos.ProjectRequestDTO;
 import com.br.requirementhub.dtos.ProjectResponseDTO;
 import com.br.requirementhub.services.ProjectService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,7 +19,8 @@ public class ProjectController {
 
     @PostMapping("")
     public ResponseEntity<ProjectResponseDTO> create(@RequestBody ProjectRequestDTO request) throws IOException {
-        return ResponseEntity.ok(service.create(request));
+        service.create(request);
+        return ResponseEntity.status(201).build();
     }
 
     @GetMapping("/all")
