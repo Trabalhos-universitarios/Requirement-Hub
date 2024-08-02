@@ -1,72 +1,43 @@
 package com.br.requirementhub.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
 import java.util.Date;
-
+import java.util.List;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 @Entity
-@Getter
-@Setter
-@Table(name = "PROJECTS")
-public class Project implements Serializable {
-
+@Table(name = "PROJECT")
+public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
-    @Column(name = "NAME", nullable = false)
+    @Column(name = "name")
     private String name;
 
-//    @Lob
-    @Column(name = "artifact_file", columnDefinition = "bytea")
-    private byte[] artifactFile;
-
-    @Column(name = "MANAGER")
+    @Column(name = "manager")
     private String manager;
 
-    @Column(name = "STATUS")
+    @Column(name = "status")
     private String status;
 
-    @Column(name = "PROJECT_TYPE")
-    private String projectType;
-
-    @Column(name = "REQUIREMENTS_ANALYST")
-    private String requirementsAnalyst;
-
-    @Column(name = "BUSINESS_ANALYST")
-    private String businessAnalyst;
-
-    @Column(name = "COMMON_USER")
-    private String commonUser;
-
-    @Column(name = "DESCRIPTION", length = 3000)
+    @Column(name = "description")
     private String description;
 
-    @Column(name = "VERSION")
+    @Column(name = "version")
     private String version;
 
-    @Column(name = "CREATION_DATE")
-    @Temporal(TemporalType.DATE)
+    @Column(name = "creation_date")
     private Date creationDate;
 
-    @Column(name = "LAST_UPDATE")
-    @Temporal(TemporalType.DATE)
+    @Column(name = "last_update")
     private Date lastUpdate;
 
-
-    //todo ---
-    /*
-     * DATA INICIO
-     * DATA FIM
-     * OUTRO PROJETO IMPACTADO
-     * DATA PROGRAMADA
-     * ESCOPO
-     * */
-
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Team> teams;
 }
