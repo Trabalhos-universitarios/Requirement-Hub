@@ -1,6 +1,6 @@
 package com.br.requirementhub.repository;
 
-import com.br.requirementhub.model.User;
+import com.br.requirementhub.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

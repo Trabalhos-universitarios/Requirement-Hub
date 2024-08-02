@@ -3,7 +3,7 @@ package com.br.requirementhub.controller;
 import com.br.requirementhub.dtos.AuthenticationRequestDTO;
 import com.br.requirementhub.dtos.AuthenticationResponseDTO;
 import com.br.requirementhub.services.AuthenticationService;
-import com.br.requirementhub.model.User;
+import com.br.requirementhub.entity.User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
