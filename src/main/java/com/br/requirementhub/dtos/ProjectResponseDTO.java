@@ -1,19 +1,20 @@
 package com.br.requirementhub.dtos;
+
 import lombok.Data;
+
 import java.util.Date;
+import java.util.List;
 
 @Data
 public class ProjectResponseDTO {
 
     private Long id;
     private String name;
-    private byte[] artifact_file;
     private String manager;
     private String status;
-    private String typeProject;
-    private String requirementsAnalyst;
-    private String businessAnalyst;
-    private String commonUser;
+    private List<String> requirementAnalysts;
+    private List<String> businessAnalysts;
+    private List<String> commonUsers;
     private String description;
     private String version;
     private Date creationDate;

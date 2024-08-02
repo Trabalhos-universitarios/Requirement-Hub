@@ -1,8 +1,8 @@
 package com.br.requirementhub.enums;
 
-
 import java.util.Arrays;
 import java.util.List;
+
 public enum Role {
     GERENTE_DE_PROJETOS(Arrays.asList(Permission.APROVAR_REQUISITO, Permission.EXCLUIR_REQUISITO,
             Permission.EDITAR_REQUISITO, Permission.VISUALIZAR_REQUISITO,
@@ -36,14 +36,16 @@ public enum Role {
             Permission.EDITAR_REQUISITO_PROJETO, Permission.VISUALIZAR_REQUISITO_PROJETO,
             Permission.APROVAR_DOCUMENTO_PROJETO, Permission.EXCLUIR_DOCUMENTO_PROJETO,
             Permission.EDITAR_DOCUMENTO_PROJETO, Permission.VISUALIZAR_DOCUMENTO_PROJETO,
-            Permission.VALIDAR_PROJETO, Permission.COMPLEMENTAR_REQUISITO));
+            Permission.VALIDAR_PROJETO, Permission.COMPLEMENTAR_REQUISITO)),
+    USUARIO_COMUM(Arrays.asList(Permission.VISUALIZAR_REQUISITO, Permission.VISUALIZAR_DOCUMENTO,
+            Permission.VISUALIZAR_PROJETO, Permission.VISUALIZAR_REQUISITO_PROJETO,
+            Permission.VISUALIZAR_DOCUMENTO_PROJETO));
 
     private List<Permission> permissionList;
 
     Role(List<Permission> permissionList) {
         this.permissionList = permissionList;
     }
-
 
     public List<Permission> getPermissionsList() {
         return permissionList;
