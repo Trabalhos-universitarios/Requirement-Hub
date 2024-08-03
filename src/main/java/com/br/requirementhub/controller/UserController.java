@@ -18,29 +18,28 @@ public class UserController {
 
     private final UserService userService;
 
-    @GetMapping("/gerentes")
-    public List<UserDTO> getGerentes() {
+    @GetMapping("/managers")
+    public List<UserDTO> getManagers() {
         return userService.findByRole(Role.GERENTE_DE_PROJETOS).stream()
                 .map(user -> new UserDTO(user.getId(), user.getName(), user.getRole()))
                 .collect(Collectors.toList());
     }
-
-    @GetMapping("/analistas-requisitos")
-    public List<UserDTO> getAnalistasRequisitos() {
+    @GetMapping("/requirement-analysts")
+    public List<UserDTO> getRequirementAnalysts() {
         return userService.findByRole(Role.ANALISTA_DE_REQUISITOS).stream()
                 .map(user -> new UserDTO(user.getId(), user.getName(), user.getRole()))
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/analistas-negocio")
-    public List<UserDTO> getAnalistasNegocio() {
+    @GetMapping("/business-analysts")
+    public List<UserDTO> getBusinessAnalysts() {
         return userService.findByRole(Role.ANALISTA_DE_NEGOCIO).stream()
                 .map(user -> new UserDTO(user.getId(), user.getName(), user.getRole()))
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/usuarios-comuns")
-    public List<UserDTO> getUsuariosComuns() {
+    @GetMapping("/common-users")
+    public List<UserDTO> getCommonUsers() {
         return userService.findByRole(Role.USUARIO_COMUM).stream()
                 .map(user -> new UserDTO(user.getId(), user.getName(), user.getRole()))
                 .collect(Collectors.toList());
