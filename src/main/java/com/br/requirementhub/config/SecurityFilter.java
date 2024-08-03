@@ -35,6 +35,7 @@ public class SecurityFilter {
                     authConfig.requestMatchers("/error").permitAll();
                     authConfig.requestMatchers(HttpMethod.GET, "/project/**").permitAll();
                     authConfig.requestMatchers(HttpMethod.POST, "/project/**").permitAll();
+                    authConfig.requestMatchers(HttpMethod.PUT, "/project/**").permitAll();
                     authConfig.requestMatchers(HttpMethod.GET, "/user/**").permitAll();
 
 
