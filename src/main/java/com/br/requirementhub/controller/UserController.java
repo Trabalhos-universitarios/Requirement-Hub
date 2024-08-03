@@ -1,4 +1,4 @@
-package com.br.requirementhub.controllers;
+package com.br.requirementhub.controller;
 
 import com.br.requirementhub.dtos.UserDTO;
 import com.br.requirementhub.enums.Role;
