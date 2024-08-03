@@ -16,5 +16,6 @@ public class ProjectRequestDTO {
     private List<Long> commonUsers;
     private String description;
     private String version;
+    private boolean draft;
 
 }

@@ -5,7 +5,9 @@ import com.br.requirementhub.dtos.ProjectResponseDTO;
 import com.br.requirementhub.entity.Project;
 import com.br.requirementhub.entity.Team;
 import com.br.requirementhub.entity.User;
+import com.br.requirementhub.enums.Role;
 import com.br.requirementhub.repository.ProjectRepository;
+import com.br.requirementhub.repository.TeamRepository;
 import com.br.requirementhub.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,6 +26,7 @@ public class ProjectService {
 
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
+    private final TeamRepository teamRepository;
 
     public ProjectResponseDTO create(ProjectRequestDTO requestDTO) throws IOException {
         Project project = convertToEntity(requestDTO);
@@ -64,26 +67,64 @@ public class ProjectService {
         dto.setVersion(project.getVersion());
         dto.setCreationDate(project.getCreationDate());
         dto.setLastUpdate(project.getLastUpdate());
-
-        List<String> requirementAnalysts = project.getTeams().stream()
-                .filter(team -> "REQUIREMENT_ANALYST".equals(team.getUser().getRole().name()))
-                .map(team -> userRepository.findById(team.getUser().getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found")).getName())
+        List<String> requirementAnalysts = teamRepository.findByProjectIdAndUserRole(project.getId(), Role.ANALISTA_DE_REQUISITOS)
+                .stream()
+                .map(Team::getUserName)
                 .collect(Collectors.toList());
         dto.setRequirementAnalysts(requirementAnalysts);
 
-        List<String> businessAnalysts = project.getTeams().stream()
-                .filter(team -> "BUSINESS_ANALYST".equals(team.getUser().getRole().name()))
-                .map(team -> userRepository.findById(team.getUser().getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found")).getName())
+        List<String> businessAnalysts = teamRepository.findByProjectIdAndUserRole(project.getId(), Role.ANALISTA_DE_NEGOCIO)
+                .stream()
+                .map(Team::getUserName)
                 .collect(Collectors.toList());
         dto.setBusinessAnalysts(businessAnalysts);
 
-        List<String> commonUsers = project.getTeams().stream()
-                .filter(team -> "COMMON_USER".equals(team.getUser().getRole().name()))
-                .map(team -> userRepository.findById(team.getUser().getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found")).getName())
+        List<String> commonUsers = teamRepository.findByProjectIdAndUserRole(project.getId(), Role.USUARIO_COMUM)
+                .stream()
+                .map(Team::getUserName)
                 .collect(Collectors.toList());
         dto.setCommonUsers(commonUsers);
 
         return dto;
+    }
+
+    public ProjectResponseDTO update(Long id, ProjectRequestDTO requestDTO) throws IOException {
+        Optional<Project> existingProjectOpt = projectRepository.findById(id);
+        if (existingProjectOpt.isPresent()) {
+            Project existingProject = existingProjectOpt.get();
+            existingProject.setName(requestDTO.getName());
+            existingProject.setManager(requestDTO.getManager());
+            existingProject.setStatus(requestDTO.getStatus());
+            existingProject.setDescription(requestDTO.getDescription());
+            existingProject.setVersion(requestDTO.getVersion());
+            existingProject.setLastUpdate(new Date());
+            existingProject.setDraft(requestDTO.isDraft());
+
+            List<Team> teams = requestDTO.getRequirementAnalysts().stream()
+                    .map(userId -> createTeam(userId, existingProject))
+                    .collect(Collectors.toList());
+            teams.addAll(requestDTO.getBusinessAnalysts().stream()
+                    .map(userId -> createTeam(userId, existingProject))
+                    .collect(Collectors.toList()));
+            teams.addAll(requestDTO.getCommonUsers().stream()
+                    .map(userId -> createTeam(userId, existingProject))
+                    .collect(Collectors.toList()));
+
+            existingProject.setTeams(teams);
+
+            Project updatedProject = projectRepository.save(existingProject);
+            return convertToDTO(updatedProject);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found with id: " + id);
+        }
+    }
+
+    public void deleteById(Long id) {
+        if (projectRepository.existsById(id)) {
+            projectRepository.deleteById(id);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found with id: " + id);
+        }
     }
 
     private Project convertToEntity(ProjectRequestDTO dto) throws IOException {
@@ -94,6 +135,7 @@ public class ProjectService {
         project.setDescription(dto.getDescription());
         project.setVersion(dto.getVersion());
         project.setCreationDate(new Date());
+        project.setDraft(dto.isDraft());
 
         List<Team> teams = dto.getRequirementAnalysts().stream()
                 .map(userId -> createTeam(userId, project))
@@ -116,6 +158,7 @@ public class ProjectService {
         Team team = new Team();
         team.setUser(user);
         team.setProject(project);
+        team.setUserName(user.getName());
         return team;
     }
 }

@@ -33,6 +33,18 @@ public class ProjectController {
         return ResponseEntity.ok(service.findById(id));
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<ProjectResponseDTO> update(@PathVariable Long id, @RequestBody ProjectRequestDTO request) throws IOException {
+        ProjectResponseDTO updatedProject = service.update(id, request);
+        return ResponseEntity.ok(updatedProject);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
+
 
 
 }

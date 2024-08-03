@@ -38,6 +38,9 @@ public class Project {
     @Column(name = "last_update")
     private Date lastUpdate;
 
+    @Column(name = "draft")
+    private boolean draft;
+
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Team> teams;
 }
