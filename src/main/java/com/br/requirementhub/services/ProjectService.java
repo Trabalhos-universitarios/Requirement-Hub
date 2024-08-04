@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -28,6 +29,7 @@ public class ProjectService {
     private final UserRepository userRepository;
     private final TeamRepository teamRepository;
 
+
     public ProjectResponseDTO create(ProjectRequestDTO requestDTO) throws IOException {
         Project project = convertToEntity(requestDTO);
         Project savedProject = projectRepository.save(project);
@@ -38,7 +40,10 @@ public class ProjectService {
         }
         projectRepository.save(savedProject);
 
-        return convertToDTO(savedProject);
+        ProjectResponseDTO responseDTO = new ProjectResponseDTO();
+        responseDTO.setId(savedProject.getId());
+        responseDTO.setName(savedProject.getName());
+        return responseDTO;
     }
 
     public List<ProjectResponseDTO> list() {
@@ -84,6 +89,10 @@ public class ProjectService {
                 .map(Team::getUserName)
                 .collect(Collectors.toList());
         dto.setCommonUsers(commonUsers);
+
+        dto.setRequirementIds(project.getRequirements() != null ? project.getRequirements().stream()
+                .map(requirement -> requirement.getId())
+                .collect(Collectors.toList()) : new ArrayList<>());
 
         return dto;
     }

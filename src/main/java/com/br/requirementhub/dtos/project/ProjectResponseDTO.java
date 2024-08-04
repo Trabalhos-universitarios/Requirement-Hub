@@ -19,5 +19,5 @@ public class ProjectResponseDTO {
     private String version;
     private Date creationDate;
     private Date lastUpdate;
-
+    private List<Long> requirementIds;
 }

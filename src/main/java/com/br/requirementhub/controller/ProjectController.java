@@ -2,13 +2,16 @@ package com.br.requirementhub.controller;
 
 import com.br.requirementhub.dtos.project.ProjectRequestDTO;
 import com.br.requirementhub.dtos.project.ProjectResponseDTO;
+import com.br.requirementhub.entity.Project;
 import com.br.requirementhub.services.ProjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -19,8 +22,8 @@ public class ProjectController {
 
     @PostMapping("")
     public ResponseEntity<ProjectResponseDTO> create(@RequestBody ProjectRequestDTO request) throws IOException {
-        service.create(request);
-        return ResponseEntity.status(201).build();
+        ProjectResponseDTO responseDTO = service.create(request);
+        return ResponseEntity.status(201).body(responseDTO);
     }
 
     @GetMapping("/all")
