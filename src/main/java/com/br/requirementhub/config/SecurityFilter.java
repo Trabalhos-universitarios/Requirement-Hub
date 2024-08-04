@@ -36,9 +36,17 @@ public class SecurityFilter {
                     authConfig.requestMatchers(HttpMethod.GET, "/project/**").permitAll();
                     authConfig.requestMatchers(HttpMethod.POST, "/project/**").permitAll();
                     authConfig.requestMatchers(HttpMethod.PUT, "/project/**").permitAll();
+                    authConfig.requestMatchers(HttpMethod.DELETE, "/project/**").permitAll();
+
+
                     authConfig.requestMatchers(HttpMethod.GET, "/user/**").permitAll();
+
                     authConfig.requestMatchers(HttpMethod.GET, "/requirements/**").permitAll();
                     authConfig.requestMatchers(HttpMethod.POST, "/requirements/**").permitAll();
+                    authConfig.requestMatchers(HttpMethod.PUT, "/requirements/**").permitAll();
+                    authConfig.requestMatchers(HttpMethod.DELETE, "/requirements/**").permitAll();
+
+
                     authConfig.requestMatchers(HttpMethod.GET, "/requirement-artifacts/**").permitAll();
                     authConfig.requestMatchers(HttpMethod.POST, "/requirement-artifacts/**").permitAll();
 

@@ -3,6 +3,7 @@ package com.br.requirementhub.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -60,6 +61,9 @@ public class Requirement {
     @JoinColumn(name = "id_projeto", nullable = false)
     private Project project;
 
-    @OneToMany(mappedBy = "requirement", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RequirementArtifact> artifacts;
+//    @OneToMany(mappedBy = "requirement", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<RequirementArtifact> artifacts;
+
+    @OneToMany(mappedBy = "requirement", cascade = CascadeType.ALL)
+    private List<RequirementArtifact> artifacts = new ArrayList<>();
 }
