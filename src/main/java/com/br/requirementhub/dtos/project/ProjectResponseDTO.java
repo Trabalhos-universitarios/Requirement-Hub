@@ -1,5 +1,6 @@
 package com.br.requirementhub.dtos.project;
 
+import com.br.requirementhub.utils.DateUtils;
 import lombok.Data;
 
 import java.util.Date;
@@ -17,7 +18,24 @@ public class ProjectResponseDTO {
     private List<String> commonUsers;
     private String description;
     private String version;
-    private Date creationDate;
-    private Date lastUpdate;
+    private String creationDate;
+    private String lastUpdate;
     private List<Long> requirementIds;
+
+
+    public void setCreationDate(Date creationDate) {
+        if (creationDate != null) {
+            this.creationDate = DateUtils.formatDate(creationDate.getTime());
+        } else {
+            this.creationDate = null;
+        }
+    }
+
+    public void setLastUpdate(Date lastUpdate) {
+        if (lastUpdate != null) {
+            this.lastUpdate = DateUtils.formatDate(lastUpdate.getTime());
+        } else {
+            this.lastUpdate = null;
+        }
+    }
 }
