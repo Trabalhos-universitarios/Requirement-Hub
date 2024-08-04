@@ -1,7 +1,7 @@
 package com.br.requirementhub.services;
 
-import com.br.requirementhub.dtos.ProjectRequestDTO;
-import com.br.requirementhub.dtos.ProjectResponseDTO;
+import com.br.requirementhub.dtos.project.ProjectRequestDTO;
+import com.br.requirementhub.dtos.project.ProjectResponseDTO;
 import com.br.requirementhub.entity.Project;
 import com.br.requirementhub.entity.Team;
 import com.br.requirementhub.entity.User;

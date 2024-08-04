@@ -1,4 +1,4 @@
-package com.br.requirementhub.dtos;
+package com.br.requirementhub.dtos.project;
 
 import java.util.List;
 import lombok.AllArgsConstructor;

@@ -1,5 +1,7 @@
 package com.br.requirementhub.services;
 
+import com.br.requirementhub.dtos.user.UserRequestDTO;
+import com.br.requirementhub.dtos.user.UserResponseDTO;
 import com.br.requirementhub.entity.User;
 import com.br.requirementhub.enums.Role;
 import com.br.requirementhub.repository.UserRepository;
@@ -13,11 +15,22 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserService {
 
-    private final UserRepository userRepository;
+    private final UserRepository repository;
 
-    public List<User> findByRole(Role role) {
-        return userRepository.findAll().stream()
-                .filter(user -> user.getRole().equals(role))
+    public List<UserResponseDTO> findByRole(Role role) {
+        return repository.findByRole(role).stream()
+                .map(this::convertToResponseDTO)
                 .collect(Collectors.toList());
+    }
+
+    private UserResponseDTO convertToResponseDTO(User user) {
+        return new UserResponseDTO(user.getId(), user.getName(), user.getRole());
+    }
+
+    private User convertToEntity(UserRequestDTO dto) {
+        User user = new User();
+        user.setName(dto.getName());
+        user.setRole(dto.getRole());
+        return user;
     }
 }

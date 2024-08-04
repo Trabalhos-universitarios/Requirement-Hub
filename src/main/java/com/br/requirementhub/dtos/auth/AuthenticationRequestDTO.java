@@ -1,8 +1,7 @@
-package com.br.requirementhub.dtos;
+package com.br.requirementhub.dtos.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NonNull;
 
 @Data
 @AllArgsConstructor

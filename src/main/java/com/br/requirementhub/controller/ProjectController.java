@@ -1,7 +1,7 @@
 package com.br.requirementhub.controller;
 
-import com.br.requirementhub.dtos.ProjectRequestDTO;
-import com.br.requirementhub.dtos.ProjectResponseDTO;
+import com.br.requirementhub.dtos.project.ProjectRequestDTO;
+import com.br.requirementhub.dtos.project.ProjectResponseDTO;
 import com.br.requirementhub.services.ProjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

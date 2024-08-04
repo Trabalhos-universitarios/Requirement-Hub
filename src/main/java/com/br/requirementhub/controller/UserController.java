@@ -1,6 +1,7 @@
 package com.br.requirementhub.controller;
 
-import com.br.requirementhub.dtos.UserDTO;
+import com.br.requirementhub.dtos.user.UserRequestDTO;
+import com.br.requirementhub.dtos.user.UserResponseDTO;
 import com.br.requirementhub.enums.Role;
 import com.br.requirementhub.services.UserService;
 import lombok.RequiredArgsConstructor;
@@ -16,32 +17,33 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserService userService;
+    private final UserService service;
 
     @GetMapping("/managers")
-    public List<UserDTO> getManagers() {
-        return userService.findByRole(Role.GERENTE_DE_PROJETOS).stream()
-                .map(user -> new UserDTO(user.getId(), user.getName(), user.getRole()))
+    public List<UserResponseDTO> getManagers() {
+        return service.findByRole(Role.GERENTE_DE_PROJETOS).stream()
+                .map(user -> new UserResponseDTO(user.getId(), user.getName(), user.getRole()))
                 .collect(Collectors.toList());
     }
+
     @GetMapping("/requirement-analysts")
-    public List<UserDTO> getRequirementAnalysts() {
-        return userService.findByRole(Role.ANALISTA_DE_REQUISITOS).stream()
-                .map(user -> new UserDTO(user.getId(), user.getName(), user.getRole()))
+    public List<UserResponseDTO> getRequirementAnalysts() {
+        return service.findByRole(Role.ANALISTA_DE_REQUISITOS).stream()
+                .map(user -> new UserResponseDTO(user.getId(), user.getName(), user.getRole()))
                 .collect(Collectors.toList());
     }
 
     @GetMapping("/business-analysts")
-    public List<UserDTO> getBusinessAnalysts() {
-        return userService.findByRole(Role.ANALISTA_DE_NEGOCIO).stream()
-                .map(user -> new UserDTO(user.getId(), user.getName(), user.getRole()))
+    public List<UserResponseDTO> getBusinessAnalysts() {
+        return service.findByRole(Role.ANALISTA_DE_NEGOCIO).stream()
+                .map(user -> new UserResponseDTO(user.getId(), user.getName(), user.getRole()))
                 .collect(Collectors.toList());
     }
 
     @GetMapping("/common-users")
-    public List<UserDTO> getCommonUsers() {
-        return userService.findByRole(Role.USUARIO_COMUM).stream()
-                .map(user -> new UserDTO(user.getId(), user.getName(), user.getRole()))
+    public List<UserResponseDTO> getCommonUsers() {
+        return service.findByRole(Role.USUARIO_COMUM).stream()
+                .map(user -> new UserResponseDTO(user.getId(), user.getName(), user.getRole()))
                 .collect(Collectors.toList());
     }
 }
