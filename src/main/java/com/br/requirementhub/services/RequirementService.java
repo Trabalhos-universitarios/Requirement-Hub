@@ -4,6 +4,7 @@ import com.br.requirementhub.dtos.requirement.RequirementRequestDTO;
 import com.br.requirementhub.dtos.requirement.RequirementResponseDTO;
 import com.br.requirementhub.entity.Project;
 import com.br.requirementhub.entity.Requirement;
+import com.br.requirementhub.exceptions.ProjectNotFoundException;
 import com.br.requirementhub.repository.ProjectRepository;
 import com.br.requirementhub.repository.RequirementRepository;
 import lombok.RequiredArgsConstructor;
@@ -44,8 +45,9 @@ public class RequirementService {
             requirement.setId(id);
             requirement = repository.save(requirement);
             return convertToResponseDTO(requirement);
+        } else {
+            throw new ProjectNotFoundException("Project not found with id: " + id);
         }
-        return null;
     }
 
     public void deleteRequirement(Long id) {
@@ -92,11 +94,10 @@ public class RequirementService {
         requirement.setEffort(dto.getEffort());
         requirement.setRelease(dto.getRelease());
         requirement.setDependency(dto.getDependency());
-        requirement.setProject(fetchProjectById(dto.getProjectId()));
+        Project project = projectRepository.findById(dto.getProjectId())
+                .orElseThrow(() -> new ProjectNotFoundException("Project not found with id: " + dto.getProjectId()));
+        requirement.setProject(project);
         return requirement;
     }
 
-    private Project fetchProjectById(Long projectId) {
-        return projectRepository.findById(projectId).orElseThrow(() -> new RuntimeException("Project not found"));
-    }
 }
