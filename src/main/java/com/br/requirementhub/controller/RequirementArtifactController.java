@@ -18,10 +18,6 @@ public class RequirementArtifactController {
 
     private final RequirementArtifactService service;
 
-    @GetMapping
-    public List<RequirementArtifactResponseDTO> getAll() {
-        return service.findAll();
-    }
 
     @PostMapping
     public RequirementArtifactResponseDTO create(
@@ -37,5 +33,15 @@ public class RequirementArtifactController {
         dto.setArtifact(artifact);
         dto.setRequirementId(requirementId);
         return service.save(dto);
+    }
+
+    @GetMapping
+    public List<RequirementArtifactResponseDTO> getAll() {
+        return service.findAll();
+    }
+
+    @GetMapping("/{id}")
+    public RequirementArtifactResponseDTO getById(@PathVariable Long id) {
+        return service.findById(id);
     }
 }

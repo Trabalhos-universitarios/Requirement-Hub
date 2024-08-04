@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,6 +25,15 @@ public class RequirementArtifactService {
         return repository.findAll().stream()
                 .map(this::convertToResponseDTO)
                 .collect(Collectors.toList());
+    }
+
+    public RequirementArtifactResponseDTO findById(Long id) {
+        Optional<RequirementArtifact> artifactOpt = repository.findById(id);
+        if (artifactOpt.isPresent()) {
+            return convertToResponseDTO(artifactOpt.get());
+        } else {
+            throw new RuntimeException("Artifact not found with id: " + id);
+        }
     }
 
     public RequirementArtifactResponseDTO save(RequirementArtifactRequestDTO dto) throws IOException {
