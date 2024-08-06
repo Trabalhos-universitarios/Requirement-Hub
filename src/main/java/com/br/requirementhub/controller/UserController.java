@@ -8,7 +8,6 @@ import static com.br.requirementhub.enums.Role.USUARIO_COMUM;
 import com.br.requirementhub.dtos.user.UserResponseDTO;
 import com.br.requirementhub.services.UserService;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,29 +22,21 @@ public class UserController {
 
     @GetMapping("/managers")
     public List<UserResponseDTO> getManagers() {
-        return service.findByRole(GERENTE_DE_PROJETOS).stream()
-                .map(user -> new UserResponseDTO(user.getId(), user.getName(), user.getRole()))
-                .collect(Collectors.toList());
+        return service.findByRole(GERENTE_DE_PROJETOS);
     }
 
     @GetMapping("/requirement-analysts")
     public List<UserResponseDTO> getRequirementAnalysts() {
-        return service.findByRole(ANALISTA_DE_REQUISITOS).stream()
-                .map(user -> new UserResponseDTO(user.getId(), user.getName(), user.getRole()))
-                .collect(Collectors.toList());
+        return service.findByRole(ANALISTA_DE_REQUISITOS);
     }
 
     @GetMapping("/business-analysts")
     public List<UserResponseDTO> getBusinessAnalysts() {
-        return service.findByRole(ANALISTA_DE_NEGOCIO).stream()
-                .map(user -> new UserResponseDTO(user.getId(), user.getName(), user.getRole()))
-                .collect(Collectors.toList());
+        return service.findByRole(ANALISTA_DE_NEGOCIO);
     }
 
     @GetMapping("/common-users")
     public List<UserResponseDTO> getCommonUsers() {
-        return service.findByRole(USUARIO_COMUM).stream()
-                .map(user -> new UserResponseDTO(user.getId(), user.getName(), user.getRole()))
-                .collect(Collectors.toList());
+        return service.findByRole(USUARIO_COMUM);
     }
 }
