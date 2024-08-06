@@ -47,7 +47,4 @@ public class ProjectController {
         service.deleteById(id);
         return ResponseEntity.noContent().build();
     }
-
-
-
 }
