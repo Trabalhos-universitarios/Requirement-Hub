@@ -1,6 +1,6 @@
 package com.br.requirementhub.config;
 
-import com.br.requirementhub.model.User;
+import com.br.requirementhub.entity.User;
 import com.br.requirementhub.repository.UserRepository;
 import com.br.requirementhub.services.JwtService;
 import jakarta.servlet.FilterChain;

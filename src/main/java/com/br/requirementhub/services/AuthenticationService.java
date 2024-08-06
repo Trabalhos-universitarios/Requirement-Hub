@@ -1,8 +1,8 @@
 package com.br.requirementhub.services;
 
-import com.br.requirementhub.dtos.AuthenticationRequestDTO;
-import com.br.requirementhub.dtos.AuthenticationResponseDTO;
-import com.br.requirementhub.model.User;
+import com.br.requirementhub.dtos.auth.AuthenticationRequestDTO;
+import com.br.requirementhub.dtos.auth.AuthenticationResponseDTO;
+import com.br.requirementhub.entity.User;
 import com.br.requirementhub.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;

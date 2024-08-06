@@ -1,16 +1,14 @@
 package com.br.requirementhub.services;
 
-import com.br.requirementhub.model.User;
+import com.br.requirementhub.entity.User;
 import org.springframework.stereotype.Service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.impl.crypto.JwtSigner;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 import java.security.Key;
 import java.util.Date;
