@@ -33,8 +33,11 @@ public class RequirementService {
                 .orElse(null);
     }
 
+
     public RequirementResponseDTO createRequirement(RequirementRequestDTO requirementRequestDTO) {
         Requirement requirement = convertToEntity(requirementRequestDTO);
+        requirement = repository.save(requirement);
+        requirement.generateIdentifier();
         requirement = repository.save(requirement);
         return convertToResponseDTO(requirement);
     }

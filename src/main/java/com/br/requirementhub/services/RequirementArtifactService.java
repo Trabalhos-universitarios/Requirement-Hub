@@ -50,7 +50,7 @@ public class RequirementArtifactService {
                 artifact.getIdentify(),
                 artifact.getType(),
                 artifact.getDescription(),
-                artifact.getArtifact(),
+                artifact.getArtifact_file(),
                 artifact.getRequirement().getId()
         );
     }
@@ -60,7 +60,7 @@ public class RequirementArtifactService {
         artifact.setIdentify(dto.getIdentify());
         artifact.setType(dto.getType());
         artifact.setDescription(dto.getDescription());
-        artifact.setArtifact(dto.getArtifact().getBytes());
+        artifact.setArtifact_file(dto.getArtifact_file().getBytes());
         Requirement requirement = requirementRepository.findById(dto.getRequirementId())
                 .orElseThrow(() -> new RequirementNotFoundException("Requirement not found with id: " + dto.getRequirementId()));
         artifact.setRequirement(requirement);

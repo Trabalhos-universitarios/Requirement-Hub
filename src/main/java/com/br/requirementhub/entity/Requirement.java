@@ -15,7 +15,7 @@ public class Requirement {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "identifier")
+    @Column(name = "identifier", unique = true, nullable = true)
     private String identifier;
 
     @Column(name = "name")
@@ -61,9 +61,13 @@ public class Requirement {
     @JoinColumn(name = "id_projeto", nullable = false)
     private Project project;
 
-//    @OneToMany(mappedBy = "requirement", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<RequirementArtifact> artifacts;
-
     @OneToMany(mappedBy = "requirement", cascade = CascadeType.ALL)
     private List<RequirementArtifact> artifacts = new ArrayList<>();
+
+    @PostPersist
+    public void generateIdentifier() {
+        if (this.identifier == null) {
+            this.identifier = this.type + "-" + String.format("%04d", this.id);
+        }
+    }
 }

@@ -24,13 +24,13 @@ public class RequirementArtifactController {
             @RequestParam("identify") String identify,
             @RequestParam("type") String type,
             @RequestParam("description") String description,
-            @RequestParam("artifact") MultipartFile artifact,
+            @RequestParam("artifact_file") MultipartFile artifact,
             @RequestParam("requirementId") Long requirementId) throws IOException {
         RequirementArtifactRequestDTO dto = new RequirementArtifactRequestDTO();
         dto.setIdentify(identify);
         dto.setType(type);
         dto.setDescription(description);
-        dto.setArtifact(artifact);
+        dto.setArtifact_file(artifact);
         dto.setRequirementId(requirementId);
         return service.save(dto);
     }
