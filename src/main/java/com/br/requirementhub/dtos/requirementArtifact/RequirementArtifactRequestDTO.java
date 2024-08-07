@@ -8,6 +8,6 @@ public class RequirementArtifactRequestDTO {
     private String identify;
     private String type;
     private String description;
-    private MultipartFile artifact;
+    private MultipartFile artifact_file;
     private Long requirementId;
 }
