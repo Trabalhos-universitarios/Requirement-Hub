@@ -21,9 +21,8 @@ public class RequirementArtifact {
     @Column(name = "description")
     private String description;
 
-//    @Lob
-    @Column(name = "artifact")
-    private byte[] artifact;
+    @Column(name = "artifact_file")
+    private byte[] artifact_file;
 
     @ManyToOne
     @JoinColumn(name = "id_requisito", nullable = false)
