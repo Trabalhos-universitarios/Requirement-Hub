@@ -50,11 +50,11 @@ public class SecurityFilter {
                     authConfig.requestMatchers(HttpMethod.GET, "/requirement-artifacts/**").permitAll();
                     authConfig.requestMatchers(HttpMethod.POST, "/requirement-artifacts/**").permitAll();
 
+//
 
 
 
-
-//                    authConfig.anyRequest().authenticated();
+                    authConfig.anyRequest().authenticated();
 
                 });
 

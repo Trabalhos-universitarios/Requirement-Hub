@@ -72,27 +72,29 @@ public class ProjectService {
         dto.setVersion(project.getVersion());
         dto.setCreationDate(project.getCreationDate());
         dto.setLastUpdate(project.getLastUpdate());
-        List<String> requirementAnalysts = teamRepository.findByProjectIdAndUserRole(project.getId(), Role.ANALISTA_DE_REQUISITOS)
-                .stream()
-                .map(Team::getUserName)
-                .collect(Collectors.toList());
-        dto.setRequirementAnalysts(requirementAnalysts);
 
-        List<String> businessAnalysts = teamRepository.findByProjectIdAndUserRole(project.getId(), Role.ANALISTA_DE_NEGOCIO)
-                .stream()
-                .map(Team::getUserName)
-                .collect(Collectors.toList());
-        dto.setBusinessAnalysts(businessAnalysts);
+        //todo ---- O CODIGO COMENTADO NAO E PARA SER APAGADO
+//        List<String> requirementAnalysts = teamRepository.findByProjectIdAndUserRole(project.getId(), Role.ANALISTA_DE_REQUISITOS)
+//                .stream()
+//                .map(Team::getUserName)
+//                .collect(Collectors.toList());
+//        dto.setRequirementAnalysts(requirementAnalysts);
+//
+//        List<String> businessAnalysts = teamRepository.findByProjectIdAndUserRole(project.getId(), Role.ANALISTA_DE_NEGOCIO)
+//                .stream()
+//                .map(Team::getUserName)
+//                .collect(Collectors.toList());
+//        dto.setBusinessAnalysts(businessAnalysts);
+//
+//        List<String> commonUsers = teamRepository.findByProjectIdAndUserRole(project.getId(), Role.USUARIO_COMUM)
+//                .stream()
+//                .map(Team::getUserName)
+//                .collect(Collectors.toList());
+//        dto.setCommonUsers(commonUsers);
 
-        List<String> commonUsers = teamRepository.findByProjectIdAndUserRole(project.getId(), Role.USUARIO_COMUM)
-                .stream()
-                .map(Team::getUserName)
-                .collect(Collectors.toList());
-        dto.setCommonUsers(commonUsers);
-
-        dto.setRequirementIds(project.getRequirements() != null ? project.getRequirements().stream()
-                .map(requirement -> requirement.getId())
-                .collect(Collectors.toList()) : new ArrayList<>());
+//        dto.setRequirementIds(project.getRequirements() != null ? project.getRequirements().stream()
+//                .map(requirement -> requirement.getId())
+//                .collect(Collectors.toList()) : new ArrayList<>());
 
         return dto;
     }
