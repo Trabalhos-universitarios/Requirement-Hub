@@ -64,6 +64,14 @@ public class Requirement {
     @OneToMany(mappedBy = "requirement", cascade = CascadeType.ALL)
     private List<RequirementArtifact> artifacts = new ArrayList<>();
 
+    @ManyToMany
+    @JoinTable(
+            name = "requirement_stakeholder",
+            joinColumns = @JoinColumn(name = "requirement_id"),
+            inverseJoinColumns = @JoinColumn(name = "stakeholder_id")
+    )
+    private List<Stakeholder> stakeholders = new ArrayList<>();
+
     @PostPersist
     public void generateIdentifier() {
         if (this.identifier == null) {
