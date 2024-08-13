@@ -46,4 +46,6 @@ public class Project {
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Requirement> requirements;
+
+    public Long getId() {return id;}
 }
