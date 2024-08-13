@@ -33,13 +33,15 @@ public class SecurityFilter {
                     authConfig.requestMatchers(HttpMethod.POST, "/auth/authenticate").permitAll();
                     authConfig.requestMatchers(HttpMethod.POST, "/auth/register").permitAll();
                     authConfig.requestMatchers("/error").permitAll();
-                    authConfig.requestMatchers(HttpMethod.GET, "/project/**").permitAll();
-                    authConfig.requestMatchers(HttpMethod.POST, "/project/**").permitAll();
+                    authConfig.requestMatchers(HttpMethod.GET, "/project/**").authenticated();
+                    authConfig.requestMatchers(HttpMethod.POST, "/project/**").hasRole(Role.GERENTE_DE_PROJETOS.name());
                     authConfig.requestMatchers(HttpMethod.PUT, "/project/**").permitAll();
-                    authConfig.requestMatchers(HttpMethod.DELETE, "/project/**").permitAll();
+                    authConfig.requestMatchers(HttpMethod.DELETE, "/project/**").hasRole(Role.GERENTE_DE_PROJETOS.name());
+
 
 
                     authConfig.requestMatchers(HttpMethod.GET, "/user/**").permitAll();
+                    authConfig.requestMatchers(HttpMethod.GET, "/team/**").permitAll();
 
                     authConfig.requestMatchers(HttpMethod.GET, "/requirements/**").permitAll();
                     authConfig.requestMatchers(HttpMethod.POST, "/requirements/**").permitAll();
