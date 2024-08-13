@@ -3,7 +3,6 @@ package com.br.requirementhub.services;
 import com.br.requirementhub.dtos.auth.AuthenticationRequestDTO;
 import com.br.requirementhub.dtos.auth.AuthenticationResponseDTO;
 import com.br.requirementhub.entity.User;
-import com.br.requirementhub.enums.Role;
 import com.br.requirementhub.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -42,7 +41,7 @@ public class AuthenticationService {
         user.setRole(request.getRole());
         userRepository.save(user);
         String token = jwtService.generateToken(user, generateExtraClaims(user));
-        return new AuthenticationResponseDTO(token, user.getRole());
+        return new AuthenticationResponseDTO(token, request.getRole().name(), request.getName());
     }
 
 
@@ -53,9 +52,8 @@ public class AuthenticationService {
         authenticationManager.authenticate(authToken);
         User user = userRepository.findByUsername(authenticationRequestDTO.getUsername()).get();
         String jwt = jwtService.generateToken(user, generateExtraClaims(user));
-        return new AuthenticationResponseDTO(jwt, user.getRole());
+        return new AuthenticationResponseDTO(jwt, user.getRole().name(), user.getName());
     }
-
 
     private Map<String, Object> generateExtraClaims(User user) {
         Map<String, Object> extraClaims = new HashMap<>();

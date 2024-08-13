@@ -1,10 +1,26 @@
 package com.br.requirementhub.entity;
 
-import jakarta.persistence.*;
-import lombok.Data;
+import static com.br.requirementhub.enums.Status.CREATED;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.PostPersist;
+import jakarta.persistence.Table;
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+import lombok.Data;
 
 @Data
 @Entity
@@ -12,70 +28,80 @@ import java.util.List;
 public class Requirement {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Long id;
 
-    @Column(name = "identifier", unique = true, nullable = true)
+    @Column(unique = true)
     private String identifier;
 
-    @Column(name = "name")
     private String name;
 
-    @Column(name = "description")
     private String description;
 
-    @Column(name = "version")
-    private String version;
+    private Double version;
 
-    @Column(name = "author")
     private String author;
 
-    @Column(name = "source")
-    private String source;
-
-    @Column(name = "risk")
     private String risk;
 
-    @Column(name = "priority")
     private String priority;
 
-    @Column(name = "responsible")
-    private String responsible;
-
-    @Column(name = "type")
     private String type;
 
-    @Column(name = "status")
     private String status;
 
-    @Column(name = "effort")
     private Integer effort;
 
-    @Column(name = "release")
-    private String release;
+    @Column(name = "date_created")
+    private LocalDateTime dateCreated = LocalDateTime.now();
 
-    @Column(name = "dependency")
-    private String dependency;
-    
     @ManyToOne
     @JoinColumn(name = "id_projeto", nullable = false)
-    private Project project;
+    private Project projectRelated;
 
     @OneToMany(mappedBy = "requirement", cascade = CascadeType.ALL)
-    private List<RequirementArtifact> artifacts = new ArrayList<>();
+    private Set<RequirementArtifact> artifacts = new HashSet<>();
 
-    @ManyToMany
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+            name = "requirement_responsible",
+            joinColumns = @JoinColumn(name = "requirement_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private Set<User> responsible = new HashSet<>();
+
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "requirement_stakeholder",
             joinColumns = @JoinColumn(name = "requirement_id"),
             inverseJoinColumns = @JoinColumn(name = "stakeholder_id")
     )
-    private List<Stakeholder> stakeholders = new ArrayList<>();
+    private Set<Stakeholder> stakeholders = new HashSet<>();
+
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+            name = "requirement_dependency",
+            joinColumns = @JoinColumn(name = "requirement_id"),
+            inverseJoinColumns = @JoinColumn(name = "dependency_id")
+    )
+    private Set<Requirement> dependencies = new HashSet<>();
+
 
     @PostPersist
-    public void generateIdentifier() {
+    public void autoCompleteData() {
         if (this.identifier == null) {
-            this.identifier = this.type + "-" + String.format("%04d", this.id);
+            this.identifier = transformRequirementIdentifier(this.type) + "-" + String.format("%04d", this.id);
+            this.version = 1.0;
+            this.status = CREATED.toString();
         }
+    }
+
+    @JsonIgnore
+    private String transformRequirementIdentifier(String identifier) {
+        if (Objects.equals(identifier, "Funcional")) {
+            identifier = "RF";
+        } else if (Objects.equals(identifier, "Não Funcional")) {
+            identifier = "RNF";
+        }
+        return identifier;
     }
 }

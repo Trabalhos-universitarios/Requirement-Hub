@@ -28,6 +28,7 @@ public class ProjectController {
 
     @GetMapping("/all")
     public ResponseEntity<List<ProjectResponseDTO>> list() {
+
         return ResponseEntity.ok(service.list());
     }
 
