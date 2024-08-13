@@ -55,10 +55,7 @@ public class SecurityFilter {
                     authConfig.requestMatchers(HttpMethod.GET, "/stakeholders/**").permitAll();
 
 
-
-
-
-//                    authConfig.anyRequest().authenticated();
+                    authConfig.anyRequest().authenticated();
 
                 });
 

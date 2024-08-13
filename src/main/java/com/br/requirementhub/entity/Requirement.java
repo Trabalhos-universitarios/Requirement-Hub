@@ -74,6 +74,14 @@ public class Requirement {
     private Set<Requirement> dependencies = new HashSet<>();
 
 
+    @ManyToMany
+    @JoinTable(
+            name = "requirement_stakeholder",
+            joinColumns = @JoinColumn(name = "requirement_id"),
+            inverseJoinColumns = @JoinColumn(name = "stakeholder_id")
+    )
+    private List<Stakeholder> stakeholders = new ArrayList<>();
+
     @PostPersist
     public void autoCompleteData() {
         if (this.identifier == null) {
