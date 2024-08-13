@@ -1,10 +1,10 @@
 package com.br.requirementhub.dtos.stakeholder;
 
-import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
-@Builder
+@Setter
 public class StakeholderResponseDto {
 
     private String name;

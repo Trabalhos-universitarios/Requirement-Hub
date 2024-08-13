@@ -1,7 +1,9 @@
 package com.br.requirementhub.dtos.requirement;
 
+import com.br.requirementhub.utils.DateUtils;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Set;
 import lombok.Data;
 
@@ -19,11 +21,12 @@ public class RequirementResponseDTO {
     private String status;
     private Integer effort;
     private Long projectId;
-    @JsonFormat(
-            shape = JsonFormat.Shape.STRING,
-            pattern = "yyyy-MM-dd'T'HH:mm:ss"
-    )
-    private LocalDateTime dateCreated;
+//    @JsonFormat(
+//            shape = JsonFormat.Shape.STRING,
+//            pattern = "yyyy-MM-dd'T'HH:mm:ss"
+//    )
+//    private LocalDateTime dateCreated;
+    private String dateCreated;
     private Set<Long> artifactIds;
     private Set<Long> responsibleIds;
     private Set<Long> dependencyIds;

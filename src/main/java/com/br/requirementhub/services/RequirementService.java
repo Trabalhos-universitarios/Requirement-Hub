@@ -125,7 +125,7 @@ public class RequirementService {
         dto.setStatus(requirement.getStatus());
         dto.setEffort(requirement.getEffort());
         dto.setProjectId(requirement.getProjectRelated().getId());
-        dto.setDateCreated(requirement.getDateCreated());
+        dto.setDateCreated(requirement.getDateCreated().toString());
         dto.setArtifactIds(requirement.getArtifacts().stream()
                 .map(RequirementArtifact::getId)
                 .collect(Collectors.toSet()));

@@ -2,7 +2,6 @@ package com.br.requirementhub.services;
 
 import com.br.requirementhub.dtos.stakeholder.StakeholderResponseDto;
 import com.br.requirementhub.entity.Stakeholder;
-import com.br.requirementhub.mappers.StakeholderMapper;
 import com.br.requirementhub.repository.StakeHolderRepository;
 import java.util.List;
 import java.util.Set;
@@ -21,7 +20,15 @@ public class StakeholderService {
     public Set<StakeholderResponseDto> getAllStakeholders() {
         List<Stakeholder> stakeholders = stakeholder.findAll();
         return stakeholders.stream()
-                .map(StakeholderMapper::toModel)
+                .map(this::toModel)
                 .collect(Collectors.toSet());
+    }
+
+    private StakeholderResponseDto toModel(Stakeholder request) {
+        StakeholderResponseDto dto = new StakeholderResponseDto();
+
+        dto.setName(request.getName());
+
+        return dto;
     }
 }
