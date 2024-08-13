@@ -9,16 +9,12 @@ import lombok.Data;
 public class RequirementArtifact {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Long id;
 
-    @Column(name = "identify")
     private String identify;
 
-    @Column(name = "type")
     private String type;
 
-    @Column(name = "description")
     private String description;
 
     @Column(name = "artifact_file")

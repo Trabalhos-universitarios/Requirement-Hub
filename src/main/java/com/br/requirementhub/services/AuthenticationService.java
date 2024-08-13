@@ -41,7 +41,7 @@ public class AuthenticationService {
         user.setRole(request.getRole());
         userRepository.save(user);
         String token = jwtService.generateToken(user, generateExtraClaims(user));
-        return new AuthenticationResponseDTO(token);
+        return new AuthenticationResponseDTO(token, request.getRole().name(), request.getName());
     }
 
 
@@ -52,9 +52,8 @@ public class AuthenticationService {
         authenticationManager.authenticate(authToken);
         User user = userRepository.findByUsername(authenticationRequestDTO.getUsername()).get();
         String jwt = jwtService.generateToken(user, generateExtraClaims(user));
-        return new AuthenticationResponseDTO(jwt);
+        return new AuthenticationResponseDTO(jwt, user.getRole().name(), user.getName());
     }
-
 
     private Map<String, Object> generateExtraClaims(User user) {
         Map<String, Object> extraClaims = new HashMap<>();
