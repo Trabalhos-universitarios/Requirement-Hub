@@ -1,5 +1,7 @@
 package com.br.requirementhub.entity;
 
+import static com.br.requirementhub.enums.Status.CREATED;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
@@ -36,8 +38,6 @@ public class Requirement {
     private String status;
 
     private Integer effort;
-
-    private String release;
 
     @Column(name = "date_created")
     private LocalDateTime dateCreated = LocalDateTime.now();
@@ -79,6 +79,7 @@ public class Requirement {
         if (this.identifier == null) {
             this.identifier = transformRequirementIdentifier(this.type) + "-" + String.format("%04d", this.id);
             this.version = 1.0;
+            this.status = CREATED.toString();
         }
     }
 

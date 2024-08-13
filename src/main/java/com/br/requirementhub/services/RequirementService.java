@@ -124,7 +124,6 @@ public class RequirementService {
         dto.setType(requirement.getType());
         dto.setStatus(requirement.getStatus());
         dto.setEffort(requirement.getEffort());
-        dto.setRelease(requirement.getRelease());
         dto.setProjectId(requirement.getProjectRelated().getId());
         dto.setDateCreated(requirement.getDateCreated());
         dto.setArtifactIds(requirement.getArtifacts().stream()

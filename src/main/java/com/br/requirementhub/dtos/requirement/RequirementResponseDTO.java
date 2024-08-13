@@ -18,7 +18,6 @@ public class RequirementResponseDTO {
     private String type;
     private String status;
     private Integer effort;
-    private String release;
     private Long projectId;
     @JsonFormat(
             shape = JsonFormat.Shape.STRING,
