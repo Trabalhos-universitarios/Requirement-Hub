@@ -9,16 +9,14 @@ import com.br.requirementhub.enums.Role;
 import com.br.requirementhub.repository.ProjectRepository;
 import com.br.requirementhub.repository.TeamRepository;
 import com.br.requirementhub.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -99,6 +97,7 @@ public class ProjectService {
         return dto;
     }
 
+    @Transactional
     public ProjectResponseDTO update(Long id, ProjectRequestDTO requestDTO) throws IOException {
         Optional<Project> existingProjectOpt = projectRepository.findById(id);
         if (existingProjectOpt.isPresent()) {
@@ -111,19 +110,26 @@ public class ProjectService {
             existingProject.setLastUpdate(new Date());
             existingProject.setDraft(requestDTO.isDraft());
 
-            List<Team> teams = requestDTO.getRequirementAnalysts().stream()
-                    .map(userId -> createTeam(userId, existingProject))
-                    .collect(Collectors.toList());
-            teams.addAll(requestDTO.getBusinessAnalysts().stream()
+            // Remover todas as equipes associadas ao projeto antes de adicionar novas
+            teamRepository.deleteByProjectId(id);
+
+            // Adicionar novas equipes
+            List<Team> newTeams = new ArrayList<>();
+            newTeams.addAll(requestDTO.getRequirementAnalysts().stream()
                     .map(userId -> createTeam(userId, existingProject))
                     .collect(Collectors.toList()));
-            teams.addAll(requestDTO.getCommonUsers().stream()
+            newTeams.addAll(requestDTO.getBusinessAnalysts().stream()
+                    .map(userId -> createTeam(userId, existingProject))
+                    .collect(Collectors.toList()));
+            newTeams.addAll(requestDTO.getCommonUsers().stream()
                     .map(userId -> createTeam(userId, existingProject))
                     .collect(Collectors.toList()));
 
-            existingProject.setTeams(teams);
+            // Adicionar novas equipes à lista existente
+            existingProject.setTeams(newTeams);
 
             Project updatedProject = projectRepository.save(existingProject);
+
             return convertToDTO(updatedProject);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found with id: " + id);
