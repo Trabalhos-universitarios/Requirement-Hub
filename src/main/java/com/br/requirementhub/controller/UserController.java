@@ -39,4 +39,10 @@ public class UserController {
     public List<UserResponseDTO> getCommonUsers() {
         return service.findByRole(USUARIO_COMUM);
     }
+
+    @GetMapping("/all")
+    public List<UserResponseDTO> getAllUsers() {
+        return service.getAllUsers();
+    }
+
 }

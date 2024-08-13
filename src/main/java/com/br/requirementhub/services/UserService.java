@@ -10,12 +10,20 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Comparator;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository repository;
+
+    public List<UserResponseDTO> getAllUsers() {
+        return repository.findAll().stream()
+                .map(this::convertToResponseDTO)
+                .sorted(Comparator.comparing(UserResponseDTO::getRole)) // Ordena os usuários restantes por 'role'
+                .collect(Collectors.toList());
+    }
 
     public List<UserResponseDTO> findByRole(Role role) {
         return repository.findByRole(role).stream()
