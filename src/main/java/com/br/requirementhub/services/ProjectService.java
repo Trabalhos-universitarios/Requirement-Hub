@@ -25,7 +25,7 @@ public class ProjectService {
 
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
-    private final TeamRepository teamRepository;
+    private final TeamService teamService;
 
 
     public ProjectResponseDTO create(ProjectRequestDTO requestDTO) throws IOException {
@@ -111,7 +111,7 @@ public class ProjectService {
             existingProject.setDraft(requestDTO.isDraft());
 
             // Remover todas as equipes associadas ao projeto antes de adicionar novas
-            teamRepository.deleteByProjectId(id);
+            teamService.deleteByProjectId(id);
 
             // Adicionar novas equipes
             List<Team> newTeams = new ArrayList<>();

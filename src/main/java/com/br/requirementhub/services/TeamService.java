@@ -22,6 +22,10 @@ public class TeamService {
                 .collect(Collectors.toList());
     }
 
+    public void deleteByProjectId(Long id) {
+        teamRepository.deleteByProjectId(id);
+    }
+
     private TeamResponseDTO convertToDTO(Team team) {
         TeamResponseDTO dto = new TeamResponseDTO();
         dto.setId(team.getId());
