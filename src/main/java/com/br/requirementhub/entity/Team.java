@@ -24,4 +24,12 @@ public class Team {
 
     @Column(name = "user_name")
     private String userName;
+
+    public Long getProjectId() {
+        return project != null ? project.getId() : null;
+    }
+
+    public Long getUserId() {
+        return user != null ? user.getId() : null;
+    }
 }

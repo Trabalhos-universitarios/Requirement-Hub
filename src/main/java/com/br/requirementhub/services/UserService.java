@@ -25,7 +25,6 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-
     public List<UserResponseDTO> findByRole(Role role) {
         return repository.findByRole(role).stream()
                 .map(user -> new UserResponseDTO(user.getId(), user.getName(), user.getRole()))
