@@ -5,7 +5,7 @@ import com.br.requirementhub.dtos.requirementArtifact.RequirementArtifactRespons
 import com.br.requirementhub.entity.Requirement;
 import com.br.requirementhub.entity.RequirementArtifact;
 import com.br.requirementhub.exceptions.ArtifactNotFoundException;
-import com.br.requirementhub.exceptions.RequirementException;
+import com.br.requirementhub.exceptions.RequirementAlreadyExistException;
 import com.br.requirementhub.repository.RequirementArtifactRepository;
 import com.br.requirementhub.repository.RequirementRepository;
 import lombok.RequiredArgsConstructor;
@@ -62,7 +62,7 @@ public class RequirementArtifactService {
         artifact.setDescription(dto.getDescription());
         artifact.setArtifact_file(dto.getArtifact_file().getBytes());
         Requirement requirement = requirementRepository.findById(dto.getRequirementId())
-                .orElseThrow(() -> new RequirementException("Requirement not found with id: " + dto.getRequirementId()));
+                .orElseThrow(() -> new RequirementAlreadyExistException("Requirement not found with id: " + dto.getRequirementId()));
         artifact.setRequirement(requirement);
         return artifact;
     }

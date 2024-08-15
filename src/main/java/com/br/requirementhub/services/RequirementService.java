@@ -8,7 +8,7 @@ import com.br.requirementhub.entity.RequirementArtifact;
 import com.br.requirementhub.entity.Stakeholder;
 import com.br.requirementhub.entity.User;
 import com.br.requirementhub.exceptions.ProjectNotFoundException;
-import com.br.requirementhub.exceptions.RequirementException;
+import com.br.requirementhub.exceptions.RequirementAlreadyExistException;
 import com.br.requirementhub.repository.ProjectRepository;
 import com.br.requirementhub.repository.RequirementRepository;
 import com.br.requirementhub.repository.StakeHolderRepository;
@@ -48,6 +48,7 @@ public class RequirementService {
 
         Requirement requirement = convertToEntity(requirementRequestDTO);
 
+        requirement.setAuthor(getAuthor(requirementRequestDTO.getAuthor()));
         requirement.setResponsible(getResponsible(requirementRequestDTO.getResponsible()));
         requirement.setStakeholders(getStakeholders(requirementRequestDTO.getStakeholders()));
         requirement.setDependencies(getRequirementsRelated(requirementRequestDTO.getDependencies()));
@@ -60,9 +61,8 @@ public class RequirementService {
 
     private void getRequirementByNameAndDescription(RequirementRequestDTO request) {
         Optional<Requirement> foundName = requirementRepository.findByName(request.getName());
-        Optional<Requirement> foundDescription = requirementRepository.findByDescription(request.getDescription());
-        if (foundName.isPresent() && foundDescription.isPresent()) {
-            throw new RequirementException("This requirement already exists!");
+        if (foundName.isPresent()) {
+            throw new RequirementAlreadyExistException("This requirement already exists!");
         }
     }
 
@@ -96,6 +96,12 @@ public class RequirementService {
         return managedRequirements;
     }
 
+    private Long getAuthor(String name) {
+        Optional<User> authorId = Optional.ofNullable(userRepository.findByName(name)
+                .orElseThrow(() -> new EntityNotFoundException("User not found: " + name)));
+        return authorId.map(User::getId).orElse(null);
+    }
+
     public RequirementResponseDTO updateRequirement(Long id, RequirementRequestDTO requirementRequestDTO) {
         if (requirementRepository.existsById(id)) {
             Requirement requirement = convertToEntity(requirementRequestDTO);
@@ -118,7 +124,7 @@ public class RequirementService {
         dto.setName(requirement.getName());
         dto.setDescription(requirement.getDescription());
         dto.setVersion(requirement.getVersion());
-        dto.setAuthor(requirement.getAuthor());
+        dto.setAuthor(String.valueOf(requirement.getAuthor()));
         dto.setRisk(requirement.getRisk());
         dto.setPriority(requirement.getPriority());
         dto.setType(requirement.getType());

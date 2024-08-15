@@ -9,6 +9,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class AuthenticationResponseDTO {
+    private Long id;
     private String token;
     private String role;
     private String name;

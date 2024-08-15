@@ -9,6 +9,4 @@ import org.springframework.stereotype.Repository;
 public interface RequirementRepository extends JpaRepository<Requirement, Long> {
 
     Optional<Requirement> findByName(String name);
-
-    Optional<Requirement> findByDescription(String description);
 }

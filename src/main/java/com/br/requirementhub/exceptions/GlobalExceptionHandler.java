@@ -8,9 +8,14 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(RequirementException.class)
-    public ResponseEntity<String> handleRequirementNotFoundException(RequirementException ex) {
+    @ExceptionHandler(RequirementNotFoundException.class)
+    public ResponseEntity<String> handleRequirementNotFoundException(RequirementNotFoundException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(RequirementAlreadyExistException.class)
+    public ResponseEntity<String> handleRequirementAlreadyExistException(RequirementAlreadyExistException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(ProjectNotFoundException.class)

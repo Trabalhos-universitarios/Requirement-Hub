@@ -7,6 +7,7 @@ import lombok.Setter;
 @Setter
 public class StakeholderResponseDto {
 
+    private Long id;
     private String name;
 
 }

@@ -10,6 +10,7 @@ import lombok.Data;
 @Data
 public class RequirementRequestDTO {
     private Long id;
+    private String author;
     private String identifier;
     private String name;
     private Double version;
