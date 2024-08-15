@@ -3,9 +3,11 @@ package com.br.requirementhub.controller;
 import com.br.requirementhub.dtos.projectArtifact.ProjectArtifactRequestDTO;
 import com.br.requirementhub.dtos.projectArtifact.ProjectArtifactResponseDTO;
 import com.br.requirementhub.services.ProjectArtifactService;
+import com.br.requirementhub.utils.DecodeBase64;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
@@ -14,10 +16,13 @@ import java.util.List;
 @RequestMapping("/project-artifacts")
 public class ProjectArtifactController {
 
-    @Autowired
-    private ProjectArtifactService service;
+    private final ProjectArtifactService service;
 
-    @GetMapping
+    public ProjectArtifactController(ProjectArtifactService service) {
+        this.service = service;
+    }
+
+    @GetMapping("/all")
     public List<ProjectArtifactResponseDTO> getAllArtifacts() {
         return service.findAll();
     }
@@ -27,23 +32,58 @@ public class ProjectArtifactController {
         return service.findById(id);
     }
 
-    @PostMapping
-    public ProjectArtifactResponseDTO createArtifact(
-            @RequestParam("name") String name,
-            @RequestParam("type") String type,
-            @RequestParam("artifact_file") MultipartFile artifact,
-            @RequestParam("project_id") Long projectId) throws IOException {
-        ProjectArtifactRequestDTO dto = new ProjectArtifactRequestDTO();
-        dto.setName(name);
-        dto.setType(type);
-        dto.setArtifact_file(artifact);
-        dto.setProjectId(projectId);
-        return service.save(dto);
+    @PostMapping("")
+    public ResponseEntity<ProjectArtifactResponseDTO> create(
+            @RequestBody ProjectArtifactRequestDTO request) throws IOException {
+
+        // Remove o prefixo MIME do conteúdo base64, se presente
+        String contentBase64 = request.getContentBase64();
+        if (contentBase64 != null && contentBase64.startsWith("data:")) {
+            contentBase64 = contentBase64.split(",")[1];
+        }
+
+        // Decodifica o conteúdo base64
+        byte[] content = DecodeBase64.decode(contentBase64);
+        request.setContent(content);
+
+        ProjectArtifactResponseDTO responseDTO = service.save(request);
+        return ResponseEntity.status(201).body(responseDTO);
     }
 
     @DeleteMapping("/{id}")
     public void deleteArtifact(@PathVariable Long id) {
         service.deleteById(id);
     }
-}
 
+    @GetMapping("/download/{id}")
+    public ResponseEntity<byte[]> downloadFile(@PathVariable Long id) {
+        ProjectArtifactResponseDTO artifact = service.findById(id);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + artifact.getFileName() + "\"")
+                .contentType(MediaType.parseMediaType(artifact.getType()))
+                .body(artifact.getContent());
+    }
+
+    @GetMapping("/image/{id}")
+    public ResponseEntity<String> getImageBase64(@PathVariable Long id) {
+        ProjectArtifactResponseDTO artifact = service.findById(id);
+
+        String base64Content = "data:" + artifact.getType() + ";base64," +
+                DecodeBase64.encodeToString(artifact.getContent());
+
+        return ResponseEntity.ok(base64Content);
+    }
+
+    @GetMapping("/by-project/{projectId}")
+    public ResponseEntity<List<ProjectArtifactResponseDTO>> getArtifactsByProjectId(@PathVariable Long projectId) {
+        List<ProjectArtifactResponseDTO> artifacts = service.findArtifactsByProjectId(projectId);
+        return ResponseEntity.ok(artifacts);
+    }
+
+    @DeleteMapping("/by-project/{projectId}")
+    public ResponseEntity<Void> deleteArtifactsByProjectId(@PathVariable Long projectId) {
+        service.deleteArtifactsByProjectId(projectId);
+        return ResponseEntity.noContent().build();
+    }
+}

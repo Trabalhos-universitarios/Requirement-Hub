@@ -8,8 +8,10 @@ import lombok.Data;
 public class ProjectArtifactResponseDTO {
     private Long id;
     private String name;
+    private String fileName;
     private String type;
-    private byte[] artifact;
+    private Long size;
+    private byte[] content;
     private Long projectId;
 }
 

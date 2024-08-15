@@ -14,10 +14,15 @@ public class ProjectArtifact {
 
     private String name;
 
+    private String fileName;
+
     private String type;
 
-    @Column(name = "artifact_file")
-    private byte[] artifact_file;
+    @Column(name = "size")
+    private Long size;
+
+    @Column(name = "content")
+    private byte[] content;
 
     @ManyToOne
     @JoinColumn(name = "project_id", nullable = false)
