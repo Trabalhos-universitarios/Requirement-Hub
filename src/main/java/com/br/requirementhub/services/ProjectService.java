@@ -26,6 +26,7 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final TeamService teamService;
+    private final ProjectArtifactService projectArtifactService;
 
 
     public ProjectResponseDTO create(ProjectRequestDTO requestDTO) throws IOException {
@@ -136,8 +137,10 @@ public class ProjectService {
         }
     }
 
+    @Transactional
     public void deleteById(Long id) {
         if (projectRepository.existsById(id)) {
+            projectArtifactService.deleteArtifactsByProjectId(id);
             projectRepository.deleteById(id);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found with id: " + id);
