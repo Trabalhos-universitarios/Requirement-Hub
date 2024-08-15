@@ -60,8 +60,10 @@ public class RequirementService {
     }
 
     private void getRequirementByNameAndDescription(RequirementRequestDTO request) {
-        Optional<Requirement> foundName = requirementRepository.findByName(request.getName());
-        if (foundName.isPresent()) {
+        Optional<Requirement> findProject = requirementRepository
+                .findByProjectRelatedAndName(request.getProjectRelated(), request.getName());
+
+        if (findProject.isPresent()) {
             throw new RequirementAlreadyExistException("This requirement already exists!");
         }
     }
@@ -70,7 +72,7 @@ public class RequirementService {
         Set<User> managedUsers = new HashSet<>();
         for (User user : users) {
             User managedUser = userRepository.findById(user.getId())
-                    .orElseThrow(() -> new EntityNotFoundException("User not found: " + user.getId()));
+                    .orElseThrow(() -> new EntityNotFoundException("Responsible not found: " + user.getId()));
             managedUsers.add(managedUser);
         }
         return managedUsers;
@@ -96,8 +98,8 @@ public class RequirementService {
         return managedRequirements;
     }
 
-    private Long getAuthor(String name) {
-        Optional<User> authorId = Optional.ofNullable(userRepository.findByName(name)
+    private Long getAuthor(Long name) {
+        Optional<User> authorId = Optional.ofNullable(userRepository.findById(name)
                 .orElseThrow(() -> new EntityNotFoundException("User not found: " + name)));
         return authorId.map(User::getId).orElse(null);
     }
