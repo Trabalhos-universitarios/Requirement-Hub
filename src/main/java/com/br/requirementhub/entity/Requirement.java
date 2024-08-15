@@ -55,7 +55,7 @@ public class Requirement {
     private LocalDateTime dateCreated = LocalDateTime.now();
 
     @ManyToOne
-    @JoinColumn(name = "id_projeto", nullable = false)
+    @JoinColumn(name = "project_related", nullable = false)
     private Project projectRelated;
 
     @OneToMany(mappedBy = "requirement", cascade = CascadeType.ALL)
