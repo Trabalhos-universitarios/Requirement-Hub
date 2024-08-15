@@ -28,6 +28,7 @@ public class StakeholderService {
         StakeholderResponseDto dto = new StakeholderResponseDto();
 
         dto.setName(request.getName());
+        dto.setId(request.getId());
 
         return dto;
     }

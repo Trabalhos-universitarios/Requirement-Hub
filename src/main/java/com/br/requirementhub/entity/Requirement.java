@@ -39,7 +39,7 @@ public class Requirement {
 
     private Double version;
 
-    private String author;
+    private Long author;
 
     private String risk;
 
