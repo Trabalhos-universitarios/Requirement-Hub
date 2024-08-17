@@ -26,7 +26,7 @@ public class ProjectArtifact {
 
     @ManyToOne
     @JoinColumn(name = "project_id", nullable = false)
-    private Project project;
+    private Project projectId;
 }
 
 

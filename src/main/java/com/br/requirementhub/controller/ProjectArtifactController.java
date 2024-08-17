@@ -46,7 +46,7 @@ public class ProjectArtifactController {
         byte[] content = DecodeBase64.decode(contentBase64);
         request.setContent(content);
 
-        ProjectArtifactResponseDTO responseDTO = service.save(request);
+        ProjectArtifactResponseDTO responseDTO = service.create(request);
         return ResponseEntity.status(201).body(responseDTO);
     }
 

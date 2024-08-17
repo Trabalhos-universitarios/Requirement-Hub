@@ -44,7 +44,7 @@ public class RequirementService {
     }
 
     public RequirementResponseDTO createRequirement(RequirementRequestDTO requirementRequestDTO) {
-        this.getRequirementByNameAndDescription(requirementRequestDTO);
+        this.verifyAlreadyExistsRequirement(requirementRequestDTO);
 
         Requirement requirement = convertToEntity(requirementRequestDTO);
 
@@ -59,7 +59,7 @@ public class RequirementService {
         return convertToResponseDTO(requirement);
     }
 
-    private void getRequirementByNameAndDescription(RequirementRequestDTO request) {
+    private void verifyAlreadyExistsRequirement(RequirementRequestDTO request) {
         Optional<Requirement> findProject = requirementRepository
                 .findByProjectRelatedAndName(request.getProjectRelated(), request.getName());
 

@@ -4,8 +4,10 @@ import com.br.requirementhub.dtos.projectArtifact.ProjectArtifactRequestDTO;
 import com.br.requirementhub.dtos.projectArtifact.ProjectArtifactResponseDTO;
 import com.br.requirementhub.entity.Project;
 import com.br.requirementhub.entity.ProjectArtifact;
+import com.br.requirementhub.exceptions.ProjectArtifactAlreadyExistException;
 import com.br.requirementhub.repository.ProjectArtifactRepository;
 import com.br.requirementhub.repository.ProjectRepository;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,48 +19,53 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ProjectArtifactService {
 
-    private final ProjectArtifactRepository repository;
+    private final ProjectArtifactRepository artifactRepository;
     private final ProjectRepository projectRepository;
 
-    // Retorna todos os artefatos
     public List<ProjectArtifactResponseDTO> findAll() {
-        return repository.findAll().stream()
+        return artifactRepository.findAll().stream()
                 .map(this::convertToResponseDTO)
                 .collect(Collectors.toList());
     }
 
-    // Retorna um artefato específico pelo ID
     public ProjectArtifactResponseDTO findById(Long id) {
-        return repository.findById(id)
+        return artifactRepository.findById(id)
                 .map(this::convertToResponseDTO)
                 .orElse(null);
     }
 
-    // Retorna todos os artefatos relacionados a um projectId específico
     public List<ProjectArtifactResponseDTO> findArtifactsByProjectId(Long projectId) {
-        return repository.findByProjectId(projectId).stream()
+        return artifactRepository.findByProjectId(projectId).stream()
                 .map(this::convertToResponseDTO)
                 .collect(Collectors.toList());
     }
 
-    // Salva um novo artefato ou atualiza um existente
-    public ProjectArtifactResponseDTO save(ProjectArtifactRequestDTO dto) throws IOException {
+    public ProjectArtifactResponseDTO create(ProjectArtifactRequestDTO dto) throws IOException {
+        this.verifyAlreadyExistsArtifact(dto);
         ProjectArtifact artifact = convertToEntity(dto);
-        artifact = repository.save(artifact);
+        artifact = artifactRepository.save(artifact);
         return convertToResponseDTO(artifact);
     }
 
-    // Deleta um artefato pelo ID
+    private void verifyAlreadyExistsArtifact(ProjectArtifactRequestDTO request) throws IOException {
+        final Project project = convertToEntity(request).getProjectId();
+
+        Optional<ProjectArtifact> findProject = artifactRepository
+                .findByFileNameAndProjectId(request.getFileName(), project);
+
+        if (findProject.isPresent()) {
+            throw new ProjectArtifactAlreadyExistException("This requirement already exists!");
+        }
+    }
+
     public void deleteById(Long id) {
-        repository.deleteById(id);
+        artifactRepository.deleteById(id);
     }
 
-    // Deleta todos os artefatos relacionados a um projectId específico
     public void deleteArtifactsByProjectId(Long projectId) {
-        repository.deleteByProjectId(projectId);
+        artifactRepository.deleteByProjectId(projectId);
     }
 
-    // Converte a entidade ProjectArtifact para ProjectArtifactResponseDTO
     private ProjectArtifactResponseDTO convertToResponseDTO(ProjectArtifact artifact) {
         return new ProjectArtifactResponseDTO(
                 artifact.getId(),
@@ -67,11 +74,10 @@ public class ProjectArtifactService {
                 artifact.getType(),
                 artifact.getSize(),
                 artifact.getContent(),
-                artifact.getProject().getId()
+                artifact.getProjectId().getId()
         );
     }
 
-    // Converte ProjectArtifactRequestDTO para a entidade ProjectArtifact
     private ProjectArtifact convertToEntity(ProjectArtifactRequestDTO dto) throws IOException {
         ProjectArtifact artifact = new ProjectArtifact();
         artifact.setName(dto.getName());
@@ -82,7 +88,7 @@ public class ProjectArtifactService {
 
         Project project = projectRepository.findById(dto.getProjectId())
                 .orElseThrow(() -> new ArithmeticException("Project not found"));
-        artifact.setProject(project);
+        artifact.setProjectId(project);
 
         return artifact;
     }
