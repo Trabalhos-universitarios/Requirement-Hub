@@ -5,19 +5,20 @@ import com.br.requirementhub.dtos.project.ProjectResponseDTO;
 import com.br.requirementhub.entity.Project;
 import com.br.requirementhub.entity.Team;
 import com.br.requirementhub.entity.User;
-import com.br.requirementhub.enums.Role;
+import com.br.requirementhub.exceptions.ProjectAlreadyExistException;
 import com.br.requirementhub.repository.ProjectRepository;
-import com.br.requirementhub.repository.TeamRepository;
 import com.br.requirementhub.repository.UserRepository;
 import jakarta.transaction.Transactional;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +31,7 @@ public class ProjectService {
 
 
     public ProjectResponseDTO create(ProjectRequestDTO requestDTO) throws IOException {
+        this.verifyAlreadyExistsProject(requestDTO);
         Project project = convertToEntity(requestDTO);
         Project savedProject = projectRepository.save(project);
 
@@ -44,6 +46,16 @@ public class ProjectService {
         responseDTO.setName(savedProject.getName());
         return responseDTO;
     }
+
+    private void verifyAlreadyExistsProject(ProjectRequestDTO request) {
+        Optional<Project> findProject = projectRepository
+                .findByNameAndManager(request.getName(), request.getManager());
+
+        if (findProject.isPresent()) {
+            throw new ProjectAlreadyExistException("This project already exists!");
+        }
+    }
+
 
     public List<ProjectResponseDTO> list() {
         List<Project> projects = projectRepository.findAll();
@@ -140,8 +152,18 @@ public class ProjectService {
     @Transactional
     public void deleteById(Long id) {
         if (projectRepository.existsById(id)) {
+            // Adicionar log para depuração
+            System.out.println("Deleting project artifacts for project id: " + id);
             projectArtifactService.deleteArtifactsByProjectId(id);
+
+            // Adicionar log para depuração
+            System.out.println("Deleting project with id: " + id);
             projectRepository.deleteById(id);
+
+            // Verificar se o projeto foi realmente deletado
+            if (projectRepository.existsById(id)) {
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to delete project with id: " + id);
+            }
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found with id: " + id);
         }

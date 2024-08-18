@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(RequirementNotFoundException.class)
-    public ResponseEntity<String> handleRequirementNotFoundException(RequirementNotFoundException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    @ExceptionHandler(ProjectAlreadyExistException.class)
+    public ResponseEntity<String> handleProjectAlreadyExistException(ProjectAlreadyExistException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(RequirementAlreadyExistException.class)
@@ -18,13 +18,23 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
     }
 
+    @ExceptionHandler(ProjectArtifactAlreadyExistException.class)
+    public ResponseEntity<String> handleProjectArtifactAlreadyExistException(ProjectArtifactAlreadyExistException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(RequirementNotFoundException.class)
+    public ResponseEntity<String> handleRequirementNotFoundException(RequirementNotFoundException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(ProjectNotFoundException.class)
     public ResponseEntity<String> handleProjectNotFoundException(ProjectNotFoundException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(ArtifactNotFoundException.class)
-    public ResponseEntity<String> handleArtifactNotFoundException(ArtifactNotFoundException ex) {
+    @ExceptionHandler(RequirementArtifactNotFoundException.class)
+    public ResponseEntity<String> handleArtifactNotFoundException(RequirementArtifactNotFoundException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 }

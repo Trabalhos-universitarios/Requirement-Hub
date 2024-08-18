@@ -4,7 +4,7 @@ import com.br.requirementhub.dtos.requirementArtifact.RequirementArtifactRequest
 import com.br.requirementhub.dtos.requirementArtifact.RequirementArtifactResponseDTO;
 import com.br.requirementhub.entity.Requirement;
 import com.br.requirementhub.entity.RequirementArtifact;
-import com.br.requirementhub.exceptions.ArtifactNotFoundException;
+import com.br.requirementhub.exceptions.RequirementArtifactNotFoundException;
 import com.br.requirementhub.exceptions.RequirementAlreadyExistException;
 import com.br.requirementhub.repository.RequirementArtifactRepository;
 import com.br.requirementhub.repository.RequirementRepository;
@@ -34,7 +34,7 @@ public class RequirementArtifactService {
         if (artifactOpt.isPresent()) {
             return convertToResponseDTO(artifactOpt.get());
         } else {
-            throw new ArtifactNotFoundException("Artifact not found with id: " + id);
+            throw new RequirementArtifactNotFoundException("Artifact not found with id: " + id);
         }
     }
 
