@@ -4,7 +4,9 @@ import com.br.requirementhub.dtos.user.UserRequestDTO;
 import com.br.requirementhub.dtos.user.UserResponseDTO;
 import com.br.requirementhub.entity.User;
 import com.br.requirementhub.enums.Role;
+import com.br.requirementhub.exceptions.UserNotFoundException;
 import com.br.requirementhub.repository.UserRepository;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +31,14 @@ public class UserService {
         return repository.findByRole(role).stream()
                 .map(user -> new UserResponseDTO(user.getId(), user.getName(), user.getRole()))
                 .collect(Collectors.toList());
+    }
+
+    public UserResponseDTO getById(Long id) {
+        Optional<User> user = Optional.ofNullable(repository.findById(id).orElseThrow(
+                () -> new UserNotFoundException("User not found")
+        ));
+
+        return user.map(this::convertToResponseDTO).orElse(null);
     }
 
     private UserResponseDTO convertToResponseDTO(User user) {
