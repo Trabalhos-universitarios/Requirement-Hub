@@ -26,6 +26,7 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final TeamService teamService;
+    private final UserService userService;
     private final ProjectArtifactService projectArtifactService;
 
 
@@ -43,6 +44,22 @@ public class ProjectService {
         responseDTO.setId(savedProject.getId());
         responseDTO.setName(savedProject.getName());
         return responseDTO;
+    }
+
+    public List<ProjectResponseDTO> listProjectsByUserId(Long userId) {
+        Role userRole = userService.findUserRoleById(userId);
+
+        List<Project> projects;
+        if (userRole == Role.GERENTE_DE_PROJETOS) {
+            projects = projectRepository.findAll();
+        } else {
+            List<Long> projectIds = teamService.findProjectIdsByUserId(userId);
+            projects = projectRepository.findAllById(projectIds);
+        }
+
+        return projects.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
     public List<ProjectResponseDTO> list() {

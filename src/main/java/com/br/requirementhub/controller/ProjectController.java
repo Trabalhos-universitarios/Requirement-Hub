@@ -28,8 +28,12 @@ public class ProjectController {
 
     @GetMapping("/all")
     public ResponseEntity<List<ProjectResponseDTO>> list() {
-
         return ResponseEntity.ok(service.list());
+    }
+
+    @GetMapping("/all/{userId}")
+    public ResponseEntity<List<ProjectResponseDTO>> list(@PathVariable Long userId) {
+        return ResponseEntity.ok(service.listProjectsByUserId(userId));
     }
 
     @GetMapping("/{id}")
