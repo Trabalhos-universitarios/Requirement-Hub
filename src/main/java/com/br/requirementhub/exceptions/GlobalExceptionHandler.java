@@ -8,6 +8,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(ProjectAlreadyExistException.class)
+    public ResponseEntity<String> handleProjectAlreadyExistException(ProjectAlreadyExistException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler(RequirementAlreadyExistException.class)
     public ResponseEntity<String> handleRequirementAlreadyExistException(RequirementAlreadyExistException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
