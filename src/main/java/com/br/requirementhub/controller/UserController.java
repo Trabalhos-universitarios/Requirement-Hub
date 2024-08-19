@@ -10,6 +10,7 @@ import com.br.requirementhub.services.UserService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -40,9 +41,13 @@ public class UserController {
         return service.findByRole(USUARIO_COMUM);
     }
 
+    @GetMapping("/{id}")
+    public UserResponseDTO getUserById(@PathVariable Long id) {
+        return service.getById(id);
+    }
+
     @GetMapping("/all")
     public List<UserResponseDTO> getAllUsers() {
         return service.getAllUsers();
     }
-
 }

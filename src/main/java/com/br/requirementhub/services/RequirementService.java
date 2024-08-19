@@ -27,8 +27,11 @@ import org.springframework.stereotype.Service;
 public class RequirementService {
 
     private final RequirementRepository requirementRepository;
+
     private final ProjectRepository projectRepository;
+
     private final UserRepository userRepository;
+
     private final StakeHolderRepository stakeholderRepository;
 
     public List<RequirementResponseDTO> getAllRequirements() {
@@ -42,6 +45,19 @@ public class RequirementService {
                 .map(this::convertToResponseDTO)
                 .orElse(null);
     }
+
+    public List<RequirementResponseDTO> getRequirementsByProjectRelated(Long id) {
+
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new ProjectNotFoundException("Project not found with id: " + id));
+
+        List<Requirement> requirements = requirementRepository.findByProjectRelated(project);
+
+        return requirements.stream()
+                .map(this::convertToResponseDTO)
+                .collect(Collectors.toList());
+    }
+
 
     public RequirementResponseDTO createRequirement(RequirementRequestDTO requirementRequestDTO) {
         this.verifyAlreadyExistsRequirement(requirementRequestDTO);
@@ -158,7 +174,8 @@ public class RequirementService {
         requirement.setType(dto.getType());
         requirement.setEffort(dto.getEffort());
         Project project = projectRepository.findById(dto.getProjectRelated().getId())
-                .orElseThrow(() -> new ProjectNotFoundException("Project not found with id: " + dto.getProjectRelated()));
+                .orElseThrow(
+                        () -> new ProjectNotFoundException("Project not found with id: " + dto.getProjectRelated()));
         requirement.setProjectRelated(project);
         return requirement;
     }
