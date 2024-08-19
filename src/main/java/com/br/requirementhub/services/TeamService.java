@@ -13,7 +13,15 @@ import java.util.stream.Collectors;
 public class TeamService {
 
     @Autowired
-    private TeamRepository teamRepository;
+    private final TeamRepository teamRepository;
+
+    public TeamService(TeamRepository teamRepository) {
+        this.teamRepository = teamRepository;
+    }
+
+    public List<Long> findProjectIdsByUserId(Long userId) {
+        return teamRepository.findProjectIdsByUserId(userId);
+    }
 
     public List<TeamResponseDTO> findByProjectId(Long id) {
         List<Team> teams = teamRepository.findByProjectId(id);

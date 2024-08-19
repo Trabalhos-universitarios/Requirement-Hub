@@ -22,4 +22,7 @@ public interface TeamRepository extends JpaRepository<Team, Long> {
     @Modifying
     @Query("DELETE FROM Team t WHERE t.project.id = :projectId")
     void deleteByProjectId(@Param("projectId") Long projectId);
+
+    @Query("SELECT t.project.id FROM Team t WHERE t.user.id = :userId")
+    List<Long> findProjectIdsByUserId(@Param("userId") Long userId);
 }
