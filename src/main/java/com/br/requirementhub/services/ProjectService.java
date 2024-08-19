@@ -5,6 +5,7 @@ import com.br.requirementhub.dtos.project.ProjectResponseDTO;
 import com.br.requirementhub.entity.Project;
 import com.br.requirementhub.entity.Team;
 import com.br.requirementhub.entity.User;
+import com.br.requirementhub.enums.Role;
 import com.br.requirementhub.exceptions.ProjectAlreadyExistException;
 import com.br.requirementhub.repository.ProjectRepository;
 import com.br.requirementhub.repository.UserRepository;
@@ -27,6 +28,7 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final TeamService teamService;
+    private final UserService userService;
     private final ProjectArtifactService projectArtifactService;
 
 
@@ -56,6 +58,23 @@ public class ProjectService {
         }
     }
 
+
+
+    public List<ProjectResponseDTO> listProjectsByUserId(Long userId) {
+        Role userRole = userService.findUserRoleById(userId);
+
+        List<Project> projects;
+        if (userRole == Role.GERENTE_DE_PROJETOS) {
+            projects = projectRepository.findAll();
+        } else {
+            List<Long> projectIds = teamService.findProjectIdsByUserId(userId);
+            projects = projectRepository.findAllById(projectIds);
+        }
+
+        return projects.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
 
     public List<ProjectResponseDTO> list() {
         List<Project> projects = projectRepository.findAll();

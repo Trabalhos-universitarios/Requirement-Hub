@@ -6,13 +6,14 @@ import com.br.requirementhub.entity.User;
 import com.br.requirementhub.enums.Role;
 import com.br.requirementhub.exceptions.UserNotFoundException;
 import com.br.requirementhub.repository.UserRepository;
-import java.util.Optional;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
 import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +32,12 @@ public class UserService {
         return repository.findByRole(role).stream()
                 .map(user -> new UserResponseDTO(user.getId(), user.getName(), user.getRole()))
                 .collect(Collectors.toList());
+    }
+
+    public Role findUserRoleById(Long userId) {
+        return repository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with id: " + userId))
+                .getRole();
     }
 
     public UserResponseDTO getById(Long id) {
