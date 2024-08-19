@@ -8,7 +8,6 @@ import com.br.requirementhub.entity.User;
 import com.br.requirementhub.enums.Role;
 import com.br.requirementhub.exceptions.ProjectAlreadyExistException;
 import com.br.requirementhub.repository.ProjectRepository;
-import com.br.requirementhub.repository.TeamRepository;
 import com.br.requirementhub.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import java.io.IOException;
@@ -21,10 +20,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -62,6 +57,7 @@ public class ProjectService {
             throw new ProjectAlreadyExistException("This project already exists!");
         }
     }
+
 
 
     public List<ProjectResponseDTO> listProjectsByUserId(Long userId) {
@@ -182,6 +178,11 @@ public class ProjectService {
             // Adicionar log para depuração
             System.out.println("Deleting project with id: " + id);
             projectRepository.deleteById(id);
+
+            // Verificar se o projeto foi realmente deletado
+            if (projectRepository.existsById(id)) {
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to delete project with id: " + id);
+            }
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found with id: " + id);
         }
