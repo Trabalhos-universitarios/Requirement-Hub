@@ -6,6 +6,7 @@ import com.br.requirementhub.entity.Project;
 import com.br.requirementhub.entity.Team;
 import com.br.requirementhub.entity.User;
 import com.br.requirementhub.enums.Role;
+import com.br.requirementhub.exceptions.ProjectAlreadyExistException;
 import com.br.requirementhub.repository.ProjectRepository;
 import com.br.requirementhub.repository.TeamRepository;
 import com.br.requirementhub.repository.UserRepository;
