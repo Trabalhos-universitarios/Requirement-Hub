@@ -22,6 +22,7 @@ public class TraceabilityMatrixService {
         List<Requirement> requirements = requirementRepository.findAll();
         List<String> identifiers = requirements.stream()
                 .map(Requirement::getIdentifier)
+                .sorted()
                 .collect(Collectors.toList());
 
         matrizDeRastreabilidadeArray = new ArrayList<>();
