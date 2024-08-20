@@ -12,20 +12,10 @@ public class TraceabilityMatrixController {
 
     private final TraceabilityMatrixService traceabilityMatrixService;
 
-    @GetMapping("/initialize")
-    public ResponseEntity<Void> initializeMatrix() {
+    @GetMapping("/generate")
+    public ResponseEntity<String> generateMatrix() throws Exception {
         traceabilityMatrixService.initializeMatrix();
-        return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/mark-dependencies")
-    public ResponseEntity<Void> markAllDependencies() {
         traceabilityMatrixService.markAllDependencies();
-        return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/json")
-    public ResponseEntity<String> getMatrixAsJson() throws Exception {
         return ResponseEntity.ok(traceabilityMatrixService.toJson());
     }
 }

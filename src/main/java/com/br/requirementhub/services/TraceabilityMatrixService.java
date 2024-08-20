@@ -27,13 +27,12 @@ public class TraceabilityMatrixService {
 
         matrizDeRastreabilidadeArray = new ArrayList<>();
 
-        // Cabeçalho
         List<Object> header = new ArrayList<>();
         header.add(null);
         header.addAll(identifiers);
         matrizDeRastreabilidadeArray.add(header);
 
-        // Linhas
+
         for (String identifier : identifiers) {
             List<Object> row = new ArrayList<>(Collections.nCopies(identifiers.size() + 1, null));
             row.set(0, identifier);
