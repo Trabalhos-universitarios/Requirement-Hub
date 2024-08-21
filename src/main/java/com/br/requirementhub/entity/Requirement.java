@@ -1,8 +1,5 @@
 package com.br.requirementhub.entity;
 
-import static com.br.requirementhub.enums.Status.CREATED;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,11 +11,9 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.PostPersist;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 import lombok.Data;
 
@@ -30,7 +25,6 @@ public class Requirement {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
     private String identifier;
 
     private String name;
@@ -85,23 +79,4 @@ public class Requirement {
     )
     private Set<Requirement> dependencies = new HashSet<>();
 
-
-    @PostPersist
-    public void autoCompleteData() {
-        if (this.identifier == null) {
-            this.identifier = transformRequirementIdentifier(this.type) + "-" + String.format("%04d", this.id);
-            this.version = 1.0;
-            this.status = CREATED.toString();
-        }
-    }
-
-    @JsonIgnore
-    private String transformRequirementIdentifier(String identifier) {
-        if (Objects.equals(identifier, "Funcional")) {
-            identifier = "RF";
-        } else if (Objects.equals(identifier, "Não Funcional")) {
-            identifier = "RNF";
-        }
-        return identifier;
-    }
 }
