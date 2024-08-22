@@ -8,6 +8,7 @@ import lombok.Data;
 public class RequirementArtifactResponseDTO {
     private Long id;
     private String identify;
+    private String name;
     private String type;
     private String description;
     private byte[] artifact;

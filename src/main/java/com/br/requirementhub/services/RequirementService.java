@@ -68,10 +68,8 @@ public class RequirementService {
         requirement.setResponsible(getResponsible(requirementRequestDTO.getResponsible()));
         requirement.setStakeholders(getStakeholders(requirementRequestDTO.getStakeholders()));
 
-        // Inicializar o Set de dependências se for nulo ou vazio
         requirement.setDependencies(getRequirementsRelated(requirementRequestDTO.getDependencies()));
 
-        // Gerar identificador único antes de salvar
         generateRequirementIdentifier(requirement);
 
         requirement = requirementRepository.save(requirement);
@@ -82,7 +80,6 @@ public class RequirementService {
     private void generateRequirementIdentifier(Requirement requirement) {
         List<Requirement> existingRequirements = requirementRepository.findByProjectRelated(requirement.getProjectRelated());
 
-        // Encontrar o primeiro número vago baseado no tipo de identificador (RF ou RNF)
         int newIdNumber = findFirstAvailableIdentifierNumber(existingRequirements, requirement.getType());
 
         String identifierPrefix = transformRequirementIdentifier(requirement.getType());
@@ -102,7 +99,7 @@ public class RequirementService {
                 })
                 .filter(Objects::nonNull)
                 .sorted()
-                .collect(Collectors.toList());
+                .toList();
 
         for (int i = 1; i <= usedNumbers.size(); i++) {
             if (!usedNumbers.contains(i)) {
