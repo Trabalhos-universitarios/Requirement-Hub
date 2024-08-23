@@ -8,6 +8,10 @@ import com.br.requirementhub.exceptions.RequirementArtifactNotFoundException;
 import com.br.requirementhub.exceptions.RequirementAlreadyExistException;
 import com.br.requirementhub.repository.RequirementArtifactRepository;
 import com.br.requirementhub.repository.RequirementRepository;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -38,32 +42,75 @@ public class RequirementArtifactService {
         }
     }
 
-    public RequirementArtifactResponseDTO save(RequirementArtifactRequestDTO dto) throws IOException {
-        RequirementArtifact artifact = convertToEntity(dto);
+    public RequirementArtifactResponseDTO save(RequirementArtifactRequestDTO requestDTO) throws IOException {
+        verifyAlreadyExistsArtifact(requestDTO);
+        RequirementArtifact artifact = convertToEntity(requestDTO);
+        generateRequirementIdentifier(artifact.getRequirementId());
         artifact = repository.save(artifact);
         return convertToResponseDTO(artifact);
+    }
+
+    private void verifyAlreadyExistsArtifact(RequirementArtifactRequestDTO requestDTO) throws IOException {
+        final Requirement requirement = convertToEntity(requestDTO).getRequirementId();
+        Optional<RequirementArtifact> findProject = repository.findByNameAndRequirementId(requestDTO.getName(), requirement);
+        if (findProject.isPresent()) {
+            throw new RequirementAlreadyExistException("This artifact requirement already exists!");
+        }
+    }
+
+    private void generateRequirementIdentifier(Requirement requirement) {
+        List<RequirementArtifact> existingArtifact = repository.findAll();
+
+        int newIdNumber = findFirstAvailableIdentifierNumber(existingArtifact, requirement.getType());
+
+        requirement.setIdentifier(requirement.getType() + "-" + String.format("%04d", newIdNumber));
+    }
+
+    private int findFirstAvailableIdentifierNumber(List<RequirementArtifact> requirements, String type) {
+        return patternType(type, requirements.stream()
+                .map(RequirementArtifact::getIdentifier), requirements);
+    }
+
+    private static int patternType(String type, Stream<String> stringStream, List<RequirementArtifact> requirements) {
+        Pattern pattern = Pattern.compile(type + "-(\\d+)$");
+        List<Integer> usedNumbers = stringStream
+                .map(identifier -> {
+                    Matcher matcher = pattern.matcher(identifier);
+                    return matcher.find() ? Integer.parseInt(matcher.group(1)) : null;
+                })
+                .filter(Objects::nonNull)
+                .sorted()
+                .toList();
+
+        for (int i = 1; i <= usedNumbers.size(); i++) {
+            if (!usedNumbers.contains(i)) {
+                return i;
+            }
+        }
+        return usedNumbers.size() + 1;
     }
 
     private RequirementArtifactResponseDTO convertToResponseDTO(RequirementArtifact artifact) {
         return new RequirementArtifactResponseDTO(
                 artifact.getId(),
-                artifact.getIdentify(),
+                artifact.getIdentifier(),
+                artifact.getName(),
                 artifact.getType(),
                 artifact.getDescription(),
-                artifact.getArtifact_file(),
-                artifact.getRequirement().getId()
+                artifact.getFile(),
+                artifact.getRequirementId().getId()
         );
     }
 
     private RequirementArtifact convertToEntity(RequirementArtifactRequestDTO dto) throws IOException {
         RequirementArtifact artifact = new RequirementArtifact();
-        artifact.setIdentify(dto.getIdentify());
+        artifact.setName(dto.getName());
         artifact.setType(dto.getType());
         artifact.setDescription(dto.getDescription());
-        artifact.setArtifact_file(dto.getArtifact_file().getBytes());
+        artifact.setFile(dto.getFile());
         Requirement requirement = requirementRepository.findById(dto.getRequirementId())
                 .orElseThrow(() -> new RequirementAlreadyExistException("Requirement not found with id: " + dto.getRequirementId()));
-        artifact.setRequirement(requirement);
+        artifact.setRequirementId(requirement);
         return artifact;
     }
 }

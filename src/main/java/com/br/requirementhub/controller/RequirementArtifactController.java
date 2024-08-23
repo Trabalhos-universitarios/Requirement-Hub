@@ -18,21 +18,10 @@ public class RequirementArtifactController {
 
     private final RequirementArtifactService service;
 
-
     @PostMapping
-    public RequirementArtifactResponseDTO create(
-            @RequestParam("identify") String identify,
-            @RequestParam("type") String type,
-            @RequestParam("description") String description,
-            @RequestParam("artifact_file") MultipartFile artifact,
-            @RequestParam("requirementId") Long requirementId) throws IOException {
+    public RequirementArtifactResponseDTO create(@RequestBody RequirementArtifactRequestDTO requestDTO) throws IOException {
         RequirementArtifactRequestDTO dto = new RequirementArtifactRequestDTO();
-        dto.setIdentify(identify);
-        dto.setType(type);
-        dto.setDescription(description);
-        dto.setArtifact_file(artifact);
-        dto.setRequirementId(requirementId);
-        return service.save(dto);
+        return service.save(requestDTO);
     }
 
     @GetMapping

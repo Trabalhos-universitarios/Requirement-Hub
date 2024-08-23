@@ -33,8 +33,7 @@ public class ProjectArtifactController {
     }
 
     @PostMapping("")
-    public ResponseEntity<ProjectArtifactResponseDTO> create(
-            @RequestBody ProjectArtifactRequestDTO request) throws IOException {
+    public ResponseEntity<ProjectArtifactResponseDTO> create(@RequestBody ProjectArtifactRequestDTO request) throws IOException {
 
         // Remove o prefixo MIME do conteúdo base64, se presente
         String contentBase64 = request.getContentBase64();

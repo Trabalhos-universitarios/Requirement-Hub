@@ -52,7 +52,7 @@ public class Requirement {
     @JoinColumn(name = "project_related", nullable = false)
     private Project projectRelated;
 
-    @OneToMany(mappedBy = "requirement", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "requirementId", cascade = CascadeType.ALL)
     private Set<RequirementArtifact> artifacts = new HashSet<>();
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
