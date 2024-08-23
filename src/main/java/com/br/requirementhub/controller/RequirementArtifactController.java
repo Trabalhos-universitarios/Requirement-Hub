@@ -18,12 +18,11 @@ public class RequirementArtifactController {
 
     private final RequirementArtifactService service;
 
-
-//    @PostMapping
-//    public RequirementArtifactResponseDTO create(@RequestBody RequirementArtifactRequestDTO requestDTO) throws IOException {
-//        RequirementArtifactRequestDTO dto = new RequirementArtifactRequestDTO();
-//        return service.save(requestDTO);
-//    }
+    @PostMapping
+    public RequirementArtifactResponseDTO create(@RequestBody RequirementArtifactRequestDTO requestDTO) throws IOException {
+        RequirementArtifactRequestDTO dto = new RequirementArtifactRequestDTO();
+        return service.save(requestDTO);
+    }
 
     @GetMapping
     public List<RequirementArtifactResponseDTO> getAll() {

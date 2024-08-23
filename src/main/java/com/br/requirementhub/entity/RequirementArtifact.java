@@ -24,7 +24,7 @@ public class RequirementArtifact {
     private LocalDateTime dateCreated = LocalDateTime.now();
 
     @Column(name = "file")
-    private byte[] file;
+    private String file;
 
     @ManyToOne
     @JoinColumn(name = "requirement_id", nullable = false)

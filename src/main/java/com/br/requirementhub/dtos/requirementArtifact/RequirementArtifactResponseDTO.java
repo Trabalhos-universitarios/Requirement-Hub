@@ -7,10 +7,10 @@ import lombok.Data;
 @AllArgsConstructor
 public class RequirementArtifactResponseDTO {
     private Long id;
-    private String identify;
+    private String identifier;
     private String name;
     private String type;
     private String description;
-    private byte[] artifact;
+    private String file;
     private Long requirementId;
 }

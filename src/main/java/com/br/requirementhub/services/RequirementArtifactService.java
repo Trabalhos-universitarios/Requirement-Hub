@@ -107,7 +107,7 @@ public class RequirementArtifactService {
         artifact.setName(dto.getName());
         artifact.setType(dto.getType());
         artifact.setDescription(dto.getDescription());
-        artifact.setFile(dto.getFile().getBytes());
+        artifact.setFile(dto.getFile());
         Requirement requirement = requirementRepository.findById(dto.getRequirementId())
                 .orElseThrow(() -> new RequirementAlreadyExistException("Requirement not found with id: " + dto.getRequirementId()));
         artifact.setRequirementId(requirement);
