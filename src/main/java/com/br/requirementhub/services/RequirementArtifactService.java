@@ -11,7 +11,6 @@ import com.br.requirementhub.repository.RequirementRepository;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -45,7 +44,7 @@ public class RequirementArtifactService {
     public RequirementArtifactResponseDTO save(RequirementArtifactRequestDTO requestDTO) throws IOException {
         verifyAlreadyExistsArtifact(requestDTO);
         RequirementArtifact artifact = convertToEntity(requestDTO);
-        generateRequirementIdentifier(artifact.getRequirementId());
+        generateArtifactIdentifier(artifact);
         artifact = repository.save(artifact);
         return convertToResponseDTO(artifact);
     }
@@ -58,24 +57,28 @@ public class RequirementArtifactService {
         }
     }
 
-    private void generateRequirementIdentifier(Requirement requirement) {
+    private void generateArtifactIdentifier(RequirementArtifact requirementArtifact) {
         List<RequirementArtifact> existingArtifact = repository.findAll();
 
-        int newIdNumber = findFirstAvailableIdentifierNumber(existingArtifact, requirement.getType());
+        int newIdNumber = findFirstAvailableIdentifierNumber(existingArtifact, requirementArtifact.getType());
 
-        requirement.setIdentifier(requirement.getType() + "-" + String.format("%04d", newIdNumber));
+        requirementArtifact.setIdentifier(requirementArtifact.getType() + "-" + String.format("%04d", newIdNumber));
     }
 
     private int findFirstAvailableIdentifierNumber(List<RequirementArtifact> requirements, String type) {
-        return patternType(type, requirements.stream()
-                .map(RequirementArtifact::getIdentifier), requirements);
-    }
-
-    private static int patternType(String type, Stream<String> stringStream, List<RequirementArtifact> requirements) {
         Pattern pattern = Pattern.compile(type + "-(\\d+)$");
-        List<Integer> usedNumbers = stringStream
+        List<Integer> usedNumbers = requirements.stream()
+                .map(RequirementArtifact::getIdentifier)
                 .map(identifier -> {
+
+                    System.out.println("IDENTIFIER: " + identifier);
+
                     Matcher matcher = pattern.matcher(identifier);
+
+                    System.out.println("MATCHER: " + matcher);
+
+                    System.out.println("MATCHER.FIND: " + matcher.find());
+
                     return matcher.find() ? Integer.parseInt(matcher.group(1)) : null;
                 })
                 .filter(Objects::nonNull)
