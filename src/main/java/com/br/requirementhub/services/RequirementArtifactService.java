@@ -41,6 +41,12 @@ public class RequirementArtifactService {
         }
     }
 
+    public List<RequirementArtifactResponseDTO> findArtifactsByRequirementId(Long requirementId) {
+        return repository.findByRequirementId(requirementId).stream()
+                .map(this::convertToResponseDTO)
+                .collect(Collectors.toList());
+    }
+
     public RequirementArtifactResponseDTO save(RequirementArtifactRequestDTO requestDTO) throws IOException {
         verifyAlreadyExistsArtifact(requestDTO);
         RequirementArtifact artifact = convertToEntity(requestDTO);
