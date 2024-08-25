@@ -16,6 +16,6 @@ EXPOSE 8080
 
 CMD ["java", "-jar", "app.jar"]
 
-# docker run -d -p 8080:8080 eliasfernandescout/requirementhub
+# docker run -d -p 8080:8080 eliasfernandescout/reqhub:1.0
 # docker build --platform linux/amd64 -t eliasfernandescout/backend-requirementhub:1.0 .
 # docker pull eliasfernandescout/backend-requirementhub:1.0
