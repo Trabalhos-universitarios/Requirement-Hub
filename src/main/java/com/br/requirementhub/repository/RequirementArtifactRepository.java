@@ -8,5 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface RequirementArtifactRepository extends JpaRepository<RequirementArtifact, Long> {
 
-    Optional<RequirementArtifact> findByNameAndRequirementId(String name, Requirement requirementId);
+    Optional<RequirementArtifact> findByNameAndRequirementIdAndType(String name, Requirement requirementId, String type);
+
+    List<RequirementArtifact> findByRequirementId(Requirement requirementId);
 }
