@@ -10,11 +10,15 @@ import com.br.requirementhub.entity.User;
 import com.br.requirementhub.enums.Status;
 import com.br.requirementhub.exceptions.ProjectNotFoundException;
 import com.br.requirementhub.exceptions.RequirementAlreadyExistException;
+import com.br.requirementhub.exceptions.RequirementArtifactNotFoundException;
+import com.br.requirementhub.exceptions.RequirementNotFoundException;
 import com.br.requirementhub.repository.ProjectRepository;
+import com.br.requirementhub.repository.RequirementArtifactRepository;
 import com.br.requirementhub.repository.RequirementRepository;
 import com.br.requirementhub.repository.StakeHolderRepository;
 import com.br.requirementhub.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -32,9 +36,14 @@ import java.util.Objects;
 public class RequirementService {
 
     private final RequirementRepository requirementRepository;
+
     private final ProjectRepository projectRepository;
+
     private final UserRepository userRepository;
+
     private final StakeHolderRepository stakeholderRepository;
+
+    private final RequirementArtifactRepository requirementArtifactRepository;
 
     public List<RequirementResponseDTO> getAllRequirements() {
         return requirementRepository.findAll().stream()
@@ -78,7 +87,8 @@ public class RequirementService {
     }
 
     private void generateRequirementIdentifier(Requirement requirement) {
-        List<Requirement> existingRequirements = requirementRepository.findByProjectRelated(requirement.getProjectRelated());
+        List<Requirement> existingRequirements =
+                requirementRepository.findByProjectRelated(requirement.getProjectRelated());
 
         int newIdNumber = findFirstAvailableIdentifierNumber(existingRequirements, requirement.getType());
 
@@ -177,8 +187,25 @@ public class RequirementService {
         }
     }
 
+    @Transactional
     public void deleteRequirement(Long id) {
+        Requirement requirement = requirementRepository.findById(id)
+                .orElseThrow(() -> new RequirementNotFoundException("Requirement not found: " + id));
+
+        requirementRepository.deleteDependenciesByRequirementId(id);
+        requirementRepository.deleteResponsibleByRequirementId(id);
+        requirementRepository.deleteStakeholderByRequirementId(id);
+
+        List<RequirementArtifact> requirementArtifact = requirementArtifactRepository.findByRequirementId(requirement);
+        deleteArtifactRelated(requirementArtifact);
+
         requirementRepository.deleteById(id);
+    }
+
+    private void deleteArtifactRelated(List<RequirementArtifact> requirement) {
+        for (RequirementArtifact artifact : requirement) {
+            requirementArtifactRepository.deleteById(artifact.getId());
+        }
     }
 
     private RequirementResponseDTO convertToResponseDTO(Requirement requirement) {
