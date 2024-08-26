@@ -9,6 +9,7 @@ import java.util.Set;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,12 @@ public interface RequirementRepository extends JpaRepository<Requirement, Long> 
 
     @Query("SELECT r.id.dependencyId FROM RequirementDependency r WHERE r.id.requirementId = :requirementId")
     Set<Long> findDependencyIdsByRequirementId(Long requirementId);
+
+    @Query("SELECT r FROM Requirement r WHERE r.identifier = :identifier AND r.projectRelated.id = :projectId")
+    List<Requirement> findByIdentifierAndProjectId(@Param("identifier") String identifier, @Param("projectId") Long projectId);
+
+    @Query("SELECT r FROM Requirement r WHERE r.projectRelated.id = :projectId")
+    List<Requirement> findByProjectRelated_Id(@Param("projectId") Long projectId);
 
     List<Requirement> findByDependencies(Requirement requirement);
 
