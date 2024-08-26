@@ -14,4 +14,7 @@ public interface RequirementArtifactRepository extends JpaRepository<Requirement
     List<RequirementArtifact> findByRequirementId(@Param("requirementId") Long requirementId);
 
     Optional<RequirementArtifact> findByNameAndRequirementId(String name, Requirement requirementId);
+    Optional<RequirementArtifact> findByNameAndRequirementIdAndType(String name, Requirement requirementId, String type);
+
+    List<RequirementArtifact> findByRequirementId(Requirement requirementId);
 }

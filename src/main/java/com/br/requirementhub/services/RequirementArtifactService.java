@@ -2,6 +2,7 @@ package com.br.requirementhub.services;
 
 import com.br.requirementhub.dtos.requirementArtifact.RequirementArtifactRequestDTO;
 import com.br.requirementhub.dtos.requirementArtifact.RequirementArtifactResponseDTO;
+import com.br.requirementhub.dtos.requirementArtifact.RequirementArtifactTypeAndIdentifierDTO;
 import com.br.requirementhub.entity.Requirement;
 import com.br.requirementhub.entity.RequirementArtifact;
 import com.br.requirementhub.exceptions.RequirementArtifactNotFoundException;
@@ -57,34 +58,25 @@ public class RequirementArtifactService {
 
     private void verifyAlreadyExistsArtifact(RequirementArtifactRequestDTO requestDTO) throws IOException {
         final Requirement requirement = convertToEntity(requestDTO).getRequirementId();
-        Optional<RequirementArtifact> findProject = repository.findByNameAndRequirementId(requestDTO.getName(), requirement);
-        if (findProject.isPresent()) {
+        Optional<RequirementArtifact> findArtifact = repository.findByNameAndRequirementIdAndType(requestDTO.getName(), requirement, requestDTO.getType().getName());
+
+        if (findArtifact.isPresent()) {
             throw new RequirementAlreadyExistException("This artifact requirement already exists!");
         }
     }
 
-    private void generateArtifactIdentifier(RequirementArtifact requirementArtifact) {
+    private void generateArtifactIdentifier(RequirementArtifact requirementArtifact) throws IOException {
         List<RequirementArtifact> existingArtifact = repository.findAll();
-
-        int newIdNumber = findFirstAvailableIdentifierNumber(existingArtifact, requirementArtifact.getType());
-
-        requirementArtifact.setIdentifier(requirementArtifact.getType() + "-" + String.format("%04d", newIdNumber));
+        int newIdNumber = findFirstAvailableIdentifierNumber(existingArtifact, requirementArtifact.getIdentifier());
+        requirementArtifact.setIdentifier(requirementArtifact.getIdentifier() + "-" + String.format("%04d", newIdNumber));
     }
 
-    private int findFirstAvailableIdentifierNumber(List<RequirementArtifact> requirements, String type) {
-        Pattern pattern = Pattern.compile(type + "-(\\d+)$");
+    private int findFirstAvailableIdentifierNumber(List<RequirementArtifact> requirements, String identifier) {
+        Pattern pattern = Pattern.compile(identifier + "-(\\d+)$");
         List<Integer> usedNumbers = requirements.stream()
                 .map(RequirementArtifact::getIdentifier)
-                .map(identifier -> {
-
-                    System.out.println("IDENTIFIER: " + identifier);
-
-                    Matcher matcher = pattern.matcher(identifier);
-
-                    System.out.println("MATCHER: " + matcher);
-
-                    System.out.println("MATCHER.FIND: " + matcher.find());
-
+                .map(ident -> {
+                    Matcher matcher = pattern.matcher(ident);
                     return matcher.find() ? Integer.parseInt(matcher.group(1)) : null;
                 })
                 .filter(Objects::nonNull)
@@ -99,6 +91,19 @@ public class RequirementArtifactService {
         return usedNumbers.size() + 1;
     }
 
+    private RequirementArtifact convertToEntity(RequirementArtifactRequestDTO dto) throws IOException {
+        RequirementArtifact artifact = new RequirementArtifact();
+        artifact.setName(dto.getName());
+        artifact.setType(dto.getType().getName());
+        artifact.setIdentifier(dto.getType().getIdentifier());
+        artifact.setDescription(dto.getDescription());
+        artifact.setFile(dto.getFile());
+        Requirement requirement = requirementRepository.findById(dto.getRequirementId())
+                .orElseThrow(() -> new RequirementAlreadyExistException("Requirement not found with id: " + dto.getRequirementId()));
+        artifact.setRequirementId(requirement);
+        return artifact;
+    }
+
     private RequirementArtifactResponseDTO convertToResponseDTO(RequirementArtifact artifact) {
         return new RequirementArtifactResponseDTO(
                 artifact.getId(),
@@ -109,17 +114,5 @@ public class RequirementArtifactService {
                 artifact.getFile(),
                 artifact.getRequirementId().getId()
         );
-    }
-
-    private RequirementArtifact convertToEntity(RequirementArtifactRequestDTO dto) throws IOException {
-        RequirementArtifact artifact = new RequirementArtifact();
-        artifact.setName(dto.getName());
-        artifact.setType(dto.getType());
-        artifact.setDescription(dto.getDescription());
-        artifact.setFile(dto.getFile());
-        Requirement requirement = requirementRepository.findById(dto.getRequirementId())
-                .orElseThrow(() -> new RequirementAlreadyExistException("Requirement not found with id: " + dto.getRequirementId()));
-        artifact.setRequirementId(requirement);
-        return artifact;
     }
 }
