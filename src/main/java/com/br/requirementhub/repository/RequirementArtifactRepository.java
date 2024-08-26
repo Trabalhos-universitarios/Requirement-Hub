@@ -20,5 +20,5 @@ public interface RequirementArtifactRepository extends JpaRepository<Requirement
 
     @Modifying
     @Query("DELETE FROM RequirementArtifact ra WHERE ra.id = :Id")
-    void deleteByPId(@Param("Id") Long Id);
+    void deleteById(@Param("Id") Long Id);
 }
