@@ -5,8 +5,8 @@ import com.br.requirementhub.dtos.requirementArtifact.RequirementArtifactRequest
 import com.br.requirementhub.dtos.requirementArtifact.RequirementArtifactResponseDTO;
 import com.br.requirementhub.services.RequirementArtifactService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
@@ -32,5 +32,15 @@ public class RequirementArtifactController {
     @GetMapping("/{id}")
     public RequirementArtifactResponseDTO getById(@PathVariable Long id) {
         return service.findById(id);
+    }
+
+    @GetMapping("/by-requirement/{requirementId}")
+    public ResponseEntity<List<RequirementArtifactResponseDTO>> getArtifactsByRequirementId(@PathVariable Long requirementId) {
+        List<RequirementArtifactResponseDTO> artifacts = service.findArtifactsByRequirementId(requirementId);
+        return ResponseEntity.ok(artifacts);
+    }
+    @DeleteMapping("/{id}")
+    public void deleteArtifact(@PathVariable Long id) {
+        service.deleteById(id);
     }
 }
