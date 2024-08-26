@@ -13,9 +13,9 @@ public class TraceabilityMatrixController {
     private final TraceabilityMatrixService traceabilityMatrixService;
 
     @GetMapping("/generate")
-    public ResponseEntity<String> generateMatrix() throws Exception {
-        traceabilityMatrixService.initializeMatrix();
-        traceabilityMatrixService.markAllDependencies();
+    public ResponseEntity<String> generateMatrix(@RequestParam Long projectId) throws Exception {
+        traceabilityMatrixService.initializeMatrix(projectId);
+        traceabilityMatrixService.markAllDependencies(projectId);
         return ResponseEntity.ok(traceabilityMatrixService.toJson());
     }
 }
