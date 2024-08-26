@@ -39,4 +39,8 @@ public class RequirementArtifactController {
         List<RequirementArtifactResponseDTO> artifacts = service.findArtifactsByRequirementId(requirementId);
         return ResponseEntity.ok(artifacts);
     }
+    @DeleteMapping("/{id}")
+    public void deleteArtifact(@PathVariable Long id) {
+        service.deleteById(id);
+    }
 }

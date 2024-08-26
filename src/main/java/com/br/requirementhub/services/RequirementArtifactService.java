@@ -56,6 +56,10 @@ public class RequirementArtifactService {
         return convertToResponseDTO(artifact);
     }
 
+    public void deleteById(Long id) {
+        repository.deleteById(id);
+    }
+
     private void verifyAlreadyExistsArtifact(RequirementArtifactRequestDTO requestDTO) throws IOException {
         final Requirement requirement = convertToEntity(requestDTO).getRequirementId();
         Optional<RequirementArtifact> findArtifact = repository.findByNameAndRequirementIdAndType(requestDTO.getName(), requirement, requestDTO.getType().getName());
