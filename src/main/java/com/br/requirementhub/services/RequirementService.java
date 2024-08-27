@@ -67,6 +67,17 @@ public class RequirementService {
                 .collect(Collectors.toList());
     }
 
+    public List<RequirementResponseDTO> listByProjectId(Long id) {
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new ProjectNotFoundException("Project not found with id: " + id));
+
+        List<Requirement> requirements = requirementRepository.findByProjectRelated(project);
+
+        return requirements.stream()
+                .map(this::convertToResponseDTO)
+                .collect(Collectors.toList());
+    }
+
 
 
     public RequirementResponseDTO createRequirement(RequirementRequestDTO requirementRequestDTO) {
