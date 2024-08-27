@@ -53,7 +53,6 @@ public class TraceabilityMatrixService {
             }
         }
 
-        // Ordenar as linhas da matriz de rastreabilidade com base no identificador
         matrizDeRastreabilidadeArray = matrizDeRastreabilidadeArray.stream()
                 .sorted(Comparator.comparing(row -> (String) row.get(0), Comparator.nullsFirst(Comparator.naturalOrder())))
                 .collect(Collectors.toList());
