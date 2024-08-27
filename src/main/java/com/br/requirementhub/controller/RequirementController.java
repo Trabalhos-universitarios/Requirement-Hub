@@ -34,6 +34,12 @@ public class RequirementController {
         return requirement != null ? ResponseEntity.ok( requirement) : ResponseEntity.notFound().build();
     }
 
+    @GetMapping("/byproject/{id}")
+    public ResponseEntity<List<RequirementResponseDTO>> listRequirementsByProjectId(@PathVariable Long id) {
+        List<RequirementResponseDTO> requirement = service.listByProjectId(id);
+        return requirement != null ? ResponseEntity.ok( requirement) : ResponseEntity.notFound().build();
+    }
+
     @PostMapping
     public ResponseEntity<RequirementResponseDTO> createRequirement(@RequestBody RequirementRequestDTO requirementRequestDTO) {
         RequirementResponseDTO createdRequirement = service.createRequirement(requirementRequestDTO);
