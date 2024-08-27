@@ -10,7 +10,6 @@ import com.br.requirementhub.entity.User;
 import com.br.requirementhub.enums.Status;
 import com.br.requirementhub.exceptions.ProjectNotFoundException;
 import com.br.requirementhub.exceptions.RequirementAlreadyExistException;
-import com.br.requirementhub.exceptions.RequirementArtifactNotFoundException;
 import com.br.requirementhub.exceptions.RequirementNotFoundException;
 import com.br.requirementhub.repository.ProjectRepository;
 import com.br.requirementhub.repository.RequirementArtifactRepository;
@@ -64,9 +63,11 @@ public class RequirementService {
         List<Requirement> requirements = requirementRepository.findByProjectRelated(project);
 
         return requirements.stream()
-                .map(this::convertGetReqByProjectToDTO)
+                .map(this::requirementsByProjectRelatedToDTO)
                 .collect(Collectors.toList());
     }
+
+
 
     public RequirementResponseDTO createRequirement(RequirementRequestDTO requirementRequestDTO) {
         this.verifyAlreadyExistsRequirement(requirementRequestDTO);
@@ -223,23 +224,10 @@ public class RequirementService {
         dto.setEffort(requirement.getEffort());
         dto.setProjectId(requirement.getProjectRelated().getId());
         dto.setDateCreated(requirement.getDateCreated().toString());
-
-        dto.setArtifactIds(requirement.getArtifacts().stream()
-                .map(RequirementArtifact::getId)
-                .collect(Collectors.toSet()));
-        dto.setResponsibleIds(requirement.getResponsible().stream()
-                .map(User::getId)
-                .collect(Collectors.toSet()));
-        dto.setDependencyIds(requirement.getDependencies().stream()
-                .map(Requirement::getId)
-                .collect(Collectors.toSet()));
-        dto.setStakeholderIds(requirement.getStakeholders().stream()
-                .map(Stakeholder::getId)
-                .collect(Collectors.toSet()));
         return dto;
     }
 
-    private RequirementResponseDTO convertGetReqByProjectToDTO(Requirement requirement) {
+    private RequirementResponseDTO requirementsByProjectRelatedToDTO(Requirement requirement) {
         RequirementResponseDTO dto = new RequirementResponseDTO();
         dto.setId(requirement.getId());
         dto.setIdentifier(requirement.getIdentifier());
@@ -254,6 +242,18 @@ public class RequirementService {
         dto.setEffort(requirement.getEffort());
         dto.setProjectId(requirement.getProjectRelated().getId());
         dto.setDateCreated(requirement.getDateCreated().toString());
+        dto.setArtifactIds(requirement.getArtifacts().stream()
+                .map(RequirementArtifact::getId)
+                .collect(Collectors.toSet()));
+        dto.setResponsibleIds(requirement.getResponsible().stream()
+                .map(User::getId)
+                .collect(Collectors.toSet()));
+        dto.setDependencyIds(requirement.getDependencies().stream()
+                .map(Requirement::getId)
+                .collect(Collectors.toSet()));
+        dto.setStakeholderIds(requirement.getStakeholders().stream()
+                .map(Stakeholder::getId)
+                .collect(Collectors.toSet()));
         return dto;
     }
 
