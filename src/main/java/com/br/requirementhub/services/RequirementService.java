@@ -224,19 +224,18 @@ public class RequirementService {
         dto.setProjectId(requirement.getProjectRelated().getId());
         dto.setDateCreated(requirement.getDateCreated().toString());
 
-        // Todo verificar necessidade de uso
-//        dto.setArtifactIds(requirement.getArtifacts().stream()
-//                .map(RequirementArtifact::getId)
-//                .collect(Collectors.toSet()));
-//        dto.setResponsibleIds(requirement.getResponsible().stream()
-//                .map(User::getId)
-//                .collect(Collectors.toSet()));
-//        dto.setDependencyIds(requirement.getDependencies().stream()
-//                .map(Requirement::getId)
-//                .collect(Collectors.toSet()));
-//        dto.setStakeholderIds(requirement.getStakeholders().stream()
-//                .map(Stakeholder::getId)
-//                .collect(Collectors.toSet()));
+        dto.setArtifactIds(requirement.getArtifacts().stream()
+                .map(RequirementArtifact::getId)
+                .collect(Collectors.toSet()));
+        dto.setResponsibleIds(requirement.getResponsible().stream()
+                .map(User::getId)
+                .collect(Collectors.toSet()));
+        dto.setDependencyIds(requirement.getDependencies().stream()
+                .map(Requirement::getId)
+                .collect(Collectors.toSet()));
+        dto.setStakeholderIds(requirement.getStakeholders().stream()
+                .map(Stakeholder::getId)
+                .collect(Collectors.toSet()));
         return dto;
     }
 
