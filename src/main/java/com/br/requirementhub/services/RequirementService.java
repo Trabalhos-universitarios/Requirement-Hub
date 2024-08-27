@@ -64,7 +64,7 @@ public class RequirementService {
         List<Requirement> requirements = requirementRepository.findByProjectRelated(project);
 
         return requirements.stream()
-                .map(this::convertToResponseDTO)
+                .map(this::convertGetReqByProjectToDTO)
                 .collect(Collectors.toList());
     }
 
@@ -224,19 +224,36 @@ public class RequirementService {
         dto.setProjectId(requirement.getProjectRelated().getId());
         dto.setDateCreated(requirement.getDateCreated().toString());
 
-        // Todo verificar necessidade de uso
-//        dto.setArtifactIds(requirement.getArtifacts().stream()
-//                .map(RequirementArtifact::getId)
-//                .collect(Collectors.toSet()));
-//        dto.setResponsibleIds(requirement.getResponsible().stream()
-//                .map(User::getId)
-//                .collect(Collectors.toSet()));
-//        dto.setDependencyIds(requirement.getDependencies().stream()
-//                .map(Requirement::getId)
-//                .collect(Collectors.toSet()));
-//        dto.setStakeholderIds(requirement.getStakeholders().stream()
-//                .map(Stakeholder::getId)
-//                .collect(Collectors.toSet()));
+        dto.setArtifactIds(requirement.getArtifacts().stream()
+                .map(RequirementArtifact::getId)
+                .collect(Collectors.toSet()));
+        dto.setResponsibleIds(requirement.getResponsible().stream()
+                .map(User::getId)
+                .collect(Collectors.toSet()));
+        dto.setDependencyIds(requirement.getDependencies().stream()
+                .map(Requirement::getId)
+                .collect(Collectors.toSet()));
+        dto.setStakeholderIds(requirement.getStakeholders().stream()
+                .map(Stakeholder::getId)
+                .collect(Collectors.toSet()));
+        return dto;
+    }
+
+    private RequirementResponseDTO convertGetReqByProjectToDTO(Requirement requirement) {
+        RequirementResponseDTO dto = new RequirementResponseDTO();
+        dto.setId(requirement.getId());
+        dto.setIdentifier(requirement.getIdentifier());
+        dto.setName(requirement.getName());
+        dto.setDescription(requirement.getDescription());
+        dto.setVersion(requirement.getVersion());
+        dto.setAuthor(String.valueOf(requirement.getAuthor()));
+        dto.setRisk(requirement.getRisk());
+        dto.setPriority(requirement.getPriority());
+        dto.setType(requirement.getType());
+        dto.setStatus(requirement.getStatus());
+        dto.setEffort(requirement.getEffort());
+        dto.setProjectId(requirement.getProjectRelated().getId());
+        dto.setDateCreated(requirement.getDateCreated().toString());
         return dto;
     }
 
