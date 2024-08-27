@@ -1,6 +1,5 @@
 package com.br.requirementhub.controller;
 
-
 import com.br.requirementhub.dtos.requirementArtifact.RequirementArtifactRequestDTO;
 import com.br.requirementhub.dtos.requirementArtifact.RequirementArtifactResponseDTO;
 import com.br.requirementhub.services.RequirementArtifactService;
@@ -39,6 +38,13 @@ public class RequirementArtifactController {
         List<RequirementArtifactResponseDTO> artifacts = service.findArtifactsByRequirementId(requirementId);
         return ResponseEntity.ok(artifacts);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<RequirementArtifactResponseDTO> update(@PathVariable Long id, @RequestBody RequirementArtifactRequestDTO request) throws IOException {
+        RequirementArtifactResponseDTO updatedProject = service.update(id, request);
+        return ResponseEntity.ok(updatedProject);
+    }
+
     @DeleteMapping("/{id}")
     public void deleteArtifact(@PathVariable Long id) {
         service.deleteById(id);
