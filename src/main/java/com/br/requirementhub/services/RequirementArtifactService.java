@@ -2,22 +2,22 @@ package com.br.requirementhub.services;
 
 import com.br.requirementhub.dtos.requirementArtifact.RequirementArtifactRequestDTO;
 import com.br.requirementhub.dtos.requirementArtifact.RequirementArtifactResponseDTO;
-import com.br.requirementhub.dtos.requirementArtifact.RequirementArtifactTypeAndIdentifierDTO;
 import com.br.requirementhub.entity.Requirement;
 import com.br.requirementhub.entity.RequirementArtifact;
 import com.br.requirementhub.exceptions.RequirementArtifactNotFoundException;
 import com.br.requirementhub.exceptions.RequirementAlreadyExistException;
 import com.br.requirementhub.repository.RequirementArtifactRepository;
 import com.br.requirementhub.repository.RequirementRepository;
-import java.util.Objects;
+
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -95,6 +95,22 @@ public class RequirementArtifactService {
         return usedNumbers.size() + 1;
     }
 
+    public RequirementArtifactResponseDTO update(Long id, RequirementArtifactRequestDTO requestDTO) throws IOException {
+        Optional<RequirementArtifact> existingArtifactOpt = repository.findById(id);
+        if (existingArtifactOpt.isPresent()) {
+            RequirementArtifact existingArtifact = existingArtifactOpt.get();
+            existingArtifact.setName(requestDTO.getName());
+            existingArtifact.setDescription(requestDTO.getDescription());
+            existingArtifact.setFile(requestDTO.getFile());
+
+            RequirementArtifact updatedArtifact = repository.save(existingArtifact);
+
+            return convertToDTO(updatedArtifact);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found with id: " + id);
+        }
+    }
+
     private RequirementArtifact convertToEntity(RequirementArtifactRequestDTO dto) throws IOException {
         RequirementArtifact artifact = new RequirementArtifact();
         artifact.setName(dto.getName());
@@ -109,6 +125,18 @@ public class RequirementArtifactService {
     }
 
     private RequirementArtifactResponseDTO convertToResponseDTO(RequirementArtifact artifact) {
+        return new RequirementArtifactResponseDTO(
+                artifact.getId(),
+                artifact.getIdentifier(),
+                artifact.getName(),
+                artifact.getType(),
+                artifact.getDescription(),
+                artifact.getFile(),
+                artifact.getRequirementId().getId()
+        );
+    }
+
+    private RequirementArtifactResponseDTO convertToDTO(RequirementArtifact artifact) {
         return new RequirementArtifactResponseDTO(
                 artifact.getId(),
                 artifact.getIdentifier(),
