@@ -3,6 +3,10 @@ package com.br.requirementhub.controller;
 
 import com.br.requirementhub.dtos.requirement.RequirementRequestDTO;
 import com.br.requirementhub.dtos.requirement.RequirementResponseDTO;
+import com.br.requirementhub.dtos.requirementArtifact.RequirementArtifactResponseDTO;
+import com.br.requirementhub.entity.RequirementArtifact;
+import com.br.requirementhub.repository.RequirementArtifactRepository;
+import com.br.requirementhub.services.RequirementArtifactService;
 import com.br.requirementhub.services.RequirementService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +20,8 @@ import java.util.List;
 public class RequirementController {
 
     private final RequirementService service;
+    private final RequirementArtifactService artifactService;
+    private final RequirementArtifactRepository requirementArtifactRepository;
 
     @GetMapping
     public ResponseEntity<List<RequirementResponseDTO>> getAllRequirements() {
@@ -26,6 +32,36 @@ public class RequirementController {
     public ResponseEntity<RequirementResponseDTO> getRequirementById(@PathVariable Long id) {
         RequirementResponseDTO requirement = service.getRequirementById(id);
         return requirement != null ? ResponseEntity.ok(requirement) : ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/requirementByProjectRelated/{identifier}/{projectId}")
+    public ResponseEntity<RequirementResponseDTO> getRequirementByIdentifierAndProjectRelated(@PathVariable String identifier, @PathVariable Long projectId) {
+        List<RequirementResponseDTO> requirements = service.getRequirementsByProjectRelated(projectId);
+        RequirementResponseDTO requirement = requirements.stream()
+                .filter(req -> identifier.equals(req.getIdentifier()))
+                .findFirst()
+                .orElse(null);
+        return requirement != null ? ResponseEntity.ok(requirement) : ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/artifactRequirementByProjectRelated/{identifier}/{projectId}")
+    public ResponseEntity<RequirementArtifactResponseDTO> getRequirementArtifactByIdentifierAndProjectRelated(@PathVariable String identifier, @PathVariable Long projectId) {
+        List<RequirementResponseDTO> requirements = service.getRequirementsByProjectRelated(projectId);
+
+        for (RequirementResponseDTO requirement : requirements) {
+            List<RequirementArtifactResponseDTO> artifacts = artifactService.findArtifactsByRequirementId(requirement.getId());
+
+            for (RequirementArtifactResponseDTO artifact : artifacts) {
+                if (identifier.equals(artifact.getIdentifier())) {
+
+                    RequirementArtifact requirementArtifact = requirementArtifactRepository.findByIdentifierArtifact(identifier);
+
+                    RequirementArtifactResponseDTO responseDTO = artifactService.convertToResponseDTO(requirementArtifact);
+                    return ResponseEntity.ok(responseDTO);
+                }
+            }
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @GetMapping("/project-id/{id}")

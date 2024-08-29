@@ -2,6 +2,7 @@ package com.br.requirementhub.services;
 
 import com.br.requirementhub.dtos.requirement.RequirementRequestDTO;
 import com.br.requirementhub.dtos.requirement.RequirementResponseDTO;
+import com.br.requirementhub.dtos.requirementArtifact.RequirementArtifactResponseDTO;
 import com.br.requirementhub.entity.Project;
 import com.br.requirementhub.entity.Requirement;
 import com.br.requirementhub.entity.RequirementArtifact;
@@ -21,14 +22,10 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -43,6 +40,8 @@ public class RequirementService {
     private final StakeHolderRepository stakeholderRepository;
 
     private final RequirementArtifactRepository requirementArtifactRepository;
+
+    private final RequirementArtifactService requirementArtifactService;
 
     public List<RequirementResponseDTO> getAllRequirements() {
         return requirementRepository.findAll().stream()
@@ -78,7 +77,25 @@ public class RequirementService {
                 .collect(Collectors.toList());
     }
 
+    public List<RequirementArtifactResponseDTO> getArtifactsByProjectId(Long projectId) {
 
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ProjectNotFoundException("Project not found with id: " + projectId));
+
+        List<Requirement> requirements = requirementRepository.findByProjectRelated(project);
+
+        List<RequirementArtifactResponseDTO> artifactResponseDTOs = new ArrayList<>();
+
+        for (Requirement requirement : requirements) {
+            List<RequirementArtifact> artifacts = requirementArtifactRepository.findByRequirementId(requirement.getId());
+
+            for (RequirementArtifact artifact : artifacts) {
+                RequirementArtifactResponseDTO dto = requirementArtifactService.convertToResponseDTO(artifact);
+                artifactResponseDTOs.add(dto);
+            }
+        }
+        return artifactResponseDTOs;
+    }
 
     public RequirementResponseDTO createRequirement(RequirementRequestDTO requirementRequestDTO) {
         this.verifyAlreadyExistsRequirement(requirementRequestDTO);

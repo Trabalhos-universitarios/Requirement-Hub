@@ -124,7 +124,7 @@ public class RequirementArtifactService {
         return artifact;
     }
 
-    private RequirementArtifactResponseDTO convertToResponseDTO(RequirementArtifact artifact) {
+    public RequirementArtifactResponseDTO convertToResponseDTO(RequirementArtifact artifact) {
         return new RequirementArtifactResponseDTO(
                 artifact.getId(),
                 artifact.getIdentifier(),
