@@ -34,6 +34,10 @@ public class TeamService {
         teamRepository.deleteByProjectId(id);
     }
 
+    public void saveAllTeams(List<Team> teams) {
+        teamRepository.saveAll(teams);
+    }
+
     private TeamResponseDTO convertToDTO(Team team) {
         TeamResponseDTO dto = new TeamResponseDTO();
         dto.setId(team.getId());
