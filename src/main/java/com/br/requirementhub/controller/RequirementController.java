@@ -3,6 +3,7 @@ package com.br.requirementhub.controller;
 
 import com.br.requirementhub.dtos.requirement.RequirementRequestDTO;
 import com.br.requirementhub.dtos.requirement.RequirementResponseDTO;
+import com.br.requirementhub.dtos.requirement.RequirementUpdateRequestDTO;
 import com.br.requirementhub.services.RequirementService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -48,7 +49,9 @@ public class RequirementController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<RequirementResponseDTO> updateRequirement(@PathVariable Long id, @RequestBody RequirementRequestDTO requirementRequestDTO) {
+    public ResponseEntity<RequirementResponseDTO> updateRequirement(
+            @PathVariable Long id,
+            @RequestBody RequirementUpdateRequestDTO requirementRequestDTO) {
         RequirementResponseDTO updatedRequirement = service.updateRequirement(id, requirementRequestDTO);
         return updatedRequirement != null ? ResponseEntity.ok(updatedRequirement) : ResponseEntity.notFound().build();
     }

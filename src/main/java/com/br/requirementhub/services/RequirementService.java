@@ -2,6 +2,7 @@ package com.br.requirementhub.services;
 
 import com.br.requirementhub.dtos.requirement.RequirementRequestDTO;
 import com.br.requirementhub.dtos.requirement.RequirementResponseDTO;
+import com.br.requirementhub.dtos.requirement.RequirementUpdateRequestDTO;
 import com.br.requirementhub.entity.Project;
 import com.br.requirementhub.entity.Requirement;
 import com.br.requirementhub.entity.RequirementArtifact;
@@ -18,6 +19,12 @@ import com.br.requirementhub.repository.StakeHolderRepository;
 import com.br.requirementhub.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.Comparator;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.HashSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -101,7 +108,7 @@ public class RequirementService {
 
         String identifierPrefix = transformRequirementIdentifier(requirement.getType());
         requirement.setIdentifier(identifierPrefix + "-" + String.format("%04d", newIdNumber));
-        requirement.setVersion(1.0);
+        requirement.setVersion("1.0");
         requirement.setStatus(Status.CREATED.toString());
     }
 
@@ -145,7 +152,7 @@ public class RequirementService {
     }
 
     private List<User> getResponsible(Set<User> users) {
-        List<User> managedUsers = new ArrayList<>();
+        List<User> managedUsers =  new ArrayList<>();
         for (User user : users) {
             User managedUser = userRepository.findById(user.getId())
                     .orElseThrow(() -> new EntityNotFoundException("Responsible not found: " + user.getId()));
@@ -155,7 +162,7 @@ public class RequirementService {
     }
 
     private List<Stakeholder> getStakeholders(Set<Stakeholder> stakeholders) {
-        List<Stakeholder> managedStakeholders = new ArrayList<>();
+        List<Stakeholder> managedStakeholders =  new ArrayList<>();
         for (Stakeholder stakeholder : stakeholders) {
             Stakeholder managedStakeholder = stakeholderRepository.findById(stakeholder.getId())
                     .orElseThrow(() -> new EntityNotFoundException("Stakeholder not found: " + stakeholder.getId()));
@@ -166,7 +173,7 @@ public class RequirementService {
 
     private List<Requirement> getRequirementsRelated(Set<Requirement> dependencies) {
         if (dependencies == null || dependencies.isEmpty()) {
-            return new ArrayList<>();// Retorna um Set vazio se não houver dependências
+            return  new ArrayList<>(); // Retorna um Set vazio se não houver dependências
         }
         List<Requirement> managedRequirements = new ArrayList<>();
         for (Requirement dependency : dependencies) {
@@ -181,17 +188,6 @@ public class RequirementService {
         Optional<User> authorId = Optional.ofNullable(userRepository.findById(name)
                 .orElseThrow(() -> new EntityNotFoundException("User not found: " + name)));
         return authorId.map(User::getId).orElse(null);
-    }
-
-    public RequirementResponseDTO updateRequirement(Long id, RequirementRequestDTO requirementRequestDTO) {
-        if (requirementRepository.existsById(id)) {
-            Requirement requirement = convertToEntity(requirementRequestDTO);
-            requirement.setId(id);
-            requirement = requirementRepository.save(requirement);
-            return convertToResponseDTO(requirement);
-        } else {
-            throw new ProjectNotFoundException("Project not found with id: " + id);
-        }
     }
 
     @Transactional
@@ -213,6 +209,48 @@ public class RequirementService {
         for (RequirementArtifact artifact : requirement) {
             requirementArtifactRepository.deleteById(artifact.getId());
         }
+    }
+
+    public RequirementResponseDTO updateRequirement(Long id, RequirementUpdateRequestDTO requirementRequestDTO) {
+        if (requirementRepository.existsById(id)) {
+            Requirement requirement = convertToEntityToUpdate(requirementRequestDTO);
+            requirement.setId(id);
+            requirement.setAuthor(getAuthor(requirementRequestDTO.getAuthor()));
+            requirement.setResponsible(getResponsible(requirementRequestDTO.getResponsible()));
+            requirement.setStakeholders(getStakeholders(requirementRequestDTO.getStakeholders()));
+
+            requirement.setDependencies(getRequirementsRelated(requirementRequestDTO.getDependencies()));
+
+            requirement.setIdentifier(requirementRequestDTO.getIdentifier());
+
+            this.updateVersionAndStatus(requirement);
+
+            requirement = requirementRepository.save(requirement);
+            return convertToResponseDTO(requirement);
+        } else {
+            throw new ProjectNotFoundException("Project not found with id: " + id);
+        }
+    }
+
+    private void updateVersionAndStatus(Requirement requirement) {
+        String currentVersion = requirement.getVersion();
+        String newVersion = incrementVersion(currentVersion);
+        requirement.setVersion(newVersion);
+
+        requirement.setStatus(Status.PENDING.toString());
+    }
+
+    private String incrementVersion(String version) {
+        if (version != null && version.matches("^1\\.\\d+$")) {
+            String[] parts = version.split("\\.");
+            int majorVersion = Integer.parseInt(parts[0]);
+            int minorVersion = Integer.parseInt(parts[1]);
+
+            minorVersion += 1;
+
+            return majorVersion + "." + minorVersion;
+        }
+        return "1.1";
     }
 
     private RequirementResponseDTO convertToResponseDTO(Requirement requirement) {
@@ -255,7 +293,6 @@ public class RequirementService {
         return dto;
     }
 
-
     private Requirement convertToEntity(RequirementRequestDTO dto) {
         Requirement requirement = new Requirement();
         requirement.setName(dto.getName());
@@ -265,6 +302,21 @@ public class RequirementService {
         requirement.setType(dto.getType());
         requirement.setEffort(dto.getEffort());
         Project project = projectRepository.findById(dto.getProjectRelated().getId())
+                .orElseThrow(
+                        () -> new ProjectNotFoundException("Project not found with id: " + dto.getProjectRelated()));
+        requirement.setProjectRelated(project);
+        return requirement;
+    }
+
+    private Requirement convertToEntityToUpdate(RequirementUpdateRequestDTO dto) {
+        Requirement requirement = new Requirement();
+        requirement.setName(dto.getName());
+        requirement.setDescription(dto.getDescription());
+        requirement.setRisk(dto.getRisk());
+        requirement.setPriority(dto.getPriority());
+        requirement.setType(dto.getType());
+        requirement.setEffort(dto.getEffort());
+        Project project = projectRepository.findById(dto.getProjectRelated())
                 .orElseThrow(
                         () -> new ProjectNotFoundException("Project not found with id: " + dto.getProjectRelated()));
         requirement.setProjectRelated(project);
