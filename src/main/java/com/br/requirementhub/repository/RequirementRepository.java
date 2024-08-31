@@ -5,7 +5,6 @@ import com.br.requirementhub.entity.Requirement;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -20,9 +19,7 @@ public interface RequirementRepository extends JpaRepository<Requirement, Long> 
 
     List<Requirement> findByProjectRelated(Project projectRelated);
 
-    Optional<Requirement> findByIdentifier(String identifier);
-
-    @Query("SELECT r.id.dependencyId FROM RequirementDependency r WHERE r.id.requirementId = :requirementId")
+    @Query(value = "SELECT requirement_id AS requirementId, dependency_id AS dependencyId FROM requirement_dependency WHERE requirement_id = :requirementId OR dependency_id = :requirementId", nativeQuery = true)
     Set<Long> findDependencyIdsByRequirementId(Long requirementId);
 
     @Query("SELECT r FROM Requirement r WHERE r.identifier = :identifier AND r.projectRelated.id = :projectId")
@@ -30,8 +27,6 @@ public interface RequirementRepository extends JpaRepository<Requirement, Long> 
 
     @Query("SELECT r FROM Requirement r WHERE r.projectRelated.id = :projectId")
     List<Requirement> findByProjectRelated_Id(@Param("projectId") Long projectId);
-
-    List<Requirement> findByDependencies(Requirement requirement);
 
     @Modifying
     @Transactional

@@ -13,7 +13,9 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import lombok.Data;
 
@@ -53,7 +55,7 @@ public class Requirement {
     private Project projectRelated;
 
     @OneToMany(mappedBy = "requirementId", cascade = CascadeType.ALL)
-    private Set<RequirementArtifact> artifacts = new HashSet<>();
+    private List<RequirementArtifact> artifacts = new ArrayList<>();
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
@@ -61,7 +63,7 @@ public class Requirement {
             joinColumns = @JoinColumn(name = "requirement_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private Set<User> responsible = new HashSet<>();
+    private List<User> responsible = new ArrayList<>();
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
@@ -69,7 +71,7 @@ public class Requirement {
             joinColumns = @JoinColumn(name = "requirement_id"),
             inverseJoinColumns = @JoinColumn(name = "stakeholder_id")
     )
-    private Set<Stakeholder> stakeholders = new HashSet<>();
+    private List<Stakeholder> stakeholders = new ArrayList<>();
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
@@ -77,6 +79,5 @@ public class Requirement {
             joinColumns = @JoinColumn(name = "requirement_id"),
             inverseJoinColumns = @JoinColumn(name = "dependency_id")
     )
-    private Set<Requirement> dependencies = new HashSet<>();
-
+    private List<Requirement> dependencies = new ArrayList<>();
 }
