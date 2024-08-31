@@ -2,6 +2,7 @@ package com.br.requirementhub.services;
 
 import com.br.requirementhub.dtos.requirement.RequirementRequestDTO;
 import com.br.requirementhub.dtos.requirement.RequirementResponseDTO;
+import com.br.requirementhub.dtos.requirementArtifact.RequirementArtifactResponseDTO;
 import com.br.requirementhub.entity.Project;
 import com.br.requirementhub.entity.Requirement;
 import com.br.requirementhub.entity.RequirementArtifact;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+
 @Service
 @RequiredArgsConstructor
 public class RequirementService {
@@ -42,6 +44,8 @@ public class RequirementService {
     private final StakeHolderRepository stakeholderRepository;
 
     private final RequirementArtifactRepository requirementArtifactRepository;
+
+    private final RequirementArtifactService requirementArtifactService;
 
     public List<RequirementResponseDTO> getAllRequirements() {
         return requirementRepository.findAll().stream()
@@ -73,6 +77,26 @@ public class RequirementService {
         return requirements.stream()
                 .map(this::convertToResponseDTO)
                 .collect(Collectors.toList());
+    }
+
+    public List<RequirementArtifactResponseDTO> getArtifactsByProjectId(Long projectId) {
+
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ProjectNotFoundException("Project not found with id: " + projectId));
+
+        List<Requirement> requirements = requirementRepository.findByProjectRelated(project);
+
+        List<RequirementArtifactResponseDTO> artifactResponseDTOs = new ArrayList<>();
+
+        for (Requirement requirement : requirements) {
+            List<RequirementArtifact> artifacts = requirementArtifactRepository.findByRequirementId(requirement.getId());
+
+            for (RequirementArtifact artifact : artifacts) {
+                RequirementArtifactResponseDTO dto = requirementArtifactService.convertToResponseDTO(artifact);
+                artifactResponseDTOs.add(dto);
+            }
+        }
+        return artifactResponseDTOs;
     }
 
     public RequirementResponseDTO createRequirement(RequirementRequestDTO requirementRequestDTO) {

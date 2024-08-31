@@ -30,10 +30,4 @@ public class RequirementArtifact {
     @JoinColumn(name = "requirement_id", nullable = false)
     private Requirement requirementId;
 
-    @PostPersist
-    public void autoCompleteData() {
-        if (this.identifier == null) {
-            this.identifier = this.type + "-" + String.format("%04d", this.id);
-        }
-    }
 }
