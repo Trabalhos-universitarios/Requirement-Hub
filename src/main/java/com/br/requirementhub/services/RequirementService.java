@@ -3,6 +3,7 @@ package com.br.requirementhub.services;
 import com.br.requirementhub.dtos.requirement.RequirementRequestDTO;
 import com.br.requirementhub.dtos.requirement.RequirementResponseDTO;
 import com.br.requirementhub.dtos.requirement.RequirementUpdateRequestDTO;
+import com.br.requirementhub.dtos.requirementArtifact.RequirementArtifactResponseDTO;
 import com.br.requirementhub.entity.Project;
 import com.br.requirementhub.entity.Requirement;
 import com.br.requirementhub.entity.RequirementArtifact;
@@ -20,12 +21,6 @@ import com.br.requirementhub.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import java.util.ArrayList;
-import java.util.Comparator;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
-import java.util.HashSet;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -35,6 +30,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
 
 @Service
 @RequiredArgsConstructor
@@ -50,6 +46,8 @@ public class RequirementService {
 
     private final RequirementArtifactRepository requirementArtifactRepository;
 
+    private final RequirementArtifactService requirementArtifactService;
+
     public List<RequirementResponseDTO> getAllRequirements() {
         return requirementRepository.findAll().stream()
                 .map(this::convertToResponseDTO)
@@ -60,6 +58,17 @@ public class RequirementService {
         return requirementRepository.findById(id)
                 .map(this::convertToResponseDTO)
                 .orElse(null);
+    }
+
+    public List<RequirementResponseDTO> getRequirementsByProjectRelated(Long id) {
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new ProjectNotFoundException("Project not found with id: " + id));
+
+        List<Requirement> requirements = requirementRepository.findByProjectRelated(project);
+
+        return requirements.stream()
+                .map(this::convertToResponseDTO)
+                .collect(Collectors.toList());
     }
 
     public List<RequirementResponseDTO> getRequirementDataToUpdate(Long id) {
@@ -80,6 +89,26 @@ public class RequirementService {
         return requirements.stream()
                 .map(this::convertToResponseDTO)
                 .collect(Collectors.toList());
+    }
+
+    public List<RequirementArtifactResponseDTO> getArtifactsByProjectId(Long projectId) {
+
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ProjectNotFoundException("Project not found with id: " + projectId));
+
+        List<Requirement> requirements = requirementRepository.findByProjectRelated(project);
+
+        List<RequirementArtifactResponseDTO> artifactResponseDTOs = new ArrayList<>();
+
+        for (Requirement requirement : requirements) {
+            List<RequirementArtifact> artifacts = requirementArtifactRepository.findByRequirementId(requirement.getId());
+
+            for (RequirementArtifact artifact : artifacts) {
+                RequirementArtifactResponseDTO dto = requirementArtifactService.convertToResponseDTO(artifact);
+                artifactResponseDTOs.add(dto);
+            }
+        }
+        return artifactResponseDTOs;
     }
 
     public RequirementResponseDTO createRequirement(RequirementRequestDTO requirementRequestDTO) {

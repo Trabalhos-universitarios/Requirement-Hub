@@ -1,5 +1,6 @@
 package com.br.requirementhub.repository;
 
+import com.br.requirementhub.dtos.requirementArtifact.RequirementArtifactResponseDTO;
 import com.br.requirementhub.entity.Requirement;
 import com.br.requirementhub.entity.RequirementArtifact;
 import java.util.List;
@@ -24,4 +25,10 @@ public interface RequirementArtifactRepository extends JpaRepository<Requirement
 
     @Query("SELECT ra FROM RequirementArtifact ra WHERE ra.identifier = :identifier")
     List<RequirementArtifact> findByIdentifier(@Param("identifier") String identifier);
+
+    @Query("SELECT ra FROM RequirementArtifact ra WHERE ra.identifier = :identifier")
+    RequirementArtifact findByIdentifierArtifact(@Param("identifier") String identifier);
+
+    @Query("SELECT ra FROM RequirementArtifact ra WHERE ra.requirementId.projectRelated.id = :projectId")
+    List<RequirementArtifact> findArtifactsByProjectId(@Param("projectId") Long projectId);
 }

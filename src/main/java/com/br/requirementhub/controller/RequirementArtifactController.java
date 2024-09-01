@@ -2,7 +2,9 @@ package com.br.requirementhub.controller;
 
 import com.br.requirementhub.dtos.requirementArtifact.RequirementArtifactRequestDTO;
 import com.br.requirementhub.dtos.requirementArtifact.RequirementArtifactResponseDTO;
+import com.br.requirementhub.repository.RequirementArtifactRepository;
 import com.br.requirementhub.services.RequirementArtifactService;
+import com.br.requirementhub.services.RequirementService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +18,8 @@ import java.util.List;
 public class RequirementArtifactController {
 
     private final RequirementArtifactService service;
+    private final RequirementService Requirementservice;
+    private final RequirementArtifactRepository repository;
 
     @PostMapping
     public RequirementArtifactResponseDTO create(@RequestBody RequirementArtifactRequestDTO requestDTO) throws IOException {
@@ -38,6 +42,13 @@ public class RequirementArtifactController {
         List<RequirementArtifactResponseDTO> artifacts = service.findArtifactsByRequirementId(requirementId);
         return ResponseEntity.ok(artifacts);
     }
+
+    @GetMapping("/by-project/{projectId}")
+    public ResponseEntity<List<RequirementArtifactResponseDTO>> getArtifactsByProjectId(@PathVariable Long projectId) {
+        List<RequirementArtifactResponseDTO> artifacts = Requirementservice.getArtifactsByProjectId(projectId);
+        return ResponseEntity.ok(artifacts);
+    }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<RequirementArtifactResponseDTO> update(@PathVariable Long id, @RequestBody RequirementArtifactRequestDTO request) throws IOException {

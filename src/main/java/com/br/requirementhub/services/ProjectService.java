@@ -33,21 +33,19 @@ public class ProjectService {
 
 
     public ProjectResponseDTO create(ProjectRequestDTO requestDTO) throws IOException {
-        this.verifyAlreadyExistsProject(requestDTO);
+        verifyAlreadyExistsProject(requestDTO);
         Project project = convertToEntity(requestDTO);
         Project savedProject = projectRepository.save(project);
 
-        List<Team> teams = savedProject.getTeams();
-        for (Team team : teams) {
-            team.setProject(savedProject);
-        }
-        projectRepository.save(savedProject);
+        savedProject.getTeams().forEach(team -> team.setProject(savedProject));
+        teamService.saveAllTeams(savedProject.getTeams());
 
         ProjectResponseDTO responseDTO = new ProjectResponseDTO();
         responseDTO.setId(savedProject.getId());
         responseDTO.setName(savedProject.getName());
         return responseDTO;
     }
+
 
     private void verifyAlreadyExistsProject(ProjectRequestDTO request) {
         Optional<Project> findProject = projectRepository
@@ -57,7 +55,6 @@ public class ProjectService {
             throw new ProjectAlreadyExistException("This project already exists!");
         }
     }
-
 
 
     public List<ProjectResponseDTO> listProjectsByUserId(Long userId) {
@@ -142,10 +139,8 @@ public class ProjectService {
             existingProject.setLastUpdate(new Date());
             existingProject.setDraft(requestDTO.isDraft());
 
-            // Remover todas as equipes associadas ao projeto antes de adicionar novas
             teamService.deleteByProjectId(id);
 
-            // Adicionar novas equipes
             List<Team> newTeams = new ArrayList<>();
             newTeams.addAll(requestDTO.getRequirementAnalysts().stream()
                     .map(userId -> createTeam(userId, existingProject))
@@ -157,7 +152,6 @@ public class ProjectService {
                     .map(userId -> createTeam(userId, existingProject))
                     .collect(Collectors.toList()));
 
-            // Adicionar novas equipes à lista existente
             existingProject.setTeams(newTeams);
 
             Project updatedProject = projectRepository.save(existingProject);
@@ -198,19 +192,31 @@ public class ProjectService {
         project.setCreationDate(new Date());
         project.setDraft(dto.isDraft());
 
-        List<Team> teams = dto.getRequirementAnalysts().stream()
-                .map(userId -> createTeam(userId, project))
-                .collect(Collectors.toList());
-        teams.addAll(dto.getBusinessAnalysts().stream()
-                .map(userId -> createTeam(userId, project))
-                .collect(Collectors.toList()));
-        teams.addAll(dto.getCommonUsers().stream()
-                .map(userId -> createTeam(userId, project))
-                .collect(Collectors.toList()));
-
+        List<Team> teams = new ArrayList<>();
+        addTeams(dto, project, teams);
         project.setTeams(teams);
 
         return project;
+    }
+
+    private void addTeams(ProjectRequestDTO dto, Project project, List<Team> teams) {
+        if (dto.getRequirementAnalysts() != null) {
+            for (Long userId : dto.getRequirementAnalysts()) {
+                teams.add(createTeam(userId, project));
+            }
+        }
+
+        if (dto.getBusinessAnalysts() != null) {
+            for (Long userId : dto.getBusinessAnalysts()) {
+                teams.add(createTeam(userId, project));
+            }
+        }
+
+        if (dto.getCommonUsers() != null) {
+            for (Long userId : dto.getCommonUsers()) {
+                teams.add(createTeam(userId, project));
+            }
+        }
     }
 
     private Team createTeam(Long userId, Project project) {
@@ -222,4 +228,5 @@ public class ProjectService {
         team.setUserName(user.getName());
         return team;
     }
+
 }
