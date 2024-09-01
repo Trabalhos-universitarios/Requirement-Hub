@@ -9,7 +9,7 @@ public class RequirementResponseDTO {
     private String identifier;
     private String name;
     private String description;
-    private Double version;
+    private String version;
     private String author;
     private String risk;
     private String priority;

@@ -33,7 +33,7 @@ public class Requirement {
 
     private String description;
 
-    private Double version;
+    private String version;
 
     private Long author;
 
