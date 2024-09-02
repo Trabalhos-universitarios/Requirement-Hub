@@ -62,32 +62,60 @@ public class TraceabilityMatrixService {
         if (matrizDeRastreabilidadeArray == null) {
             throw new IllegalStateException("Matrix not initialized. Call initializeMatrix() first.");
         }
+
+        // Cache para identificadores e IDs de requisitos
+        Map<String, Long> identifierToIdMap = new HashMap<>();
         List<Requirement> requirements = requirementRepository.findByProjectRelated_Id(projectId);
         for (Requirement requirement : requirements) {
-            markDependencies(requirement.getId(), requirement.getProjectRelated().getId());
+            identifierToIdMap.put(requirement.getIdentifier(), requirement.getId());
+        }
+
+        // Pre-cache das dependências de todos os requisitos para evitar chamadas repetitivas ao banco de dados
+        Map<Long, Set<Long>> requirementDependenciesMap = new HashMap<>();
+        for (Requirement requirement : requirements) {
+            Set<Long> dependencyIds = requirementRepository.findDependencyIdsByRequirementId(requirement.getId());
+            requirementDependenciesMap.put(requirement.getId(), dependencyIds);
+        }
+
+        for (Requirement requirement : requirements) {
+            markDependencies(requirement.getId(), projectId, identifierToIdMap, requirementDependenciesMap);
         }
     }
 
-    public void markDependencies(Long requirementId, Long projectId) {
-        Set<Long> dependencyIds = requirementRepository.findDependencyIdsByRequirementId(requirementId);
+    public void markDependencies(Long requirementId, Long projectId, Map<String, Long> identifierToIdMap, Map<Long, Set<Long>> requirementDependenciesMap) {
+        Set<Long> dependencyIds = requirementDependenciesMap.get(requirementId);
+
         for (int i = 1; i < matrizDeRastreabilidadeArray.size(); i++) {
             List<Object> row = matrizDeRastreabilidadeArray.get(i);
-            if (row.get(0) != null && getRequirementIdByIdentifier((String) row.get(0), projectId).equals(requirementId)) {
+            String rowIdentifier = (String) row.get(0);
+            Long rowRequirementId = identifierToIdMap.get(rowIdentifier);
+
+            if (rowRequirementId != null && rowRequirementId.equals(requirementId)) {
                 for (int j = 1; j < row.size(); j++) {
-                    if (matrizDeRastreabilidadeArray.get(0).get(j) != null && dependencyIds.contains(getRequirementIdByIdentifier((String) matrizDeRastreabilidadeArray.get(0).get(j), projectId))) {
+                    String columnIdentifier = (String) matrizDeRastreabilidadeArray.get(0).get(j);
+                    Long columnRequirementId = identifierToIdMap.get(columnIdentifier);
+
+                    // Evitar marcação para relação consigo mesmo
+                    if (columnRequirementId != null && !rowIdentifier.equals(columnIdentifier) && dependencyIds.contains(columnRequirementId)) {
                         row.set(j, "X");
                     }
                 }
             }
         }
 
+        // Marcar dependências para artefatos associados ao requisito
         List<RequirementArtifact> artifacts = requirementArtifactRepository.findByRequirementId(requirementId);
         for (RequirementArtifact artifact : artifacts) {
             for (int i = 1; i < matrizDeRastreabilidadeArray.size(); i++) {
                 List<Object> row = matrizDeRastreabilidadeArray.get(i);
-                if (row.get(0) != null && row.get(0).equals(artifact.getIdentifier())) {
+                String rowIdentifier = (String) row.get(0);
+                if (rowIdentifier != null && rowIdentifier.equals(artifact.getIdentifier())) {
                     for (int j = 1; j < row.size(); j++) {
-                        if (matrizDeRastreabilidadeArray.get(0).get(j) != null && getRequirementIdByIdentifier((String) matrizDeRastreabilidadeArray.get(0).get(j), projectId).equals(requirementId)) {
+                        String columnIdentifier = (String) matrizDeRastreabilidadeArray.get(0).get(j);
+                        Long columnRequirementId = identifierToIdMap.get(columnIdentifier);
+
+                        // Evitar marcação para relação consigo mesmo
+                        if (columnRequirementId != null && !artifact.getIdentifier().equals(columnIdentifier) && columnRequirementId.equals(requirementId)) {
                             row.set(j, "X");
                         }
                     }
