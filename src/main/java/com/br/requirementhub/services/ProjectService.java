@@ -6,20 +6,20 @@ import com.br.requirementhub.entity.Project;
 import com.br.requirementhub.entity.Team;
 import com.br.requirementhub.entity.User;
 import com.br.requirementhub.enums.Role;
+import com.br.requirementhub.exceptions.ProjectAlreadyExistException;
 import com.br.requirementhub.repository.ProjectRepository;
-import com.br.requirementhub.repository.TeamRepository;
 import com.br.requirementhub.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
-
+import jakarta.transaction.Transactional;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -27,23 +27,50 @@ public class ProjectService {
 
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
-    private final TeamRepository teamRepository;
+    private final TeamService teamService;
+    private final UserService userService;
+    private final ProjectArtifactService projectArtifactService;
 
 
     public ProjectResponseDTO create(ProjectRequestDTO requestDTO) throws IOException {
+        verifyAlreadyExistsProject(requestDTO);
         Project project = convertToEntity(requestDTO);
         Project savedProject = projectRepository.save(project);
 
-        List<Team> teams = savedProject.getTeams();
-        for (Team team : teams) {
-            team.setProject(savedProject);
-        }
-        projectRepository.save(savedProject);
+        savedProject.getTeams().forEach(team -> team.setProject(savedProject));
+        teamService.saveAllTeams(savedProject.getTeams());
 
         ProjectResponseDTO responseDTO = new ProjectResponseDTO();
         responseDTO.setId(savedProject.getId());
         responseDTO.setName(savedProject.getName());
         return responseDTO;
+    }
+
+
+    private void verifyAlreadyExistsProject(ProjectRequestDTO request) {
+        Optional<Project> findProject = projectRepository
+                .findByNameAndManager(request.getName(), request.getManager());
+
+        if (findProject.isPresent()) {
+            throw new ProjectAlreadyExistException("This project already exists!");
+        }
+    }
+
+
+    public List<ProjectResponseDTO> listProjectsByUserId(Long userId) {
+        Role userRole = userService.findUserRoleById(userId);
+
+        List<Project> projects;
+        if (userRole == Role.GERENTE_DE_PROJETOS) {
+            projects = projectRepository.findAll();
+        } else {
+            List<Long> projectIds = teamService.findProjectIdsByUserId(userId);
+            projects = projectRepository.findAllById(projectIds);
+        }
+
+        return projects.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
     public List<ProjectResponseDTO> list() {
@@ -72,31 +99,34 @@ public class ProjectService {
         dto.setVersion(project.getVersion());
         dto.setCreationDate(project.getCreationDate());
         dto.setLastUpdate(project.getLastUpdate());
-        List<String> requirementAnalysts = teamRepository.findByProjectIdAndUserRole(project.getId(), Role.ANALISTA_DE_REQUISITOS)
-                .stream()
-                .map(Team::getUserName)
-                .collect(Collectors.toList());
-        dto.setRequirementAnalysts(requirementAnalysts);
 
-        List<String> businessAnalysts = teamRepository.findByProjectIdAndUserRole(project.getId(), Role.ANALISTA_DE_NEGOCIO)
-                .stream()
-                .map(Team::getUserName)
-                .collect(Collectors.toList());
-        dto.setBusinessAnalysts(businessAnalysts);
+        //todo ---- O CODIGO COMENTADO NAO E PARA SER APAGADO
+//        List<String> requirementAnalysts = teamRepository.findByProjectIdAndUserRole(project.getId(), Role.ANALISTA_DE_REQUISITOS)
+//                .stream()
+//                .map(Team::getUserName)
+//                .collect(Collectors.toList());
+//        dto.setRequirementAnalysts(requirementAnalysts);
+//
+//        List<String> businessAnalysts = teamRepository.findByProjectIdAndUserRole(project.getId(), Role.ANALISTA_DE_NEGOCIO)
+//                .stream()
+//                .map(Team::getUserName)
+//                .collect(Collectors.toList());
+//        dto.setBusinessAnalysts(businessAnalysts);
+//
+//        List<String> commonUsers = teamRepository.findByProjectIdAndUserRole(project.getId(), Role.USUARIO_COMUM)
+//                .stream()
+//                .map(Team::getUserName)
+//                .collect(Collectors.toList());
+//        dto.setCommonUsers(commonUsers);
 
-        List<String> commonUsers = teamRepository.findByProjectIdAndUserRole(project.getId(), Role.USUARIO_COMUM)
-                .stream()
-                .map(Team::getUserName)
-                .collect(Collectors.toList());
-        dto.setCommonUsers(commonUsers);
-
-        dto.setRequirementIds(project.getRequirements() != null ? project.getRequirements().stream()
-                .map(requirement -> requirement.getId())
-                .collect(Collectors.toList()) : new ArrayList<>());
+//        dto.setRequirementIds(project.getRequirements() != null ? project.getRequirements().stream()
+//                .map(requirement -> requirement.getId())
+//                .collect(Collectors.toList()) : new ArrayList<>());
 
         return dto;
     }
 
+    @Transactional
     public ProjectResponseDTO update(Long id, ProjectRequestDTO requestDTO) throws IOException {
         Optional<Project> existingProjectOpt = projectRepository.findById(id);
         if (existingProjectOpt.isPresent()) {
@@ -109,28 +139,44 @@ public class ProjectService {
             existingProject.setLastUpdate(new Date());
             existingProject.setDraft(requestDTO.isDraft());
 
-            List<Team> teams = requestDTO.getRequirementAnalysts().stream()
-                    .map(userId -> createTeam(userId, existingProject))
-                    .collect(Collectors.toList());
-            teams.addAll(requestDTO.getBusinessAnalysts().stream()
+            teamService.deleteByProjectId(id);
+
+            List<Team> newTeams = new ArrayList<>();
+            newTeams.addAll(requestDTO.getRequirementAnalysts().stream()
                     .map(userId -> createTeam(userId, existingProject))
                     .collect(Collectors.toList()));
-            teams.addAll(requestDTO.getCommonUsers().stream()
+            newTeams.addAll(requestDTO.getBusinessAnalysts().stream()
+                    .map(userId -> createTeam(userId, existingProject))
+                    .collect(Collectors.toList()));
+            newTeams.addAll(requestDTO.getCommonUsers().stream()
                     .map(userId -> createTeam(userId, existingProject))
                     .collect(Collectors.toList()));
 
-            existingProject.setTeams(teams);
+            existingProject.setTeams(newTeams);
 
             Project updatedProject = projectRepository.save(existingProject);
+
             return convertToDTO(updatedProject);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found with id: " + id);
         }
     }
 
+    @Transactional
     public void deleteById(Long id) {
         if (projectRepository.existsById(id)) {
+            // Adicionar log para depuração
+            System.out.println("Deleting project artifacts for project id: " + id);
+            projectArtifactService.deleteArtifactsByProjectId(id);
+
+            // Adicionar log para depuração
+            System.out.println("Deleting project with id: " + id);
             projectRepository.deleteById(id);
+
+            // Verificar se o projeto foi realmente deletado
+            if (projectRepository.existsById(id)) {
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to delete project with id: " + id);
+            }
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found with id: " + id);
         }
@@ -146,19 +192,31 @@ public class ProjectService {
         project.setCreationDate(new Date());
         project.setDraft(dto.isDraft());
 
-        List<Team> teams = dto.getRequirementAnalysts().stream()
-                .map(userId -> createTeam(userId, project))
-                .collect(Collectors.toList());
-        teams.addAll(dto.getBusinessAnalysts().stream()
-                .map(userId -> createTeam(userId, project))
-                .collect(Collectors.toList()));
-        teams.addAll(dto.getCommonUsers().stream()
-                .map(userId -> createTeam(userId, project))
-                .collect(Collectors.toList()));
-
+        List<Team> teams = new ArrayList<>();
+        addTeams(dto, project, teams);
         project.setTeams(teams);
 
         return project;
+    }
+
+    private void addTeams(ProjectRequestDTO dto, Project project, List<Team> teams) {
+        if (dto.getRequirementAnalysts() != null) {
+            for (Long userId : dto.getRequirementAnalysts()) {
+                teams.add(createTeam(userId, project));
+            }
+        }
+
+        if (dto.getBusinessAnalysts() != null) {
+            for (Long userId : dto.getBusinessAnalysts()) {
+                teams.add(createTeam(userId, project));
+            }
+        }
+
+        if (dto.getCommonUsers() != null) {
+            for (Long userId : dto.getCommonUsers()) {
+                teams.add(createTeam(userId, project));
+            }
+        }
     }
 
     private Team createTeam(Long userId, Project project) {
@@ -170,4 +228,5 @@ public class ProjectService {
         team.setUserName(user.getName());
         return team;
     }
+
 }

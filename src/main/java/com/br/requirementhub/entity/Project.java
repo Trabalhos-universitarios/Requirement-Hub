@@ -14,22 +14,17 @@ import java.util.List;
 public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Long id;
 
-    @Column(name = "name")
     private String name;
 
-    @Column(name = "manager")
     private String manager;
 
-    @Column(name = "status")
     private String status;
 
-    @Column(name = "description")
+    @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "version")
     private String version;
 
     @Column(name = "creation_date")
@@ -38,12 +33,13 @@ public class Project {
     @Column(name = "last_update")
     private Date lastUpdate;
 
-    @Column(name = "draft")
     private boolean draft;
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Team> teams;
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "projectRelated", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Requirement> requirements;
+
+    public Long getId() {return id;}
 }

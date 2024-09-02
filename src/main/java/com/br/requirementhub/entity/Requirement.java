@@ -1,10 +1,23 @@
 package com.br.requirementhub.entity;
 
-import jakarta.persistence.*;
-import lombok.Data;
-
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import lombok.Data;
 
 @Data
 @Entity
@@ -12,58 +25,59 @@ import java.util.List;
 public class Requirement {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Long id;
 
-    @Column(name = "identifier")
     private String identifier;
 
-    @Column(name = "name")
     private String name;
 
-    @Column(name = "description")
     private String description;
 
-    @Column(name = "version")
     private String version;
 
-    @Column(name = "author")
-    private String author;
+    private Long author;
 
-    @Column(name = "source")
-    private String source;
-
-    @Column(name = "risk")
     private String risk;
 
-    @Column(name = "priority")
     private String priority;
 
-    @Column(name = "responsible")
-    private String responsible;
-
-    @Column(name = "type")
     private String type;
 
-    @Column(name = "status")
     private String status;
 
-    @Column(name = "effort")
     private Integer effort;
 
-    @Column(name = "release")
-    private String release;
+    @Column(name = "date_created")
+    private LocalDateTime dateCreated = LocalDateTime.now();
 
-    @Column(name = "dependency")
-    private String dependency;
-    
     @ManyToOne
-    @JoinColumn(name = "id_projeto", nullable = false)
-    private Project project;
+    @JoinColumn(name = "project_related", nullable = false)
+    private Project projectRelated;
 
-//    @OneToMany(mappedBy = "requirement", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<RequirementArtifact> artifacts;
-
-    @OneToMany(mappedBy = "requirement", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "requirementId", cascade = CascadeType.ALL)
     private List<RequirementArtifact> artifacts = new ArrayList<>();
+
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+            name = "requirement_responsible",
+            joinColumns = @JoinColumn(name = "requirement_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private List<User> responsible = new ArrayList<>();
+
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+            name = "requirement_stakeholder",
+            joinColumns = @JoinColumn(name = "requirement_id"),
+            inverseJoinColumns = @JoinColumn(name = "stakeholder_id")
+    )
+    private List<Stakeholder> stakeholders = new ArrayList<>();
+
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+            name = "requirement_dependency",
+            joinColumns = @JoinColumn(name = "requirement_id"),
+            inverseJoinColumns = @JoinColumn(name = "dependency_id")
+    )
+    private List<Requirement> dependencies = new ArrayList<>();
 }

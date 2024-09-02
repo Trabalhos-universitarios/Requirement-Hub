@@ -1,7 +1,7 @@
 package com.br.requirementhub.dtos.requirement;
 
-import lombok.Data;
 import java.util.List;
+import lombok.Data;
 
 @Data
 public class RequirementResponseDTO {
@@ -11,15 +11,16 @@ public class RequirementResponseDTO {
     private String description;
     private String version;
     private String author;
-    private String source;
     private String risk;
     private String priority;
-    private String responsible;
     private String type;
     private String status;
     private Integer effort;
-    private String release;
-    private String dependency;
     private Long projectId;
+    private String dateCreated;
     private List<Long> artifactIds;
+    private List<Long> responsibleIds;
+    private List<Long> dependencyIds;
+    private List<Long> stakeholderIds;
 }
+

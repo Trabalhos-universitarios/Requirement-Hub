@@ -5,9 +5,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Data
 public class RequirementArtifactRequestDTO {
-    private String identify;
-    private String type;
+    private String name;
+    private RequirementArtifactTypeAndIdentifierDTO type;
     private String description;
-    private MultipartFile artifact;
+    private String file;
     private Long requirementId;
 }

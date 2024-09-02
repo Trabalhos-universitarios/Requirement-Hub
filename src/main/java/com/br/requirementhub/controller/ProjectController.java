@@ -31,6 +31,11 @@ public class ProjectController {
         return ResponseEntity.ok(service.list());
     }
 
+    @GetMapping("/all/{userId}")
+    public ResponseEntity<List<ProjectResponseDTO>> list(@PathVariable Long userId) {
+        return ResponseEntity.ok(service.listProjectsByUserId(userId));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ProjectResponseDTO> find(@PathVariable Long id) {
         return ResponseEntity.ok(service.findById(id));
@@ -47,7 +52,4 @@ public class ProjectController {
         service.deleteById(id);
         return ResponseEntity.noContent().build();
     }
-
-
-
 }

@@ -1,10 +1,9 @@
 package com.br.requirementhub.dtos.project;
 
 import com.br.requirementhub.utils.DateUtils;
-import lombok.Data;
-
 import java.util.Date;
 import java.util.List;
+import lombok.Data;
 
 @Data
 public class ProjectResponseDTO {

@@ -1,5 +1,7 @@
 package com.br.requirementhub.config;
 
+import static com.br.requirementhub.enums.Role.GERENTE_DE_PROJETOS;
+
 import com.br.requirementhub.enums.Permission;
 import com.br.requirementhub.enums.Role;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,10 +38,14 @@ public class SecurityFilter {
                     authConfig.requestMatchers(HttpMethod.GET, "/project/**").permitAll();
                     authConfig.requestMatchers(HttpMethod.POST, "/project/**").permitAll();
                     authConfig.requestMatchers(HttpMethod.PUT, "/project/**").permitAll();
-                    authConfig.requestMatchers(HttpMethod.DELETE, "/project/**").permitAll();
+                    authConfig.requestMatchers(HttpMethod.DELETE, "/project/**").hasRole(GERENTE_DE_PROJETOS.name());
+                    authConfig.requestMatchers(HttpMethod.GET, "/project-artifacts/**").permitAll();
+                    authConfig.requestMatchers(HttpMethod.POST, "/project-artifacts/**").permitAll();
+                    authConfig.requestMatchers(HttpMethod.DELETE, "/project-artifacts/**").permitAll();
 
 
                     authConfig.requestMatchers(HttpMethod.GET, "/user/**").permitAll();
+                    authConfig.requestMatchers(HttpMethod.GET, "/team/**").permitAll();
 
                     authConfig.requestMatchers(HttpMethod.GET, "/requirements/**").permitAll();
                     authConfig.requestMatchers(HttpMethod.POST, "/requirements/**").permitAll();
@@ -49,12 +55,14 @@ public class SecurityFilter {
 
                     authConfig.requestMatchers(HttpMethod.GET, "/requirement-artifacts/**").permitAll();
                     authConfig.requestMatchers(HttpMethod.POST, "/requirement-artifacts/**").permitAll();
+                    authConfig.requestMatchers(HttpMethod.PUT, "/requirement-artifacts/**").permitAll();
+                    authConfig.requestMatchers(HttpMethod.DELETE, "/requirement-artifacts/**").permitAll();
+
+                    authConfig.requestMatchers(HttpMethod.GET, "/stakeholders/**").permitAll();
+                    authConfig.requestMatchers(HttpMethod.GET, "/matrix/**").permitAll();
 
 
-
-
-
-//                    authConfig.anyRequest().authenticated();
+                    authConfig.anyRequest().authenticated();
 
                 });
 

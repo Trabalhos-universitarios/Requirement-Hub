@@ -1,15 +1,27 @@
 package com.br.requirementhub.entity;
 
 import com.br.requirementhub.enums.Role;
-import jakarta.persistence.*;
-import org.springframework.security.core.userdetails.UserDetails;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.Table;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
-
+import org.springframework.security.core.userdetails.UserDetails;
+@Data
+@NoArgsConstructor
 @Entity
 @Table(name = "_user")
 public class User implements UserDetails {
@@ -23,46 +35,18 @@ public class User implements UserDetails {
     @Enumerated(EnumType.ORDINAL)
     private Role role;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
+    @ManyToMany(mappedBy = "responsible")
+    @JsonIgnore
+    private Set<Requirement> requirements = new HashSet<>();
 
     @Override
     public String getUsername() {
         return username;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     @Override
     public String getPassword() {
         return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
     }
 
     @Override
@@ -93,9 +77,6 @@ public class User implements UserDetails {
 
         authorities.add(new SimpleGrantedAuthority("ROLE_" + role.name()));
 
-
         return authorities;
     }
-
-
 }

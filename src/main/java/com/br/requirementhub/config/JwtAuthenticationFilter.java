@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -32,10 +33,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-        String jwt = authHeader.split(" ")[1];
+        String[] parts = authHeader.split(" ");
+        if (parts.length < 2) {
+            throw new ServletException("Invalid Authorization header");
+        }
+        String jwt = parts[1];
+        if (jwt == null || jwt.split("\\.").length != 3) {
+            throw new ServletException("Invalid JWT token");
+        }
         String username = jwtService.extractUsername(jwt);
-        User user = userRepository.findByUsername(username).get();
-
+        Optional<User> optionalUser = userRepository.findByUsername(username);
+        if (!optionalUser.isPresent()) {
+            throw new ServletException("User not found");
+        }
+        User user = optionalUser.get();
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                 username, null, user.getAuthorities()
         );

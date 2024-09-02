@@ -1,6 +1,7 @@
 package com.br.requirementhub.entity;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 import lombok.Data;
 
 @Data
@@ -9,23 +10,24 @@ import lombok.Data;
 public class RequirementArtifact {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Long id;
 
-    @Column(name = "identify")
-    private String identify;
+    private String identifier;
 
-    @Column(name = "type")
+    private String name;
+
     private String type;
 
-    @Column(name = "description")
     private String description;
 
-//    @Lob
-    @Column(name = "artifact")
-    private byte[] artifact;
+    @Column(name = "date_created")
+    private LocalDateTime dateCreated = LocalDateTime.now();
+
+    @Column(name = "file")
+    private String file;
 
     @ManyToOne
-    @JoinColumn(name = "id_requisito", nullable = false)
-    private Requirement requirement;
+    @JoinColumn(name = "requirement_id", nullable = false)
+    private Requirement requirementId;
+
 }
