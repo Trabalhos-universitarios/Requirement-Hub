@@ -14,9 +14,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import lombok.Data;
 
 @Data
@@ -49,6 +47,9 @@ public class Requirement {
 
     @Column(name = "date_created")
     private LocalDateTime dateCreated = LocalDateTime.now();
+
+    @OneToMany(mappedBy = "requirement")
+    private List<Comments> comments;
 
     @ManyToOne
     @JoinColumn(name = "project_related", nullable = false)
