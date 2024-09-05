@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
@@ -57,5 +58,16 @@ public class UserService {
         user.setName(dto.getName());
         user.setRole(dto.getRole());
         return user;
+    }
+
+    @Transactional
+    public UserResponseDTO updateUserImage(Long id, String imageBase64) {
+        User user = repository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        user.setImage(imageBase64);
+        repository.save(user);
+
+        return convertToResponseDTO(user);
     }
 }
