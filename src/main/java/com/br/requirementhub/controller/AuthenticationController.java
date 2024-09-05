@@ -5,10 +5,7 @@ import com.br.requirementhub.dtos.auth.AuthenticationResponseDTO;
 import com.br.requirementhub.services.AuthenticationService;
 import com.br.requirementhub.entity.User;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -20,7 +17,6 @@ public class AuthenticationController {
         this.service = service;
     }
 
-
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponseDTO> register(@RequestBody User request) {
         return ResponseEntity.ok(service.register(request));
@@ -29,5 +25,11 @@ public class AuthenticationController {
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponseDTO> authenticate(@RequestBody AuthenticationRequestDTO request) {
         return ResponseEntity.ok(service.login(request));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        service.deleteUser(id);
+        return ResponseEntity.noContent().build();
     }
 }
