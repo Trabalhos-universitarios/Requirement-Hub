@@ -2,18 +2,21 @@ package com.br.requirementhub.entity;
 
 import com.br.requirementhub.enums.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -35,9 +38,20 @@ public class User implements UserDetails {
     @Enumerated(EnumType.ORDINAL)
     private Role role;
 
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+            name = "user_notifications",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "requirement_id")
+    )
+    private List<Requirement> notifications = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user")
+    private List<Comments> comments;
+
     @ManyToMany(mappedBy = "responsible")
     @JsonIgnore
-    private Set<Requirement> requirements = new HashSet<>();
+    private List<Requirement> requirements = new ArrayList<>();
 
     @Override
     public String getUsername() {
