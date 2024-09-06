@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import static com.br.requirementhub.enums.Role.ADMIN;
 
 @Service
 @RequiredArgsConstructor
@@ -24,8 +25,9 @@ public class UserService {
 
     public List<UserResponseDTO> getAllUsers() {
         return repository.findAll().stream()
+                .filter(user -> !user.getRole().equals(ADMIN))
                 .map(this::convertToResponseDTO)
-                .sorted(Comparator.comparing(UserResponseDTO::getRole)) // Ordena os usuários restantes por 'role'
+                .sorted(Comparator.comparing(UserResponseDTO::getRole))
                 .collect(Collectors.toList());
     }
 
