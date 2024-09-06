@@ -61,7 +61,7 @@ public class ProjectService {
         Role userRole = userService.findUserRoleById(userId);
 
         List<Project> projects;
-        if (userRole == Role.GERENTE_DE_PROJETOS) {
+        if (userRole == Role.GERENTE_DE_PROJETOS || userRole == Role.ADMIN) {
             projects = projectRepository.findAll();
         } else {
             List<Long> projectIds = teamService.findProjectIdsByUserId(userId);

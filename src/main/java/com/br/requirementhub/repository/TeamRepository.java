@@ -25,4 +25,8 @@ public interface TeamRepository extends JpaRepository<Team, Long> {
 
     @Query("SELECT t.project.id FROM Team t WHERE t.user.id = :userId")
     List<Long> findProjectIdsByUserId(@Param("userId") Long userId);
+
+    @Modifying
+    @Query("DELETE FROM Team t WHERE t.user.id = :userId")
+    void deleteByUserId(@Param("userId") Long userId);
 }
