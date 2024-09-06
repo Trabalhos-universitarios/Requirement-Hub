@@ -40,7 +40,7 @@ public class SecurityFilter {
                     authConfig.requestMatchers(HttpMethod.GET, "/project/**").permitAll();
                     authConfig.requestMatchers(HttpMethod.POST, "/project/**").permitAll();
                     authConfig.requestMatchers(HttpMethod.PUT, "/project/**").permitAll();
-                    authConfig.requestMatchers(HttpMethod.DELETE, "/project/**").hasRole(GERENTE_DE_PROJETOS.name());
+                    authConfig.requestMatchers(HttpMethod.DELETE, "/project/**").hasRole(ADMIN.name());
                     authConfig.requestMatchers(HttpMethod.GET, "/project-artifacts/**").permitAll();
                     authConfig.requestMatchers(HttpMethod.POST, "/project-artifacts/**").permitAll();
                     authConfig.requestMatchers(HttpMethod.DELETE, "/project-artifacts/**").permitAll();
