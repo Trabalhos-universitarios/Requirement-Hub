@@ -33,7 +33,7 @@ public class UserService {
 
     public List<UserResponseDTO> findByRole(Role role) {
         return repository.findByRole(role).stream()
-                .map(user -> new UserResponseDTO(user.getId(), user.getName(), user.getRole()))
+                .map(user -> new UserResponseDTO(user.getId(), user.getName(), user.getRole(), user.getImage()))
                 .collect(Collectors.toList());
     }
 
@@ -52,7 +52,7 @@ public class UserService {
     }
 
     private UserResponseDTO convertToResponseDTO(User user) {
-        return new UserResponseDTO(user.getId(), user.getName(), user.getRole());
+        return new UserResponseDTO(user.getId(), user.getName(), user.getRole(), user.getImage());
     }
 
     private User convertToEntity(UserRequestDTO dto) {
