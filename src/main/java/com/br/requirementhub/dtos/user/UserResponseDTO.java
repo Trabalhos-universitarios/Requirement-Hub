@@ -12,4 +12,6 @@ public class UserResponseDTO {
     private String name;
 
     private Role role;
+
+    private String image;
 }
