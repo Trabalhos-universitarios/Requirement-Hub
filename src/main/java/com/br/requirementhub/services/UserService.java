@@ -1,7 +1,10 @@
 package com.br.requirementhub.services;
 
+import static com.br.requirementhub.enums.Role.ADMIN;
+
 import com.br.requirementhub.dtos.user.UserRequestDTO;
 import com.br.requirementhub.dtos.user.UserResponseDTO;
+import com.br.requirementhub.entity.Requirement;
 import com.br.requirementhub.entity.User;
 import com.br.requirementhub.enums.Role;
 import com.br.requirementhub.exceptions.UserNotFoundException;
@@ -15,13 +18,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-import static com.br.requirementhub.enums.Role.ADMIN;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository repository;
+
+    private final UserRepository userRepository;
 
     public List<UserResponseDTO> getAllUsers() {
         return repository.findAll().stream()
@@ -39,7 +43,8 @@ public class UserService {
 
     public Role findUserRoleById(Long userId) {
         return repository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with id: " + userId))
+                .orElseThrow(
+                        () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with id: " + userId))
                 .getRole();
     }
 
@@ -72,4 +77,10 @@ public class UserService {
 
         return convertToResponseDTO(user);
     }
+
+    public List<Long> getUserNotifications(Long userId) {
+        User user = userRepository.getReferenceById(userId);
+        return user.getNotifications().stream().map(Requirement::getId).collect(Collectors.toList());
+    }
+
 }

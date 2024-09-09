@@ -5,6 +5,7 @@ import com.br.requirementhub.dtos.requirement.RequirementRequestDTO;
 import com.br.requirementhub.dtos.requirement.RequirementResponseDTO;
 import com.br.requirementhub.dtos.requirement.RequirementUpdateRequestDTO;
 import com.br.requirementhub.dtos.requirementArtifact.RequirementArtifactResponseDTO;
+import com.br.requirementhub.entity.Requirement;
 import com.br.requirementhub.entity.RequirementArtifact;
 import com.br.requirementhub.repository.RequirementArtifactRepository;
 import com.br.requirementhub.services.RequirementArtifactService;
@@ -29,6 +30,8 @@ public class RequirementController {
     private final RequirementArtifactService artifactService;
 
     private final RequirementArtifactRepository requirementArtifactRepository;
+
+    private final RequirementService requirementService;
 
     @GetMapping
     public ResponseEntity<List<RequirementResponseDTO>> getAllRequirements() {
@@ -94,10 +97,22 @@ public class RequirementController {
         return requirement != null ? ResponseEntity.ok(requirement) : ResponseEntity.notFound().build();
     }
 
+    @GetMapping("/requirement-id")
+    public List<RequirementResponseDTO> getRequirementsByIds(@RequestParam List<Long> ids) {
+        return requirementService.getRequirementsByIds(ids);
+    }
+
     @PostMapping
     public ResponseEntity<RequirementResponseDTO> createRequirement(
             @RequestBody RequirementRequestDTO requirementRequestDTO) {
         RequirementResponseDTO createdRequirement = service.createRequirement(requirementRequestDTO);
+        return ResponseEntity.status(201).body(createdRequirement);
+    }
+
+    @PostMapping("/flow")
+    public ResponseEntity<RequirementResponseDTO> sendToApprovalFlow(
+            @RequestBody RequirementRequestDTO requirementRequestDTO) {
+        RequirementResponseDTO createdRequirement = service.sendToApprovalFlow(requirementRequestDTO);
         return ResponseEntity.status(201).body(createdRequirement);
     }
 
