@@ -282,6 +282,10 @@ public class RequirementService {
         return "1.1";
     }
 
+    public List<Object[]> getAllRequirementResponsibles() {
+        return requirementRepository.findAllRequirementResponsibles();
+    }
+
     private RequirementResponseDTO convertToResponseDTO(Requirement requirement) {
         RequirementResponseDTO dto = new RequirementResponseDTO();
         dto.setId(requirement.getId());

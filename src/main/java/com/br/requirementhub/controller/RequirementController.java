@@ -94,6 +94,12 @@ public class RequirementController {
         return requirement != null ? ResponseEntity.ok(requirement) : ResponseEntity.notFound().build();
     }
 
+    @GetMapping("/all-responsibles")
+    public ResponseEntity<List<Object[]>> getAllRequirementResponsibles() {
+        List<Object[]> responsibles = service.getAllRequirementResponsibles();
+        return ResponseEntity.ok(responsibles);
+    }
+
     @PostMapping
     public ResponseEntity<RequirementResponseDTO> createRequirement(
             @RequestBody RequirementRequestDTO requirementRequestDTO) {
