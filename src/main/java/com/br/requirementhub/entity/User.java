@@ -35,9 +35,10 @@ public class User implements UserDetails {
     private String username;
     private String name;
     private String password;
+    private String image;
+
     @Enumerated(EnumType.ORDINAL)
     private Role role;
-    private String image;
 
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
