@@ -15,9 +15,3 @@ WORKDIR /app
 EXPOSE 8080
 
 CMD ["java", "-jar", "app.jar"]
-
-# docker run -d -p 8080:8080 eliasfernandescout/reqhub:1.0
-#docker run -d -p 8080:8080 --name rhb-backend eliasfernandescout/backend-requirementhub:2.0
-# docker build --platform linux/amd64 -t eliasfernandescout/backend-requirementhub:1.0 .
-# docker pull eliasfernandescout/backend-requirementhub:1.0
-# sudo docker run --name postgresql -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=post123 -p 5432:5432 -v /data:/var/lib/postgresql/data -d postgres:alpine
