@@ -2,6 +2,9 @@ package com.br.requirementhub.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -34,4 +37,7 @@ public class RequirementHistory {
     private Long requirementId;
 
     private Long projectId;
+
+    @CreationTimestamp
+    private LocalDateTime modification_date;
 }
