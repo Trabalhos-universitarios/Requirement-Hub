@@ -1,0 +1,39 @@
+name: Deploy Application Requirement Hub
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'amazon-corretto'
+          java-version: '17'
+      - name: Build project
+        run: mvn clean install -DskipTests
+      - name: Login Docker Hub
+        run: docker login -u ${{secrets.DOCKER_USERNAME}} -p ${{secrets.DOCKER_PASSWORD}}
+      - name: Build docker image
+        run: docker build -t eliasfernandes/requirementhub .
+      - name: Push image docker
+        run: docker push eliasfernandes/requirementhub
+
+#  deploy:
+#    needs: build
+#    runs-on: self-hosted
+#    steps:
+#      - name: Pull image from docker hub
+#        run: docker pull danieleleaoe/deploy_ghactions:latest
+#      - name: Remove docker container
+#        run: docker rm -f deploy_ghactions
+#      - name: Run docker container
+#        run: docker run -d -p 8080:8080 -e DATABASE_USERNAME=${{secrets.DATABASE_USERNAME}} -e DATABASE_PASSWORD='${{secrets.DATABASE_PASSWORD}}' -e DATABASE_URL=${{secrets.DATABASE_URL}} --name deploy_ghactions danieleleaoe/deploy_ghactions
