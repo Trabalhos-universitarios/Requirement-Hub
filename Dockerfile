@@ -1,5 +1,8 @@
 FROM eclipse-temurin:17-jdk-alpine as build
 
+# Install Maven
+RUN apk add --no-cache maven
+
 COPY src /app/src
 COPY pom.xml /app
 
