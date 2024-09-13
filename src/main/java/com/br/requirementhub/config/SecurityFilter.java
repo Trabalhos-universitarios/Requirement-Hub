@@ -1,5 +1,6 @@
 package com.br.requirementhub.config;
 
+import static com.br.requirementhub.enums.Role.ADMIN;
 import static com.br.requirementhub.enums.Role.GERENTE_DE_PROJETOS;
 
 import com.br.requirementhub.enums.Permission;
@@ -33,12 +34,15 @@ public class SecurityFilter {
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(authConfig -> {
                     authConfig.requestMatchers(HttpMethod.POST, "/auth/authenticate").permitAll();
+//                    authConfig.requestMatchers(HttpMethod.POST, "/auth/register").hasRole(ADMIN.name());
                     authConfig.requestMatchers(HttpMethod.POST, "/auth/register").permitAll();
+
+                    authConfig.requestMatchers(HttpMethod.DELETE, "/auth/**").hasRole(ADMIN.name());
                     authConfig.requestMatchers("/error").permitAll();
                     authConfig.requestMatchers(HttpMethod.GET, "/project/**").permitAll();
                     authConfig.requestMatchers(HttpMethod.POST, "/project/**").permitAll();
                     authConfig.requestMatchers(HttpMethod.PUT, "/project/**").permitAll();
-                    authConfig.requestMatchers(HttpMethod.DELETE, "/project/**").hasRole(GERENTE_DE_PROJETOS.name());
+                    authConfig.requestMatchers(HttpMethod.DELETE, "/project/**").hasRole(ADMIN.name());
                     authConfig.requestMatchers(HttpMethod.GET, "/project-artifacts/**").permitAll();
                     authConfig.requestMatchers(HttpMethod.POST, "/project-artifacts/**").permitAll();
                     authConfig.requestMatchers(HttpMethod.DELETE, "/project-artifacts/**").permitAll();
@@ -46,6 +50,7 @@ public class SecurityFilter {
 
                     authConfig.requestMatchers(HttpMethod.GET, "/user/**").permitAll();
                     authConfig.requestMatchers(HttpMethod.GET, "/team/**").permitAll();
+                    authConfig.requestMatchers(HttpMethod.PATCH, "/user/**").permitAll();
 
                     authConfig.requestMatchers(HttpMethod.GET, "/requirements/**").permitAll();
                     authConfig.requestMatchers(HttpMethod.POST, "/requirements/**").permitAll();
@@ -60,6 +65,8 @@ public class SecurityFilter {
 
                     authConfig.requestMatchers(HttpMethod.GET, "/stakeholders/**").permitAll();
                     authConfig.requestMatchers(HttpMethod.GET, "/matrix/**").permitAll();
+
+                    authConfig.requestMatchers(HttpMethod.GET, "/requirement-history/**").permitAll();
 
 
                     authConfig.anyRequest().authenticated();

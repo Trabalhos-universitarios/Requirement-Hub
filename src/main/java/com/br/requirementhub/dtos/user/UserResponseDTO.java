@@ -8,6 +8,10 @@ import lombok.Data;
 @AllArgsConstructor
 public class UserResponseDTO {
     private Long id;
+
     private String name;
+
     private Role role;
+
+    private String image;
 }
