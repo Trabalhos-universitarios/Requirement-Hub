@@ -21,7 +21,11 @@ jobs:
       - name: Build project
         run: mvn clean install -DskipTests
       - name: Login Docker Hub
-        run: docker login -u ${{secrets.DOCKER_USERNAME}} -p ${{secrets.DOCKER_PASSWORD}}
+        run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+        shell: /usr/bin/bash -e {0}
+        env:
+          JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.12-7/x64
+          JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.12-7/x64
       - name: Build docker image
         run: docker build -t eliasfernandes/requirementhub .
       - name: Push image docker
