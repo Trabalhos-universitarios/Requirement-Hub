@@ -27,6 +27,8 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Build docker image
         run: docker build -t eliasfernandes/requirementhub .
+      - name: Tag docker image
+        run: docker tag eliasfernandes/requirementhub:latest eliasfernandes/requirementhub:v1.0.0
       - name: Push image docker
         run: docker push eliasfernandes/requirementhub
 
