@@ -4,11 +4,7 @@ import com.br.requirementhub.dtos.requirement.RequirementRequestDTO;
 import com.br.requirementhub.dtos.requirement.RequirementResponseDTO;
 import com.br.requirementhub.dtos.requirement.RequirementUpdateRequestDTO;
 import com.br.requirementhub.dtos.requirementArtifact.RequirementArtifactResponseDTO;
-import com.br.requirementhub.entity.Project;
-import com.br.requirementhub.entity.Requirement;
-import com.br.requirementhub.entity.RequirementArtifact;
-import com.br.requirementhub.entity.Stakeholder;
-import com.br.requirementhub.entity.User;
+import com.br.requirementhub.entity.*;
 import com.br.requirementhub.enums.Status;
 import com.br.requirementhub.exceptions.ProjectNotFoundException;
 import com.br.requirementhub.exceptions.RequirementAlreadyExistException;
@@ -19,6 +15,7 @@ import com.br.requirementhub.repository.RequirementArtifactRepository;
 import com.br.requirementhub.repository.RequirementRepository;
 import com.br.requirementhub.repository.StakeHolderRepository;
 import com.br.requirementhub.repository.UserRepository;
+import com.br.requirementhub.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import java.util.ArrayList;
@@ -49,6 +46,8 @@ public class RequirementService {
     private final RequirementArtifactRepository requirementArtifactRepository;
 
     private final RequirementArtifactService requirementArtifactService;
+
+    private final RequirementHistoryRepository requirementHistoryRepository;
 
     public List<RequirementResponseDTO> getAllRequirements() {
         return requirementRepository.findAll().stream()
@@ -452,6 +451,23 @@ public class RequirementService {
                 .map(Stakeholder::getId)
                 .collect(Collectors.toList()));
         return dto;
+    }
+
+    private RequirementHistory convertToHistory(Requirement requirement) {
+        RequirementHistory history = new RequirementHistory();
+        history.setIdentifier(requirement.getIdentifier());
+        history.setName(requirement.getName());
+        history.setDescription(requirement.getDescription());
+        history.setVersion(requirement.getVersion());
+        history.setAuthor(requirement.getAuthor());
+        history.setRisk(requirement.getRisk());
+        history.setPriority(requirement.getPriority());
+        history.setType(requirement.getType());
+        history.setStatus(requirement.getStatus());
+        history.setEffort(requirement.getEffort());
+        history.setRequirementId(requirement.getId());
+        history.setProjectId(requirement.getProjectRelated().getId());
+        return history;
     }
 
     private Requirement convertToEntity(RequirementRequestDTO dto) {
