@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jdk-alpine
+FROM eclipse-temurin:17-jdk-alpine as build
 
 COPY src /app/src
 COPY pom.xml /app
