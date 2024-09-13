@@ -1,4 +1,4 @@
-FROM maven:3.9.6-amazoncorretto-17 AS build
+FROM eclipse-temurin:17-jdk-alpine
 
 COPY src /app/src
 COPY pom.xml /app
