@@ -34,6 +34,8 @@ jobs:
     needs: build
     runs-on: self-hosted
     steps:
+      - name: Add user to docker group
+        run: sudo usermod -aG docker $USER
       - name: Pull image from docker hub
         run: docker pull eliasfernandescout/requirementhub:latest
       - name: Remove docker container
