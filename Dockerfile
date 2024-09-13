@@ -6,7 +6,7 @@ COPY pom.xml /app
 WORKDIR /app
 RUN mvn clean install
 
-FROM amazoncorretto:17
+FROM eclipse-temurin:17
 
 COPY --from=build /app/target/requirementhub-0.0.1-SNAPSHOT.jar /app/app.jar
 
