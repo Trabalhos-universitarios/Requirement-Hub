@@ -41,6 +41,8 @@ public class RequirementService {
 
     private final UserRepository userRepository;
 
+    private final CommentsRepository commentsRepository;
+
     private final StakeHolderRepository stakeholderRepository;
 
     private final RequirementArtifactRepository requirementArtifactRepository;
@@ -141,10 +143,22 @@ public class RequirementService {
         requirementAfter.setStatus(Status.CREATED.toString());
     }
 
-    public RequirementResponseDTO sendToApprovalFlow(RequirementRequestDTO requirementRequestDTO, Requirement requirement) {
+    public RequirementResponseDTO sendToApprovalFlowRequirementId(Long id) {
+        Requirement requirement = requirementRepository.findById(id)
+                .orElseThrow(() -> new RequirementNotFoundException("Requirement not found: " + id));
+
+        requirement.setStatus(Status.PENDING.toString());
+        requirement = requirementRepository.save(requirement);
+
+        this.createNotificationToManager(requirement);
+
+        return convertToResponseDTO(requirement);
+    }
+
+    public RequirementResponseDTO sendToApprovalFlow(RequirementRequestDTO requirementRequestDTO) {
         this.verifyAlreadyExistsRequirement(requirementRequestDTO, "flow");
 
-        //TODO Parei aqui, criando lógica para inserir dados no fluxo de aprovação.
+        Requirement requirement = convertToEntity(requirementRequestDTO);
 
         requirement.setAuthor(getAuthor(requirementRequestDTO.getAuthor()));
         requirement.setResponsible(getResponsible(requirementRequestDTO.getResponsible()));
@@ -154,9 +168,10 @@ public class RequirementService {
 
         generateRequirementIdentifier(requirement);
         createVersion(requirement);
-        createStatus(requirement);
+        requirement.setStatus(Status.PENDING.toString());
 
         requirement = requirementRepository.save(requirement);
+        this.createNotificationToManager(requirement);
 
         return convertToResponseDTO(requirement);
     }
@@ -209,6 +224,8 @@ public class RequirementService {
             throw new RequirementAlreadyExistException("This requirement already exists!");
         } else if (findProject.isEmpty() && action.equals("update")) {
             throw new RequirementNotFoundException("Requirement not found with id: " + request.getId());
+        } else if (findProject.isPresent() && action.equals("flow")) {
+            throw new RequirementNotFoundException("This requirement already exists!");
         }
     }
 
@@ -287,16 +304,20 @@ public class RequirementService {
         if (requirementBefore != null) {
             Requirement requirementAfter = convertToEntityToUpdate(requirementRequestDTO);
             requirementAfter.setId(id);
-            requirementAfter.setAuthor(getAuthor(requirementRequestDTO.getAuthor()));
+            requirementAfter.setAuthor(requirementBefore.getAuthor());
             requirementAfter.setResponsible(getResponsible(requirementRequestDTO.getResponsible()));
             requirementAfter.setStakeholders(getStakeholders(requirementRequestDTO.getStakeholders()));
-
             requirementAfter.setDependencies(getRequirementsRelated(requirementRequestDTO.getDependencies()));
-
-            requirementAfter.setIdentifier(requirementRequestDTO.getIdentifier());
+            requirementAfter.setIdentifier(requirementBefore.getIdentifier());
 
             this.updateVersion(requirementBefore, requirementAfter);
             this.updateStatus(requirementBefore, requirementAfter, "update");
+
+
+            if (!requirementBefore.getStatus().equals(Status.CREATED.toString())) {
+                RequirementHistory history = convertToHistory(requirementBefore);
+                requirementHistoryRepository.save(history);
+            }
 
             requirementAfter = requirementRepository.save(requirementAfter);
             return convertToResponseDTO(requirementAfter);
@@ -404,8 +425,21 @@ public class RequirementService {
             Optional<User> manager = Optional.ofNullable(this.userRepository.findByName(managerProjectRelated).orElseThrow(
                             () -> new UserNotFoundException("Manager not found: " + managerProjectRelated)));
 
-            manager.ifPresent(
-                    user -> this.userRepository.addNotificationToUser(user.getId(), requirementBefore.getId()));
+            Long managerId = null;
+
+            if (manager.isPresent()) {
+                managerId = manager.get().getId();
+            }
+
+            System.out.println(managerId);
+
+            List<Long> comments = commentsRepository.findUserIdsByRequirementId(requirementBefore.getId());
+
+            if (managerId != null && comments.isEmpty()) {
+                this.userRepository.addNotificationToUser(managerId, requirementBefore.getId());
+            } else {
+                System.out.println("Notificação existente para o gerente ID: " + managerId);
+            }
         }
     }
 

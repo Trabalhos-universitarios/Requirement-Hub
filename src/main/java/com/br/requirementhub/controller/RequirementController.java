@@ -5,6 +5,7 @@ import com.br.requirementhub.dtos.requirement.RequirementRequestDTO;
 import com.br.requirementhub.dtos.requirement.RequirementResponseDTO;
 import com.br.requirementhub.dtos.requirement.RequirementUpdateRequestDTO;
 import com.br.requirementhub.dtos.requirementArtifact.RequirementArtifactResponseDTO;
+import com.br.requirementhub.entity.Requirement;
 import com.br.requirementhub.entity.RequirementArtifact;
 import com.br.requirementhub.repository.RequirementArtifactRepository;
 import com.br.requirementhub.services.RequirementArtifactService;
@@ -12,15 +13,7 @@ import com.br.requirementhub.services.RequirementService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -117,12 +110,18 @@ public class RequirementController {
         return ResponseEntity.status(201).body(createdRequirement);
     }
 
-//    @PostMapping("/flow")
-//    public ResponseEntity<RequirementResponseDTO> sendToApprovalFlow(
-//            @RequestBody RequirementRequestDTO requirementRequestDTO) {
-//        RequirementResponseDTO createdRequirement = service.sendToApprovalFlow(requirementRequestDTO);
-//        return ResponseEntity.status(201).body(createdRequirement);
-//    }
+    @PostMapping("/flow")
+    public ResponseEntity<RequirementResponseDTO> sendToApprovalFlow(
+            @RequestBody RequirementRequestDTO requirementRequestDTO) {
+       RequirementResponseDTO createdRequirement = service.sendToApprovalFlow(requirementRequestDTO);
+        return ResponseEntity.status(201).body(createdRequirement);
+   }
+
+    @PatchMapping("/flow/{id}")
+    public ResponseEntity<RequirementResponseDTO> sendToApprovalRequirement(@PathVariable Long id) {
+        RequirementResponseDTO updatedEntity = requirementService.sendToApprovalFlowRequirementId(id);
+        return ResponseEntity.ok(updatedEntity);
+    }
 
     @PutMapping("/{id}")
     public ResponseEntity<RequirementResponseDTO> updateRequirement(
