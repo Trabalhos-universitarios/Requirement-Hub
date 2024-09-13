@@ -1,7 +1,7 @@
 package com.br.requirementhub.controller;
 
 import com.br.requirementhub.dtos.comments.CommentsRequestDto;
-import com.br.requirementhub.dtos.comments.CommentsResponseDto;
+import com.br.requirementhub.dtos.comments.CommentsCreateResponseDto;
 import com.br.requirementhub.entity.Comments;
 import com.br.requirementhub.services.CommentsService;
 import java.util.List;
@@ -22,9 +22,9 @@ public class CommentsController {
     private final CommentsService commentsService;
 
     @PostMapping
-    public ResponseEntity<CommentsResponseDto> addComment(@RequestBody CommentsRequestDto comment) {
+    public ResponseEntity<CommentsCreateResponseDto> addComment(@RequestBody CommentsRequestDto comment) {
 
-        CommentsResponseDto commentResponse = commentsService.saveComment(comment);
+        CommentsCreateResponseDto commentResponse = commentsService.saveComment(comment);
 
         return ResponseEntity.status(201).body(commentResponse);
     }

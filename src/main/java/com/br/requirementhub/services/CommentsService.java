@@ -1,9 +1,11 @@
 package com.br.requirementhub.services;
 
 import com.br.requirementhub.dtos.comments.CommentsRequestDto;
-import com.br.requirementhub.dtos.comments.CommentsResponseDto;
+import com.br.requirementhub.dtos.comments.CommentsCreateResponseDto;
 import com.br.requirementhub.entity.Comments;
+import com.br.requirementhub.entity.User;
 import com.br.requirementhub.repository.CommentsRepository;
+import com.br.requirementhub.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +18,9 @@ public class CommentsService {
 
     private final CommentsRepository commentsRepository;
 
-    public CommentsResponseDto saveComment(CommentsRequestDto commentDto) {
+    private final UserRepository userRepository;
+
+    public CommentsCreateResponseDto saveComment(CommentsRequestDto commentDto) {
         Comments comments = convertToEntity(commentDto);
         comments = commentsRepository.save(comments);
         return convertToResponseDTO(comments);
@@ -36,13 +40,19 @@ public class CommentsService {
         return comments;
     }
 
-    private CommentsResponseDto convertToResponseDTO(Comments requirement) {
-        CommentsResponseDto dto = new CommentsResponseDto();
-        dto.setDescription(requirement.getDescription());
-        dto.setRequirementId(requirement.getRequirement());
-        dto.setUser(requirement.getUser());
-        dto.setAvatarUser(requirement.getAvatarUser());
-        dto.setReactions(requirement.getReactions());
+    private CommentsCreateResponseDto convertToResponseDTO(Comments comments) {
+
+        final User user = userRepository.findById(comments.getUser().getId()).orElse(null);
+
+        CommentsCreateResponseDto dto = new CommentsCreateResponseDto();
+        dto.setDescription(comments.getDescription());
+        dto.setRequirementId(comments.getRequirement().getId());
+        dto.setUserName(comments.getUser().getName());
+        dto.setUserImage(comments.getAvatarUser());
+        assert user != null;
+        dto.setUserRole(user.getRole().name());
+        dto.setDateCreated(comments.getDateCreated().toString());
+        dto.setReactions(comments.getReactions());
         return dto;
     }
 }
