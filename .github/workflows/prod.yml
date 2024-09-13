@@ -26,9 +26,9 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Build docker image
-        run: docker build -t eliasfernandes/requirementhub .
+        run: docker build -t eliasfernandescout/requirementhub .
       - name: Push image docker
-        run: docker push eliasfernandes/requirementhub
+        run: docker push eliasfernandescout/requirementhub
 
 #  deploy:
 #    needs: build
