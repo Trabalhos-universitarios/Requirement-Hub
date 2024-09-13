@@ -11,7 +11,7 @@ import lombok.Data;
 public class CommentsRequestDto {
 
     private String description;
-    private Requirement requirementId;
+    private Requirement requirement;
     private User user;
     private String avatarUser;
     private List<String> reactions;

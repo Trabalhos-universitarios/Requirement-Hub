@@ -66,6 +66,11 @@ public class SecurityFilter {
                     authConfig.requestMatchers(HttpMethod.GET, "/stakeholders/**").permitAll();
                     authConfig.requestMatchers(HttpMethod.GET, "/matrix/**").permitAll();
 
+                    authConfig.requestMatchers(HttpMethod.GET, "/comments/**").permitAll();
+                    authConfig.requestMatchers(HttpMethod.POST, "/comments/**").permitAll();
+                    authConfig.requestMatchers(HttpMethod.PUT, "/comments/**").permitAll();
+                    authConfig.requestMatchers(HttpMethod.PATCH, "/comments/**").permitAll();
+
 
                     authConfig.anyRequest().authenticated();
 

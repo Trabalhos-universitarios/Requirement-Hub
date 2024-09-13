@@ -4,13 +4,17 @@ import com.br.requirementhub.dtos.comments.CommentsRequestDto;
 import com.br.requirementhub.dtos.comments.CommentsResponseDto;
 import com.br.requirementhub.entity.Comments;
 import com.br.requirementhub.repository.CommentsRepository;
+import jakarta.transaction.Transactional;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@Transactional
+@RequiredArgsConstructor
 public class CommentsService {
 
-    private CommentsRepository commentsRepository;
+    private final CommentsRepository commentsRepository;
 
     public CommentsResponseDto saveComment(CommentsRequestDto commentDto) {
         Comments comments = convertToEntity(commentDto);
@@ -25,7 +29,7 @@ public class CommentsService {
     private Comments convertToEntity(CommentsRequestDto dto) {
         Comments comments = new Comments();
         comments.setDescription(dto.getDescription());
-        comments.setRequirement(dto.getRequirementId());
+        comments.setRequirement(dto.getRequirement());
         comments.setUser(dto.getUser());
         comments.setAvatarUser(dto.getAvatarUser());
         comments.setReactions(dto.getReactions());

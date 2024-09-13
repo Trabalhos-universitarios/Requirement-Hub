@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/comments")
 public class CommentsController {
 
-    private CommentsService commentsService;
+    private final CommentsService commentsService;
 
     @PostMapping
     public ResponseEntity<CommentsResponseDto> addComment(@RequestBody CommentsRequestDto comment) {
