@@ -9,6 +9,12 @@ import com.br.requirementhub.enums.Status;
 import com.br.requirementhub.exceptions.ProjectNotFoundException;
 import com.br.requirementhub.exceptions.RequirementAlreadyExistException;
 import com.br.requirementhub.exceptions.RequirementNotFoundException;
+import com.br.requirementhub.exceptions.UserNotFoundException;
+import com.br.requirementhub.repository.ProjectRepository;
+import com.br.requirementhub.repository.RequirementArtifactRepository;
+import com.br.requirementhub.repository.RequirementRepository;
+import com.br.requirementhub.repository.StakeHolderRepository;
+import com.br.requirementhub.repository.UserRepository;
 import com.br.requirementhub.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -25,6 +31,7 @@ import org.springframework.stereotype.Service;
 
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class RequirementService {
 
@@ -33,6 +40,8 @@ public class RequirementService {
     private final ProjectRepository projectRepository;
 
     private final UserRepository userRepository;
+
+    private final CommentsRepository commentsRepository;
 
     private final StakeHolderRepository stakeholderRepository;
 
@@ -95,7 +104,8 @@ public class RequirementService {
         List<RequirementArtifactResponseDTO> artifactResponseDTOs = new ArrayList<>();
 
         for (Requirement requirement : requirements) {
-            List<RequirementArtifact> artifacts = requirementArtifactRepository.findByRequirementId(requirement.getId());
+            List<RequirementArtifact> artifacts =
+                    requirementArtifactRepository.findByRequirementId(requirement.getId());
 
             for (RequirementArtifact artifact : artifacts) {
                 RequirementArtifactResponseDTO dto = requirementArtifactService.convertToResponseDTO(artifact);
@@ -106,7 +116,7 @@ public class RequirementService {
     }
 
     public RequirementResponseDTO createRequirement(RequirementRequestDTO requirementRequestDTO) {
-        this.verifyAlreadyExistsRequirement(requirementRequestDTO);
+        this.verifyAlreadyExistsRequirement(requirementRequestDTO, "create");
 
         Requirement requirement = convertToEntity(requirementRequestDTO);
 
@@ -117,8 +127,51 @@ public class RequirementService {
         requirement.setDependencies(getRequirementsRelated(requirementRequestDTO.getDependencies()));
 
         generateRequirementIdentifier(requirement);
+        createVersion(requirement);
+        createStatus(requirement);
 
         requirement = requirementRepository.save(requirement);
+
+        return convertToResponseDTO(requirement);
+    }
+
+    private static void createVersion(Requirement requirementAfter) {
+        requirementAfter.setVersion("1.0");
+    }
+
+    private static void createStatus(Requirement requirementAfter) {
+        requirementAfter.setStatus(Status.CREATED.toString());
+    }
+
+    public RequirementResponseDTO sendToApprovalFlowRequirementId(Long id) {
+        Requirement requirement = requirementRepository.findById(id)
+                .orElseThrow(() -> new RequirementNotFoundException("Requirement not found: " + id));
+
+        requirement.setStatus(Status.PENDING.toString());
+        requirement = requirementRepository.save(requirement);
+
+        this.createNotificationToManager(requirement);
+
+        return convertToResponseDTO(requirement);
+    }
+
+    public RequirementResponseDTO sendToApprovalFlow(RequirementRequestDTO requirementRequestDTO) {
+        this.verifyAlreadyExistsRequirement(requirementRequestDTO, "flow");
+
+        Requirement requirement = convertToEntity(requirementRequestDTO);
+
+        requirement.setAuthor(getAuthor(requirementRequestDTO.getAuthor()));
+        requirement.setResponsible(getResponsible(requirementRequestDTO.getResponsible()));
+        requirement.setStakeholders(getStakeholders(requirementRequestDTO.getStakeholders()));
+
+        requirement.setDependencies(getRequirementsRelated(requirementRequestDTO.getDependencies()));
+
+        generateRequirementIdentifier(requirement);
+        createVersion(requirement);
+        requirement.setStatus(Status.PENDING.toString());
+
+        requirement = requirementRepository.save(requirement);
+        this.createNotificationToManager(requirement);
 
         return convertToResponseDTO(requirement);
     }
@@ -131,8 +184,6 @@ public class RequirementService {
 
         String identifierPrefix = transformRequirementIdentifier(requirement.getType());
         requirement.setIdentifier(identifierPrefix + "-" + String.format("%04d", newIdNumber));
-        requirement.setVersion("1.0");
-        requirement.setStatus(Status.CREATED.toString());
     }
 
     private int findFirstAvailableIdentifierNumber(List<Requirement> requirements, String type) {
@@ -165,17 +216,21 @@ public class RequirementService {
         return type;
     }
 
-    private void verifyAlreadyExistsRequirement(RequirementRequestDTO request) {
+    private void verifyAlreadyExistsRequirement(RequirementRequestDTO request, String action) {
         Optional<Requirement> findProject = requirementRepository
                 .findByProjectRelatedAndName(request.getProjectRelated(), request.getName());
 
-        if (findProject.isPresent()) {
+        if (findProject.isPresent() && action.equals("create")) {
             throw new RequirementAlreadyExistException("This requirement already exists!");
+        } else if (findProject.isEmpty() && action.equals("update")) {
+            throw new RequirementNotFoundException("Requirement not found with id: " + request.getId());
+        } else if (findProject.isPresent() && action.equals("flow")) {
+            throw new RequirementNotFoundException("This requirement already exists!");
         }
     }
 
     private List<User> getResponsible(Set<User> users) {
-        List<User> managedUsers =  new ArrayList<>();
+        List<User> managedUsers = new ArrayList<>();
         for (User user : users) {
             User managedUser = userRepository.findById(user.getId())
                     .orElseThrow(() -> new EntityNotFoundException("Responsible not found: " + user.getId()));
@@ -185,7 +240,7 @@ public class RequirementService {
     }
 
     private List<Stakeholder> getStakeholders(Set<Stakeholder> stakeholders) {
-        List<Stakeholder> managedStakeholders =  new ArrayList<>();
+        List<Stakeholder> managedStakeholders = new ArrayList<>();
         for (Stakeholder stakeholder : stakeholders) {
             Stakeholder managedStakeholder = stakeholderRepository.findById(stakeholder.getId())
                     .orElseThrow(() -> new EntityNotFoundException("Stakeholder not found: " + stakeholder.getId()));
@@ -196,7 +251,7 @@ public class RequirementService {
 
     private List<Requirement> getRequirementsRelated(Set<Requirement> dependencies) {
         if (dependencies == null || dependencies.isEmpty()) {
-            return  new ArrayList<>(); // Retorna um Set vazio se não houver dependências
+            return new ArrayList<>(); // Retorna um Set vazio se não houver dependências
         }
         List<Requirement> managedRequirements = new ArrayList<>();
         for (Requirement dependency : dependencies) {
@@ -213,7 +268,14 @@ public class RequirementService {
         return authorId.map(User::getId).orElse(null);
     }
 
-    @Transactional
+    public List<RequirementResponseDTO> getRequirementsByIds(List<Long> ids) {
+        List<Requirement> requirement = requirementRepository.findAllById(ids);
+
+        return requirement.stream()
+                .map(this::convertToResponseDTO)
+                .collect(Collectors.toList());
+    }
+
     public void deleteRequirement(Long id) {
         Requirement requirement = requirementRepository.findById(id)
                 .orElseThrow(() -> new RequirementNotFoundException("Requirement not found: " + id));
@@ -235,48 +297,150 @@ public class RequirementService {
     }
 
     public RequirementResponseDTO updateRequirement(Long id, RequirementUpdateRequestDTO requirementRequestDTO) {
-        if (requirementRepository.existsById(id)) {
-            Requirement requirement = convertToEntityToUpdate(requirementRequestDTO);
-            requirement.setId(id);
-            requirement.setAuthor(getAuthor(requirementRequestDTO.getAuthor()));
-            requirement.setResponsible(getResponsible(requirementRequestDTO.getResponsible()));
-            requirement.setStakeholders(getStakeholders(requirementRequestDTO.getStakeholders()));
-            requirement.setDependencies(getRequirementsRelated(requirementRequestDTO.getDependencies()));
-            requirement.setIdentifier(requirementRequestDTO.getIdentifier());
 
-            this.updateVersionAndStatus(requirement);
+        Requirement requirementBefore = requirementRepository.findById(id)
+                .orElseThrow(() -> new RequirementNotFoundException("Requirement not found: " + id));
 
-            Requirement existingRequirement = requirementRepository.findById(id)
-                    .orElseThrow(() -> new RequirementNotFoundException("Requirement not found with id: " + id));
-            RequirementHistory history = convertToHistory(existingRequirement);
-            requirementHistoryRepository.save(history);
+        if (requirementBefore != null) {
+            Requirement requirementAfter = convertToEntityToUpdate(requirementRequestDTO);
+            requirementAfter.setId(id);
+            requirementAfter.setAuthor(requirementBefore.getAuthor());
+            requirementAfter.setResponsible(getResponsible(requirementRequestDTO.getResponsible()));
+            requirementAfter.setStakeholders(getStakeholders(requirementRequestDTO.getStakeholders()));
+            requirementAfter.setDependencies(getRequirementsRelated(requirementRequestDTO.getDependencies()));
+            requirementAfter.setIdentifier(requirementBefore.getIdentifier());
 
-            requirement = requirementRepository.save(requirement);
-            return convertToResponseDTO(requirement);
+            this.updateVersion(requirementBefore, requirementAfter);
+            this.updateStatus(requirementBefore, requirementAfter, "update");
+
+
+            if (!requirementBefore.getStatus().equals(Status.CREATED.toString())) {
+                RequirementHistory history = convertToHistory(requirementBefore);
+                requirementHistoryRepository.save(history);
+            }
+
+            requirementAfter = requirementRepository.save(requirementAfter);
+            return convertToResponseDTO(requirementAfter);
         } else {
             throw new ProjectNotFoundException("Project not found with id: " + id);
         }
     }
 
-    private void updateVersionAndStatus(Requirement requirement) {
-        String currentVersion = requirement.getVersion();
-        String newVersion = incrementVersion(currentVersion);
-        requirement.setVersion(newVersion);
+    private void updateVersion(Requirement requirementBefore, Requirement requirementAfter) {
 
-        requirement.setStatus(Status.PENDING.toString());
+        if (requirementBefore.getStatus().equals(Status.CREATED.toString())) {
+            requirementAfter.setVersion("1.0");
+            return;
+        }
+
+        incrementVersion(requirementBefore, requirementAfter);
     }
 
-    private String incrementVersion(String version) {
-        if (version != null && version.matches("^1\\.\\d+$")) {
-            String[] parts = version.split("\\.");
-            int majorVersion = Integer.parseInt(parts[0]);
-            int minorVersion = Integer.parseInt(parts[1]);
+    private void incrementVersion(Requirement requirementBefore, Requirement requirementAfter) {
 
-            minorVersion += 1;
-
-            return majorVersion + "." + minorVersion;
+        if (requirementBefore.getStatus() == null) {
+            createVersion(requirementAfter);
+            return;
         }
-        return "1.1";
+
+        if (requirementBefore.getStatus().equals(Status.PENDING.toString()) || requirementBefore.getStatus().equals(Status.CREATED.toString())) {
+            incrementVersionMinor(requirementBefore, requirementAfter);
+        } else if (requirementBefore.getStatus().equals(Status.ACTIVE.toString())) {
+            incrementVersionMajor(requirementBefore, requirementAfter);
+        }  else if (requirementBefore.getStatus().equals(Status.REJECTED.toString())) {
+            requirementAfter.setVersion(requirementBefore.getVersion());
+        }
+    }
+
+    private static void incrementVersionMajor(Requirement requirementBefore,
+                                              Requirement requirementAfter) {
+        String[] parts = requirementBefore.getVersion().split("\\.");
+        int majorVersion = Integer.parseInt(parts[0]);
+        majorVersion += 1;
+
+        final String newVersion = majorVersion + ".0";
+
+        requirementAfter.setVersion(newVersion);
+    }
+
+    private static void incrementVersionMinor(Requirement requirementBefore, Requirement requirementAfter) {
+        String[] parts = requirementBefore.getVersion().split("\\.");
+        int majorVersion = Integer.parseInt(parts[0]);
+        int minorVersion = Integer.parseInt(parts[1]);
+
+        minorVersion += 1;
+
+        final String newVersion = majorVersion + "." + minorVersion;
+
+        requirementAfter.setVersion(newVersion);
+    }
+
+    private void updateStatus(Requirement requirementBefore, Requirement requirementAfter, String action) {
+
+        if (requirementBefore.getStatus() == null) {
+            requirementAfter.setStatus(Status.CREATED.toString());
+            return;
+        }
+
+        switch (action) {
+            case "update":
+                updateStatusWhenActionIsUpdate(requirementBefore, requirementAfter);
+                break;
+            case "reject":
+                requirementAfter.setStatus(Status.REJECTED.toString());
+                break;
+            case "approve":
+                requirementAfter.setStatus(Status.ACTIVE.toString());
+                break;
+            case "delete":
+                requirementAfter.setStatus(Status.BLOCKED.toString());
+                break;
+            default:
+                requirementAfter.setStatus(Status.CREATED.toString());
+                break;
+        }
+    }
+
+    private void updateStatusWhenActionIsUpdate(Requirement requirementBefore,
+                                                Requirement requirementAfter) {
+        if (requirementBefore.getStatus().equals(Status.PENDING.toString())) {
+            requirementAfter.setStatus(Status.PENDING.toString());
+            this.createNotificationToManager(requirementBefore);
+        } else if (requirementBefore.getStatus().equals(Status.ACTIVE.toString())) {
+            requirementAfter.setStatus(Status.PENDING.toString());
+            this.createNotificationToManager(requirementBefore);
+        } else if (requirementBefore.getStatus().equals(Status.REJECTED.toString())) {
+            requirementAfter.setStatus(Status.PENDING.toString());
+            this.createNotificationToManager(requirementBefore);
+        } else if (requirementBefore.getStatus().equals(Status.CREATED.toString())) {
+            requirementAfter.setStatus(Status.CREATED.toString());
+        }
+    }
+
+    private void createNotificationToManager(Requirement requirementBefore) {
+        Project projectRelated = this.projectRepository.getReferenceById(requirementBefore.getProjectRelated().getId());
+        String managerProjectRelated = projectRelated.getManager();
+
+        if (managerProjectRelated != null) {
+            Optional<User> manager = Optional.ofNullable(this.userRepository.findByName(managerProjectRelated).orElseThrow(
+                            () -> new UserNotFoundException("Manager not found: " + managerProjectRelated)));
+
+            Long managerId = null;
+
+            if (manager.isPresent()) {
+                managerId = manager.get().getId();
+            }
+
+            System.out.println(managerId);
+
+            List<Long> comments = commentsRepository.findUserIdsByRequirementId(requirementBefore.getId());
+
+            if (managerId != null && comments.isEmpty()) {
+                this.userRepository.addNotificationToUser(managerId, requirementBefore.getId());
+            } else {
+                System.out.println("Notificação existente para o gerente ID: " + managerId);
+            }
+        }
     }
 
     public List<Object[]> getAllRequirementResponsibles() {

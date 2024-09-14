@@ -5,7 +5,9 @@ import static com.br.requirementhub.enums.Role.ANALISTA_DE_REQUISITOS;
 import static com.br.requirementhub.enums.Role.GERENTE_DE_PROJETOS;
 import static com.br.requirementhub.enums.Role.USUARIO_COMUM;
 
+import com.br.requirementhub.dtos.user.UserNotificationsResponseDTO;
 import com.br.requirementhub.dtos.user.UserResponseDTO;
+import com.br.requirementhub.entity.Requirement;
 import com.br.requirementhub.services.UserService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -51,6 +53,11 @@ public class UserController {
     @GetMapping("/all")
     public List<UserResponseDTO> getAllUsers() {
         return service.getAllUsers();
+    }
+
+    @GetMapping("/notifications/{id}")
+    public List<Long> getNotifications(@PathVariable Long id) {
+        return service.getUserNotifications(id);
     }
 
     @PatchMapping("/{id}/image")
