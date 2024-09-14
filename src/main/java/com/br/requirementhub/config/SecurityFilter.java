@@ -34,8 +34,8 @@ public class SecurityFilter {
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(authConfig -> {
                     authConfig.requestMatchers(HttpMethod.POST, "/auth/authenticate").permitAll();
-//                    authConfig.requestMatchers(HttpMethod.POST, "/auth/register").hasRole(ADMIN.name());
-                    authConfig.requestMatchers(HttpMethod.POST, "/auth/register").permitAll();
+                    authConfig.requestMatchers(HttpMethod.POST, "/auth/register").hasRole(ADMIN.name());
+                    //authConfig.requestMatchers(HttpMethod.POST, "/auth/register").permitAll();
 
                     authConfig.requestMatchers(HttpMethod.DELETE, "/auth/**").hasRole(ADMIN.name());
                     authConfig.requestMatchers("/error").permitAll();
@@ -67,6 +67,11 @@ public class SecurityFilter {
                     authConfig.requestMatchers(HttpMethod.GET, "/matrix/**").permitAll();
 
                     authConfig.requestMatchers(HttpMethod.GET, "/requirement-history/**").permitAll();
+
+                    authConfig.requestMatchers(HttpMethod.GET, "/comments/**").permitAll();
+                    authConfig.requestMatchers(HttpMethod.POST, "/comments/**").permitAll();
+                    authConfig.requestMatchers(HttpMethod.PUT, "/comments/**").permitAll();
+                    authConfig.requestMatchers(HttpMethod.PATCH, "/comments/**").permitAll();
 
 
                     authConfig.anyRequest().authenticated();

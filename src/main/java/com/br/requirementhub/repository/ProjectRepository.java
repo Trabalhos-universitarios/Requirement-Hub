@@ -10,4 +10,6 @@ import org.springframework.stereotype.Repository;
 public interface ProjectRepository extends JpaRepository<Project, Long> {
 
     Optional<Project> findByNameAndManager(String projectName, String managerName);
+
+    Optional<Project> findByManager(String managerName);
 }
