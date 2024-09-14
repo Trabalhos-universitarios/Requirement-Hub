@@ -487,6 +487,58 @@ public class RequirementService {
         return dto;
     }
 
+    // Método que gera o JSON com as relações (stakeholders e dependências)
+    private String generateRelationsData(Requirement requirement) {
+        StringBuilder relationsData = new StringBuilder();
+        relationsData.append("{");
+
+        // Adiciona os stakeholders
+        relationsData.append("\"stakeholders\": [");
+        List<Stakeholder> stakeholders = requirement.getStakeholders();
+        for (int i = 0; i < stakeholders.size(); i++) {
+            Stakeholder stakeholder = stakeholders.get(i);
+            relationsData.append("{")
+                    .append("\"id\": ").append(stakeholder.getId()).append(", ")
+                    .append("\"name\": \"").append(stakeholder.getName()).append("\"}");
+            if (i < stakeholders.size() - 1) {
+                relationsData.append(", ");
+            }
+        }
+        relationsData.append("], ");
+
+        // Adiciona as dependências com id, name e identifier
+        relationsData.append("\"dependencies\": [");
+        List<Requirement> dependencies = requirement.getDependencies();
+        for (int i = 0; i < dependencies.size(); i++) {
+            Requirement dependency = dependencies.get(i);
+            relationsData.append("{")
+                    .append("\"id\": ").append(dependency.getId()).append(", ")
+                    .append("\"name\": \"").append(dependency.getName()).append("\", ")
+                    .append("\"identifier\": \"").append(dependency.getIdentifier()).append("\"}");
+            if (i < dependencies.size() - 1) {
+                relationsData.append(", ");
+            }
+        }
+        relationsData.append("], ");
+
+        // Adiciona os responsibles (responsibilities)
+        relationsData.append("\"responsibilities\": [");
+        List<User> responsibleList = requirement.getResponsible();
+        for (int i = 0; i < responsibleList.size(); i++) {
+            User responsible = responsibleList.get(i);
+            relationsData.append("{")
+                    .append("\"id\": ").append(responsible.getId()).append(", ")
+                    .append("\"name\": \"").append(responsible.getName()).append("\"}");
+            if (i < responsibleList.size() - 1) {
+                relationsData.append(", ");
+            }
+        }
+        relationsData.append("]");
+
+        relationsData.append("}");
+        return relationsData.toString();
+    }
+
     private RequirementHistory convertToHistory(Requirement requirement) {
         RequirementHistory history = new RequirementHistory();
         history.setIdentifier(requirement.getIdentifier());
@@ -501,6 +553,11 @@ public class RequirementService {
         history.setEffort(requirement.getEffort());
         history.setRequirementId(requirement.getId());
         history.setProjectId(requirement.getProjectRelated().getId());
+
+        // Gera o JSON com stakeholders e dependências e atribui à coluna relationsData
+        String relationsData = generateRelationsData(requirement);
+        history.setRelationsData(relationsData);
+
         return history;
     }
 
