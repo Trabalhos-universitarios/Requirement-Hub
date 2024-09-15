@@ -9,11 +9,8 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class CommentsRequestDto {
+public class CommentsReactRequestDto {
 
-    private String description;
-    private Requirement requirement;
     private User user;
-    private String avatarUser;
-    private List<CommentReaction> reactions;
+    private CommentReaction reactions;
 }
