@@ -1,5 +1,6 @@
 package com.br.requirementhub.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -9,6 +10,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -36,8 +38,6 @@ public class Comments {
     @ManyToOne
     private Requirement requirement;
 
-    @ElementCollection
-    @CollectionTable(name = "comment_reactions", joinColumns = @JoinColumn(name = "comment_id"))
-    @Column(name = "reaction")
-    private List<String> reactions;
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CommentReaction> reactions;
 }

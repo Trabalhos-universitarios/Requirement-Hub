@@ -8,6 +8,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(AlreadyExistException.class)
+    public ResponseEntity<String> handleAlreadyExistException(AlreadyExistException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler(ProjectAlreadyExistException.class)
     public ResponseEntity<String> handleProjectAlreadyExistException(ProjectAlreadyExistException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
@@ -21,6 +26,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ProjectArtifactAlreadyExistException.class)
     public ResponseEntity<String> handleProjectArtifactAlreadyExistException(ProjectArtifactAlreadyExistException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<String> handleNotFoundException(NotFoundException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(RequirementNotFoundException.class)
