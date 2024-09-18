@@ -33,7 +33,7 @@ public class CommentsService {
         return convertToResponseDTO(comments);
     }
 
-    public List<CommentsCreateResponseDto> getAllCommentsForRequirement(Long requirementId) {
+    public List<CommentsCreateResponseDto> getAllCommentsByRequirement(Long requirementId) {
         List<Comments> comments = commentsRepository.findByRequirementId(requirementId);
 
         return comments.stream()
@@ -69,6 +69,10 @@ public class CommentsService {
         comments.getReactions().add(newReaction);
 
         return convertToResponseDTO(comments);
+    }
+
+    public void deleteComment(Long id) {
+        commentsRepository.deleteById(id);
     }
 
     private boolean verifyCommentAlreadyExistByUser(Long id, CommentsReactRequestDto comment) {
@@ -116,4 +120,3 @@ public class CommentsService {
         return dto;
     }
 }
-

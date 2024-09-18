@@ -1,5 +1,7 @@
 package com.br.requirementhub.repository;
 
+import com.br.requirementhub.dtos.comments.CommentsCreateResponseDto;
+import com.br.requirementhub.dtos.comments.CommentsReactResponseDto;
 import com.br.requirementhub.entity.CommentReaction;
 import com.br.requirementhub.entity.Comments;
 import com.br.requirementhub.entity.User;
@@ -14,5 +16,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public interface CommentReactionRepository extends JpaRepository<CommentReaction, Long> {
     CommentReaction findByCommentAndUser(Comments comment, User user);
-}
 
+    List<CommentReaction> findByCommentAndUserOrderById(Comments comment, User user);
+
+    @Query("SELECT new com.br.requirementhub.dtos.comments.CommentsReactResponseDto(cr.id, cr.comment.id, CAST(cr.user.id AS string), cr.reaction) " +
+            "FROM CommentReaction cr WHERE cr.comment = :comment AND cr.user = :user")
+    List<CommentsReactResponseDto> findByCommentAndUserResponse(@Param("comment") Comments comment, @Param("user") User user);
+
+}

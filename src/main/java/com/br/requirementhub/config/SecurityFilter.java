@@ -72,7 +72,7 @@ public class SecurityFilter {
                     authConfig.requestMatchers(HttpMethod.POST, "/comments/**").permitAll();
                     authConfig.requestMatchers(HttpMethod.PUT, "/comments/**").permitAll();
                     authConfig.requestMatchers(HttpMethod.PATCH, "/comments/**").permitAll();
-
+                    authConfig.requestMatchers(HttpMethod.DELETE, "/comments/**").hasAnyRole(ADMIN.name(), GERENTE_DE_PROJETOS.name());
 
                     authConfig.anyRequest().authenticated();
 
@@ -82,5 +82,3 @@ public class SecurityFilter {
 
     }
 }
-
-

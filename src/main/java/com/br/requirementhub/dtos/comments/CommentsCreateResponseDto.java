@@ -1,8 +1,5 @@
 package com.br.requirementhub.dtos.comments;
 
-import com.br.requirementhub.entity.Requirement;
-import com.br.requirementhub.entity.User;
-import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Data;
 

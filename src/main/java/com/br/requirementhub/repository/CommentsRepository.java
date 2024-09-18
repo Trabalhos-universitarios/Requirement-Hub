@@ -17,18 +17,5 @@ public interface CommentsRepository extends JpaRepository<Comments, Long> {
     @Query(value = "SELECT un.user_id FROM user_notifications un WHERE un.requirement_id = :requirementId", nativeQuery = true)
     List<Long> findUserIdsByRequirementId(@Param("requirementId") Long requirementId);
 
-    Comments findByIdAndUser(Long id, User user);
-
-    @Transactional
-    @Modifying
-    @Query(value = "INSERT INTO comment_reactions (comment_id, reaction) VALUES (:commentId, :reaction)", nativeQuery = true)
-    void addReactionToComment(@Param("commentId") Long commentId, @Param("reaction") String reaction);
-
-    @Query("SELECT CASE WHEN COUNT(cr) > 0 THEN TRUE ELSE FALSE END " +
-            "FROM Comments c JOIN c.reactions cr " +
-            "WHERE c.id = :commentId AND c.user = :user AND cr = :reaction")
-    boolean existsByIdAndUserAndReaction(@Param("commentId") Long commentId,
-                                         @Param("user") User user,
-                                         @Param("reaction") String reaction);
+    void deleteByRequirementId(Long requirementId);
 }
-
