@@ -35,11 +35,16 @@ public class RequirementHistory {
 
     private Integer effort;
 
-    private Long requirementId;
+    private String modificationDescription;
+
+    private String relationsData;
 
     private Long projectId;
+
+    private Long requirementId;
 
     @CreationTimestamp
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime modification_date;
+
 }
