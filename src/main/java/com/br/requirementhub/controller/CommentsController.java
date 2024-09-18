@@ -7,6 +7,7 @@ import com.br.requirementhub.services.CommentsService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,7 +33,7 @@ public class CommentsController {
 
     @GetMapping("/{requirementId}")
     public List<CommentsCreateResponseDto> getCommentsByRequirement(@PathVariable Long requirementId) {
-        return commentsService.getAllCommentsForRequirement(requirementId);
+        return commentsService.getAllCommentsByRequirement(requirementId);
     }
 
     @GetMapping
@@ -49,5 +50,10 @@ public class CommentsController {
         return ResponseEntity.ok(response);
     }
 
-}
+    @DeleteMapping("/{id}")
+    public ResponseEntity<CommentsCreateResponseDto> deleteComment(@PathVariable Long id) {
+        commentsService.deleteComment(id);
+        return ResponseEntity.noContent().build();
+    }
 
+}

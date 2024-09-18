@@ -283,6 +283,7 @@ public class RequirementService {
         requirementRepository.deleteDependenciesByRequirementId(id);
         requirementRepository.deleteResponsibleByRequirementId(id);
         requirementRepository.deleteStakeholderByRequirementId(id);
+        commentsRepository.deleteByRequirementId(id);
 
         List<RequirementArtifact> requirementArtifact = requirementArtifactRepository.findByRequirementId(requirement);
         deleteArtifactRelated(requirementArtifact);
