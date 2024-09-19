@@ -23,4 +23,6 @@ public interface CommentReactionRepository extends JpaRepository<CommentReaction
             "FROM CommentReaction cr WHERE cr.comment = :comment AND cr.user = :user")
     List<CommentsReactResponseDto> findByCommentAndUserResponse(@Param("comment") Comments comment, @Param("user") User user);
 
+    List<CommentReaction> findByComment(Comments comment);
+
 }

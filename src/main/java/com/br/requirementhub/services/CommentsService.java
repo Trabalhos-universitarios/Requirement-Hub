@@ -2,6 +2,7 @@ package com.br.requirementhub.services;
 
 import com.br.requirementhub.dtos.comments.CommentsCreateResponseDto;
 import com.br.requirementhub.dtos.comments.CommentsReactRequestDto;
+import com.br.requirementhub.dtos.comments.CommentsReactResponseDto;
 import com.br.requirementhub.dtos.comments.CommentsRequestDto;
 import com.br.requirementhub.entity.CommentReaction;
 import com.br.requirementhub.entity.Comments;
@@ -103,6 +104,8 @@ public class CommentsService {
 
         final User user = userRepository.findById(comments.getUser().getId()).orElse(null);
 
+        final List<CommentReaction> reactions = commentReactionRepository.findByComment(comments);
+
         CommentsCreateResponseDto dto = new CommentsCreateResponseDto();
         dto.setId(comments.getId());
         dto.setDescription(comments.getDescription());
@@ -113,10 +116,14 @@ public class CommentsService {
         assert user != null;
         dto.setUserRole(user.getRole().name());
         dto.setDateCreated(comments.getDateCreated().toString());
-        dto.setReactions(comments.getReactions()
-                .stream()
-                .map(CommentReaction::getReaction)
-                .collect(Collectors.toList()));
+        dto.setReactions(reactions.stream().map(reaction -> {
+            CommentsReactResponseDto reactionDto = new CommentsReactResponseDto();
+            reactionDto.setId(reaction.getId());
+            reactionDto.setCommentId(reaction.getComment().getId());
+            reactionDto.setUserId(reaction.getUser().getName());
+            reactionDto.setEmoji(reaction.getReaction());
+            return reactionDto;
+        }).toList());
         return dto;
     }
 }
