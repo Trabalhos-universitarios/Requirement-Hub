@@ -13,6 +13,6 @@ public class CommentsCreateResponseDto {
     private String userName;
     private String userRole;
     private String dateCreated;
-    private List<String> reactions;
+    private List<CommentsReactResponseDto> reactions;
     private String userImage;
 }
