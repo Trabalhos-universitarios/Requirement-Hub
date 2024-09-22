@@ -423,7 +423,7 @@ public class RequirementService {
         String managerProjectRelated = projectRelated.getManager();
 
         if (managerProjectRelated != null) {
-            Optional<User> manager = Optional.ofNullable(this.userRepository.findByName(managerProjectRelated).orElseThrow(
+            Optional<User> manager = Optional.ofNullable(this.userRepository.findById(Long.valueOf(managerProjectRelated)).orElseThrow(
                             () -> new UserNotFoundException("Manager not found: " + managerProjectRelated)));
 
             Long managerId = null;

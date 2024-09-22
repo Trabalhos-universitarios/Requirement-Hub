@@ -73,6 +73,25 @@ public class ProjectService {
                 .collect(Collectors.toList());
     }
 
+    public List<ProjectResponseDTO> listProjectsByManagerId(Long managerId) {
+        Role userRole = userService.findUserRoleById(managerId);
+        String managerIdStr = String.valueOf(managerId);
+
+        List<Project> projects;
+        if (userRole == Role.GERENTE_DE_PROJETOS) {
+            projects = projectRepository.findByManager(managerIdStr);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not Manager Role! ID USER: " + managerId);
+        }
+        if (projects.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No Projects Found for Manager ID: " + managerIdStr);
+        }
+
+        return projects.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
     public List<ProjectResponseDTO> list() {
         List<Project> projects = projectRepository.findAll();
         return projects.stream()
