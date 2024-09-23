@@ -1,13 +1,19 @@
 package com.br.requirementhub.services;
 
-import com.br.requirementhub.dtos.comments.CommentsRequestDto;
 import com.br.requirementhub.dtos.comments.CommentsCreateResponseDto;
+import com.br.requirementhub.dtos.comments.CommentsReactRequestDto;
+import com.br.requirementhub.dtos.comments.CommentsReactResponseDto;
+import com.br.requirementhub.dtos.comments.CommentsRequestDto;
+import com.br.requirementhub.entity.CommentReaction;
 import com.br.requirementhub.entity.Comments;
 import com.br.requirementhub.entity.User;
+import com.br.requirementhub.exceptions.NotFoundException;
+import com.br.requirementhub.repository.CommentReactionRepository;
 import com.br.requirementhub.repository.CommentsRepository;
 import com.br.requirementhub.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,14 +26,68 @@ public class CommentsService {
 
     private final UserRepository userRepository;
 
+    private final CommentReactionRepository commentReactionRepository;
+
     public CommentsCreateResponseDto saveComment(CommentsRequestDto commentDto) {
         Comments comments = convertToEntity(commentDto);
         comments = commentsRepository.save(comments);
         return convertToResponseDTO(comments);
     }
 
-    public List<Comments> getAllCommentsForRequirement(Long requirementId) {
-        return commentsRepository.findByRequirementId(requirementId);
+    public List<CommentsCreateResponseDto> getAllCommentsByRequirement(Long requirementId) {
+        List<Comments> comments = commentsRepository.findByRequirementId(requirementId);
+
+        return comments.stream()
+                .map(this::convertToResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<CommentsCreateResponseDto> getAllComments() {
+        List<Comments> comments = commentsRepository.findAll();
+
+        return comments.stream()
+                .map(this::convertToResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    public CommentsCreateResponseDto addReact(Long id, CommentsReactRequestDto comment) {
+        if (verifyCommentAlreadyExistByUser(id, comment)) {
+            Comments comments = commentsRepository.findById(id)
+                    .orElseThrow(() -> new NotFoundException("Comment not found!"));
+            return convertToResponseDTO(comments);
+        }
+
+        Comments comments = commentsRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Comment not found!"));
+
+        CommentReaction newReaction = new CommentReaction();
+        newReaction.setComment(comments);
+        newReaction.setUser(comment.getUser());
+        newReaction.setReaction(comment.getReactions().getReaction());
+
+        commentReactionRepository.save(newReaction);
+
+        comments.getReactions().add(newReaction);
+
+        return convertToResponseDTO(comments);
+    }
+
+    public void deleteComment(Long id) {
+        commentsRepository.deleteById(id);
+    }
+
+    private boolean verifyCommentAlreadyExistByUser(Long id, CommentsReactRequestDto comment) {
+        Comments comments = commentsRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Comment not found!"));
+        CommentReaction existingReaction = commentReactionRepository.findByCommentAndUser(comments, comment.getUser());
+
+        if (existingReaction != null) {
+            existingReaction.setReaction(comment.getReactions().getReaction());
+            commentReactionRepository.save(existingReaction);
+            return true;
+        }
+
+        return false;
     }
 
     private Comments convertToEntity(CommentsRequestDto dto) {
@@ -44,16 +104,26 @@ public class CommentsService {
 
         final User user = userRepository.findById(comments.getUser().getId()).orElse(null);
 
+        final List<CommentReaction> reactions = commentReactionRepository.findByComment(comments);
+
         CommentsCreateResponseDto dto = new CommentsCreateResponseDto();
+        dto.setId(comments.getId());
         dto.setDescription(comments.getDescription());
         dto.setRequirementId(comments.getRequirement().getId());
+        dto.setUserId(comments.getUser().getId());
         dto.setUserName(comments.getUser().getName());
         dto.setUserImage(comments.getAvatarUser());
         assert user != null;
         dto.setUserRole(user.getRole().name());
         dto.setDateCreated(comments.getDateCreated().toString());
-        dto.setReactions(comments.getReactions());
+        dto.setReactions(reactions.stream().map(reaction -> {
+            CommentsReactResponseDto reactionDto = new CommentsReactResponseDto();
+            reactionDto.setId(reaction.getId());
+            reactionDto.setCommentId(reaction.getComment().getId());
+            reactionDto.setUserId(reaction.getUser().getName());
+            reactionDto.setEmoji(reaction.getReaction());
+            return reactionDto;
+        }).toList());
         return dto;
     }
 }
-

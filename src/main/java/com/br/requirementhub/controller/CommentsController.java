@@ -1,13 +1,15 @@
 package com.br.requirementhub.controller;
 
+import com.br.requirementhub.dtos.comments.CommentsReactRequestDto;
 import com.br.requirementhub.dtos.comments.CommentsRequestDto;
 import com.br.requirementhub.dtos.comments.CommentsCreateResponseDto;
-import com.br.requirementhub.entity.Comments;
 import com.br.requirementhub.services.CommentsService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,8 +32,28 @@ public class CommentsController {
     }
 
     @GetMapping("/{requirementId}")
-    public List<Comments> getCommentsByRequirement(@PathVariable Long requirementId) {
-        return commentsService.getAllCommentsForRequirement(requirementId);
+    public List<CommentsCreateResponseDto> getCommentsByRequirement(@PathVariable Long requirementId) {
+        return commentsService.getAllCommentsByRequirement(requirementId);
     }
-}
 
+    @GetMapping
+    public List<CommentsCreateResponseDto> getAllComments() {
+        return commentsService.getAllComments();
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<CommentsCreateResponseDto> addReact(
+            @PathVariable Long id,
+            @RequestBody CommentsReactRequestDto requestDto) {
+
+        CommentsCreateResponseDto response = commentsService.addReact(id, requestDto);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<CommentsCreateResponseDto> deleteComment(@PathVariable Long id) {
+        commentsService.deleteComment(id);
+        return ResponseEntity.noContent().build();
+    }
+
+}

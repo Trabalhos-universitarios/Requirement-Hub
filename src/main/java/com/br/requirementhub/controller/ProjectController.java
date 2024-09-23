@@ -36,6 +36,11 @@ public class ProjectController {
         return ResponseEntity.ok(service.listProjectsByUserId(userId));
     }
 
+    @GetMapping("/all-manager/{managerId}")
+    public ResponseEntity<List<ProjectResponseDTO>> lists(@PathVariable Long managerId) {
+        return ResponseEntity.ok(service.listProjectsByManagerId(managerId));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ProjectResponseDTO> find(@PathVariable Long id) {
         return ResponseEntity.ok(service.findById(id));

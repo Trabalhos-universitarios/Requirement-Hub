@@ -19,7 +19,10 @@ public class WebConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.addAllowedOrigin("http://54.235.228.16"); // Especifica o domínio permitido
+        config.setAllowedOrigins(Arrays.asList(
+                "http://localhost:4200",  // Localhost para ambiente de desenvolvimento
+                "http://54.235.228.16"    // IP do servidor de deploy
+        ));
         config.setAllowedHeaders(Arrays.asList(
                 HttpHeaders.AUTHORIZATION,
                 HttpHeaders.CONTENT_TYPE,
