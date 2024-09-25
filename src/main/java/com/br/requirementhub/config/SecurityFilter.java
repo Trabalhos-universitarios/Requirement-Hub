@@ -35,7 +35,6 @@ public class SecurityFilter {
                 .authorizeHttpRequests(authConfig -> {
                     authConfig.requestMatchers(HttpMethod.POST, "/auth/authenticate").permitAll();
                     authConfig.requestMatchers(HttpMethod.POST, "/auth/register").hasRole(ADMIN.name());
-                    //authConfig.requestMatchers(HttpMethod.POST, "/auth/register").permitAll();
 
                     authConfig.requestMatchers(HttpMethod.DELETE, "/auth/**").hasRole(ADMIN.name());
                     authConfig.requestMatchers("/error").permitAll();
