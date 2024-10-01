@@ -43,6 +43,16 @@ public interface RequirementRepository extends JpaRepository<Requirement, Long> 
     @Query(value = "DELETE FROM requirement_stakeholder WHERE requirement_id = :requirementId", nativeQuery = true)
     void deleteStakeholderByRequirementId(Long requirementId);
 
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE FROM user_notifications WHERE requirement_id = :requirementId", nativeQuery = true)
+    void deleteUserNotificationsByRequirementId(Long requirementId);
+
+    @Modifying
+    @Transactional
+    @Query(value = "SELECT FROM user_notifications WHERE requirement_id = :requirementId AND user_id = :userId", nativeQuery = true)
+    List<Object[]> findNotificationByRequirementAndUser(Long requirementId, Long userId);
+
     @Query(value = "SELECT rr.requirement_id, rr.user_id, u.name FROM requirement_responsible rr JOIN _user u ON rr.user_id = u.id", nativeQuery = true)
-    List<Object[]> findAllRequirementResponsibles();
+    List<Object[]> findAllRequirementResponsible();
 }
