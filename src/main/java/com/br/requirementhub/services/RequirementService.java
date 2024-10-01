@@ -1,5 +1,6 @@
 package com.br.requirementhub.services;
 
+import com.br.requirementhub.dtos.comments.CommentsRequestDto;
 import com.br.requirementhub.dtos.requirement.RequirementRequestDTO;
 import com.br.requirementhub.dtos.requirement.RequirementResponseDTO;
 import com.br.requirementhub.dtos.requirement.RequirementUpdateRequestDTO;
@@ -50,6 +51,8 @@ public class RequirementService {
     private final RequirementArtifactService requirementArtifactService;
 
     private final RequirementHistoryRepository requirementHistoryRepository;
+
+    private final CommentsService commentsService;
 
     public List<RequirementResponseDTO> getAllRequirements() {
         return requirementRepository.findAll().stream()
@@ -151,6 +154,7 @@ public class RequirementService {
         requirement = requirementRepository.save(requirement);
 
         this.createNotificationToManager(requirement);
+        this.createNotificationToUsers(requirement);
 
         return convertToResponseDTO(requirement);
     }
@@ -172,6 +176,21 @@ public class RequirementService {
 
         requirement = requirementRepository.save(requirement);
         this.createNotificationToManager(requirement);
+        this.createNotificationToUsers(requirement);
+
+        return convertToResponseDTO(requirement);
+    }
+
+    public RequirementResponseDTO refuseRequirement(Long id, CommentsRequestDto commentsRequestDto) {
+        Requirement requirement = requirementRepository.findById(id)
+                .orElseThrow(() -> new RequirementNotFoundException("Requirement not found: " + id));
+
+        requirement.setStatus(Status.REJECTED.toString());
+        requirement = requirementRepository.save(requirement);
+
+        //commentsService.saveComment(commentsRequestDto);
+
+        this.createNotificationToUsers(requirement);
 
         return convertToResponseDTO(requirement);
     }
@@ -283,6 +302,7 @@ public class RequirementService {
         requirementRepository.deleteDependenciesByRequirementId(id);
         requirementRepository.deleteResponsibleByRequirementId(id);
         requirementRepository.deleteStakeholderByRequirementId(id);
+        requirementRepository.deleteUserNotificationsByRequirementId(id);
         commentsRepository.deleteByRequirementId(id);
 
         List<RequirementArtifact> requirementArtifact = requirementArtifactRepository.findByRequirementId(requirement);
@@ -318,6 +338,8 @@ public class RequirementService {
             if (!requirementBefore.getStatus().equals(Status.CREATED.toString())) {
                 RequirementHistory history = convertToHistory(requirementBefore);
                 requirementHistoryRepository.save(history);
+                this.createNotificationToManager(requirementBefore);
+                this.createNotificationToUsers(requirementBefore);
             }
 
             requirementAfter = requirementRepository.save(requirementAfter);
@@ -418,8 +440,28 @@ public class RequirementService {
         }
     }
 
-    private void createNotificationToManager(Requirement requirementBefore) {
-        Project projectRelated = this.projectRepository.getReferenceById(requirementBefore.getProjectRelated().getId());
+    private void createNotificationToUsers(Requirement requirement) {
+        List<User> responsible = requirement.getResponsible();
+        for (User user : responsible) {
+
+            //todo PAREIA QUI, TENTANDO ENVIAR NOTIFICAÇÃO.
+
+            List<Object[]> notification = requirementRepository.findNotificationByRequirementAndUser(
+                    requirement.getId(), user.getId());
+
+            System.out.println("notification: " + notification.toString());
+
+            if (notification.isEmpty()) {
+                System.out.println("ENTROU AQUI");
+                this.userRepository.addNotificationToUser(user.getId(), requirement.getId());
+            } else {
+                System.out.println("Notificação já existe para o usuário ID: " + user.getId());
+            }
+        }
+    }
+
+    private void createNotificationToManager(Requirement requirement) {
+        Project projectRelated = this.projectRepository.getReferenceById(requirement.getProjectRelated().getId());
         String managerProjectRelated = projectRelated.getManager();
 
         if (managerProjectRelated != null) {
@@ -434,18 +476,18 @@ public class RequirementService {
 
             System.out.println(managerId);
 
-            List<Long> comments = commentsRepository.findUserIdsByRequirementId(requirementBefore.getId());
+            List<Long> comments = commentsRepository.findUserIdsByRequirementId(requirement.getId());
 
             if (managerId != null && comments.isEmpty()) {
-                this.userRepository.addNotificationToUser(managerId, requirementBefore.getId());
+                this.userRepository.addNotificationToUser(managerId, requirement.getId());
             } else {
                 System.out.println("Notificação existente para o gerente ID: " + managerId);
             }
         }
     }
 
-    public List<Object[]> getAllRequirementResponsibles() {
-        return requirementRepository.findAllRequirementResponsibles();
+    public List<Object[]> getAllRequirementResponsible() {
+        return requirementRepository.findAllRequirementResponsible();
     }
 
     private RequirementResponseDTO convertToResponseDTO(Requirement requirement) {
@@ -488,12 +530,10 @@ public class RequirementService {
         return dto;
     }
 
-    // Método que gera o JSON com as relações (stakeholders e dependências)
     private String generateRelationsData(Requirement requirement) {
         StringBuilder relationsData = new StringBuilder();
         relationsData.append("{");
 
-        // Adiciona os stakeholders
         relationsData.append("\"stakeholders\": [");
         List<Stakeholder> stakeholders = requirement.getStakeholders();
         for (int i = 0; i < stakeholders.size(); i++) {
@@ -507,7 +547,6 @@ public class RequirementService {
         }
         relationsData.append("], ");
 
-        // Adiciona as dependências com id, name e identifier
         relationsData.append("\"dependencies\": [");
         List<Requirement> dependencies = requirement.getDependencies();
         for (int i = 0; i < dependencies.size(); i++) {
@@ -522,7 +561,6 @@ public class RequirementService {
         }
         relationsData.append("], ");
 
-        // Adiciona os responsibles (responsibilities)
         relationsData.append("\"responsibilities\": [");
         List<User> responsibleList = requirement.getResponsible();
         for (int i = 0; i < responsibleList.size(); i++) {

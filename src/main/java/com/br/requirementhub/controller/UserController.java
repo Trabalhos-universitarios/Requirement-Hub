@@ -5,12 +5,12 @@ import static com.br.requirementhub.enums.Role.ANALISTA_DE_REQUISITOS;
 import static com.br.requirementhub.enums.Role.GERENTE_DE_PROJETOS;
 import static com.br.requirementhub.enums.Role.USUARIO_COMUM;
 
-import com.br.requirementhub.dtos.user.UserNotificationsResponseDTO;
 import com.br.requirementhub.dtos.user.UserResponseDTO;
-import com.br.requirementhub.entity.Requirement;
 import com.br.requirementhub.services.UserService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.repository.query.Param;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -63,5 +63,12 @@ public class UserController {
     @PatchMapping("/{id}/image")
     public UserResponseDTO updateUserImage(@PathVariable Long id, @RequestBody String image) {
         return service.updateUserImage(id, image);
+    }
+
+    @DeleteMapping("/notifications/{userId}/{requirementId}")
+    public void deleteNotification(
+            @Param("user_id") @PathVariable Long userId,
+            @Param("requirement_id") @PathVariable Long requirementId) {
+        service.deleteNotification(userId, requirementId);
     }
 }

@@ -1,11 +1,11 @@
 package com.br.requirementhub.controller;
 
 
+import com.br.requirementhub.dtos.comments.CommentsRequestDto;
 import com.br.requirementhub.dtos.requirement.RequirementRequestDTO;
 import com.br.requirementhub.dtos.requirement.RequirementResponseDTO;
 import com.br.requirementhub.dtos.requirement.RequirementUpdateRequestDTO;
 import com.br.requirementhub.dtos.requirementArtifact.RequirementArtifactResponseDTO;
-import com.br.requirementhub.entity.Requirement;
 import com.br.requirementhub.entity.RequirementArtifact;
 import com.br.requirementhub.repository.RequirementArtifactRepository;
 import com.br.requirementhub.services.RequirementArtifactService;
@@ -99,7 +99,7 @@ public class RequirementController {
 
     @GetMapping("/all-responsibles")
     public ResponseEntity<List<Object[]>> getAllRequirementResponsibles() {
-        List<Object[]> responsibles = service.getAllRequirementResponsibles();
+        List<Object[]> responsibles = service.getAllRequirementResponsible();
         return ResponseEntity.ok(responsibles);
     }
 
@@ -108,19 +108,6 @@ public class RequirementController {
             @RequestBody RequirementRequestDTO requirementRequestDTO) {
         RequirementResponseDTO createdRequirement = service.createRequirement(requirementRequestDTO);
         return ResponseEntity.status(201).body(createdRequirement);
-    }
-
-    @PostMapping("/flow")
-    public ResponseEntity<RequirementResponseDTO> sendToApprovalFlow(
-            @RequestBody RequirementRequestDTO requirementRequestDTO) {
-       RequirementResponseDTO createdRequirement = service.sendToApprovalFlow(requirementRequestDTO);
-        return ResponseEntity.status(201).body(createdRequirement);
-   }
-
-    @PatchMapping("/flow/{id}")
-    public ResponseEntity<RequirementResponseDTO> sendToApprovalRequirement(@PathVariable Long id) {
-        RequirementResponseDTO updatedEntity = requirementService.sendToApprovalFlowRequirementId(id);
-        return ResponseEntity.ok(updatedEntity);
     }
 
     @PutMapping("/{id}")
@@ -137,5 +124,25 @@ public class RequirementController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/flow")
+    public ResponseEntity<RequirementResponseDTO> sendToApprovalFlow(
+            @RequestBody RequirementRequestDTO requirementRequestDTO) {
+        RequirementResponseDTO createdRequirement = service.sendToApprovalFlow(requirementRequestDTO);
+        return ResponseEntity.status(201).body(createdRequirement);
+    }
 
+    @PatchMapping("/flow/{id}")
+    public ResponseEntity<RequirementResponseDTO> sendToApprovalRequirement(@PathVariable Long id) {
+        RequirementResponseDTO updatedEntity = requirementService.sendToApprovalFlowRequirementId(id);
+        return ResponseEntity.ok(updatedEntity);
+    }
+
+    @PatchMapping("/refuse/{id}")
+    public ResponseEntity<RequirementResponseDTO> refuseRequirement(
+            @PathVariable Long id,
+            @RequestBody CommentsRequestDto commentsRequestDto
+    ) {
+        RequirementResponseDTO updatedEntity = requirementService.refuseRequirement(id, commentsRequestDto);
+        return ResponseEntity.ok(updatedEntity);
+    }
 }
