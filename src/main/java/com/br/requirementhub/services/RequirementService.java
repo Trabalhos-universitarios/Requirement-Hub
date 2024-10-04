@@ -5,29 +5,36 @@ import com.br.requirementhub.dtos.requirement.RequirementRequestDTO;
 import com.br.requirementhub.dtos.requirement.RequirementResponseDTO;
 import com.br.requirementhub.dtos.requirement.RequirementUpdateRequestDTO;
 import com.br.requirementhub.dtos.requirementArtifact.RequirementArtifactResponseDTO;
-import com.br.requirementhub.entity.*;
+import com.br.requirementhub.entity.Project;
+import com.br.requirementhub.entity.Requirement;
+import com.br.requirementhub.entity.RequirementArtifact;
+import com.br.requirementhub.entity.RequirementHistory;
+import com.br.requirementhub.entity.Stakeholder;
+import com.br.requirementhub.entity.User;
 import com.br.requirementhub.enums.Status;
 import com.br.requirementhub.exceptions.ProjectNotFoundException;
 import com.br.requirementhub.exceptions.RequirementAlreadyExistException;
 import com.br.requirementhub.exceptions.RequirementNotFoundException;
 import com.br.requirementhub.exceptions.UserNotFoundException;
+import com.br.requirementhub.repository.CommentsRepository;
 import com.br.requirementhub.repository.ProjectRepository;
 import com.br.requirementhub.repository.RequirementArtifactRepository;
+import com.br.requirementhub.repository.RequirementHistoryRepository;
 import com.br.requirementhub.repository.RequirementRepository;
 import com.br.requirementhub.repository.StakeHolderRepository;
 import com.br.requirementhub.repository.UserRepository;
-import com.br.requirementhub.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 
@@ -35,6 +42,8 @@ import org.springframework.stereotype.Service;
 @Transactional
 @RequiredArgsConstructor
 public class RequirementService {
+
+    private static final Logger log = LoggerFactory.getLogger(RequirementService.class);
 
     private final RequirementRepository requirementRepository;
 
@@ -51,8 +60,6 @@ public class RequirementService {
     private final RequirementArtifactService requirementArtifactService;
 
     private final RequirementHistoryRepository requirementHistoryRepository;
-
-    private final CommentsService commentsService;
 
     public List<RequirementResponseDTO> getAllRequirements() {
         return requirementRepository.findAll().stream()
@@ -187,11 +194,7 @@ public class RequirementService {
 
         requirement.setStatus(Status.REJECTED.toString());
         requirement = requirementRepository.save(requirement);
-
-        //commentsService.saveComment(commentsRequestDto);
-
         this.createNotificationToUsers(requirement);
-
         return convertToResponseDTO(requirement);
     }
 
@@ -248,7 +251,7 @@ public class RequirementService {
         }
     }
 
-    private List<User> getResponsible(Set<User> users) {
+    private List<User> getResponsible(List<User> users) {
         List<User> managedUsers = new ArrayList<>();
         for (User user : users) {
             User managedUser = userRepository.findById(user.getId())
@@ -258,7 +261,7 @@ public class RequirementService {
         return managedUsers;
     }
 
-    private List<Stakeholder> getStakeholders(Set<Stakeholder> stakeholders) {
+    private List<Stakeholder> getStakeholders(List<Stakeholder> stakeholders) {
         List<Stakeholder> managedStakeholders = new ArrayList<>();
         for (Stakeholder stakeholder : stakeholders) {
             Stakeholder managedStakeholder = stakeholderRepository.findById(stakeholder.getId())
@@ -268,9 +271,9 @@ public class RequirementService {
         return managedStakeholders;
     }
 
-    private List<Requirement> getRequirementsRelated(Set<Requirement> dependencies) {
+    private List<Requirement> getRequirementsRelated(List<Requirement> dependencies) {
         if (dependencies == null || dependencies.isEmpty()) {
-            return new ArrayList<>(); // Retorna um Set vazio se não houver dependências
+            return new ArrayList<>();
         }
         List<Requirement> managedRequirements = new ArrayList<>();
         for (Requirement dependency : dependencies) {
@@ -318,7 +321,6 @@ public class RequirementService {
     }
 
     public RequirementResponseDTO updateRequirement(Long id, RequirementUpdateRequestDTO requirementRequestDTO) {
-
         Requirement requirementBefore = requirementRepository.findById(id)
                 .orElseThrow(() -> new RequirementNotFoundException("Requirement not found: " + id));
 
@@ -366,12 +368,12 @@ public class RequirementService {
             return;
         }
 
-        if (requirementBefore.getStatus().equals(Status.PENDING.toString()) || requirementBefore.getStatus().equals(Status.CREATED.toString())) {
+        if (requirementBefore.getStatus().equals(Status.PENDING.toString()) ||
+                requirementBefore.getStatus().equals(Status.CREATED.toString()) ||
+                requirementBefore.getStatus().equals(Status.REJECTED.toString())){
             incrementVersionMinor(requirementBefore, requirementAfter);
         } else if (requirementBefore.getStatus().equals(Status.ACTIVE.toString())) {
             incrementVersionMajor(requirementBefore, requirementAfter);
-        }  else if (requirementBefore.getStatus().equals(Status.REJECTED.toString())) {
-            requirementAfter.setVersion(requirementBefore.getVersion());
         }
     }
 
@@ -443,19 +445,12 @@ public class RequirementService {
     private void createNotificationToUsers(Requirement requirement) {
         List<User> responsible = requirement.getResponsible();
         for (User user : responsible) {
-
-            //todo PAREIA QUI, TENTANDO ENVIAR NOTIFICAÇÃO.
-
             List<Object[]> notification = requirementRepository.findNotificationByRequirementAndUser(
                     requirement.getId(), user.getId());
-
-            System.out.println("notification: " + notification.toString());
-
             if (notification.isEmpty()) {
-                System.out.println("ENTROU AQUI");
                 this.userRepository.addNotificationToUser(user.getId(), requirement.getId());
             } else {
-                System.out.println("Notificação já existe para o usuário ID: " + user.getId());
+                log.info("Notificação existente para o usuário ID: {}", user.getId());
             }
         }
     }
@@ -469,19 +464,16 @@ public class RequirementService {
                             () -> new UserNotFoundException("Manager not found: " + managerProjectRelated)));
 
             Long managerId = null;
+            List<Object[]> notifications = List.of();
 
             if (manager.isPresent()) {
                 managerId = manager.get().getId();
+                notifications = requirementRepository.findNotificationByRequirementAndUser(requirement.getId(), managerId);
             }
-
-            System.out.println(managerId);
-
-            List<Long> comments = commentsRepository.findUserIdsByRequirementId(requirement.getId());
-
-            if (managerId != null && comments.isEmpty()) {
+            if (managerId != null && notifications.isEmpty()) {
                 this.userRepository.addNotificationToUser(managerId, requirement.getId());
             } else {
-                System.out.println("Notificação existente para o gerente ID: " + managerId);
+                log.info("Notificação existente para o gerente ID: {}", managerId);
             }
         }
     }
