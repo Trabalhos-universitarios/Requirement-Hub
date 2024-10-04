@@ -199,7 +199,7 @@ public class RequirementService {
     }
 
 
-    public RequirementResponseDTO approveRequirement(Long id, CommentsRequestDto commentsRequestDto) {
+    public RequirementResponseDTO approveRequirement(Long id) {
         Requirement requirement = requirementRepository.findById(id)
                 .orElseThrow(() -> new RequirementNotFoundException("Requirement not found: " + id));
 
