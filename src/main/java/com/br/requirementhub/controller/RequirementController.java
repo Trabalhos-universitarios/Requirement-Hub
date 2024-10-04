@@ -138,6 +138,12 @@ public class RequirementController {
         return ResponseEntity.ok(updatedEntity);
     }
 
+    @PatchMapping("/blocked/{id}")
+    public ResponseEntity<RequirementResponseDTO> blockedRequirement(@PathVariable Long id) {
+        RequirementResponseDTO updatedEntity = requirementService.blockedRequirementId(id);
+        return ResponseEntity.ok(updatedEntity);
+    }
+
     @PatchMapping("/refuse/{id}")
     public ResponseEntity<RequirementResponseDTO> refuseRequirement(
             @PathVariable Long id,

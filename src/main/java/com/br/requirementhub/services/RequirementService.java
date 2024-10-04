@@ -166,6 +166,19 @@ public class RequirementService {
         return convertToResponseDTO(requirement);
     }
 
+    public RequirementResponseDTO blockedRequirementId(Long id) {
+        Requirement requirement = requirementRepository.findById(id)
+                .orElseThrow(() -> new RequirementNotFoundException("Requirement not found: " + id));
+
+        requirement.setStatus(Status.BLOCKED.toString());
+        requirement = requirementRepository.save(requirement);
+
+        this.createNotificationToManager(requirement);
+        this.createNotificationToUsers(requirement);
+
+        return convertToResponseDTO(requirement);
+    }
+
     public RequirementResponseDTO sendToApprovalFlow(RequirementRequestDTO requirementRequestDTO) {
         this.verifyAlreadyExistsRequirement(requirementRequestDTO, "flow");
 
