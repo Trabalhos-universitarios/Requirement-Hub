@@ -198,6 +198,17 @@ public class RequirementService {
         return convertToResponseDTO(requirement);
     }
 
+
+    public RequirementResponseDTO approveRequirement(Long id, CommentsRequestDto commentsRequestDto) {
+        Requirement requirement = requirementRepository.findById(id)
+                .orElseThrow(() -> new RequirementNotFoundException("Requirement not found: " + id));
+
+        requirement.setStatus(Status.ACTIVE.toString());
+        requirement = requirementRepository.save(requirement);
+        this.createNotificationToUsers(requirement);
+        return convertToResponseDTO(requirement);
+    }
+
     private void generateRequirementIdentifier(Requirement requirement) {
         List<Requirement> existingRequirements =
                 requirementRepository.findByProjectRelated(requirement.getProjectRelated());

@@ -145,4 +145,13 @@ public class RequirementController {
         RequirementResponseDTO updatedEntity = requirementService.refuseRequirement(id, commentsRequestDto);
         return ResponseEntity.ok(updatedEntity);
     }
+
+    @PatchMapping("/approve/{id}")
+    public ResponseEntity<RequirementResponseDTO> approveRequirement(
+            @PathVariable Long id,
+            @RequestBody CommentsRequestDto commentsRequestDto
+    ) {
+        RequirementResponseDTO updatedEntity = requirementService.approveRequirement(id, commentsRequestDto);
+        return ResponseEntity.ok(updatedEntity);
+    }
 }
