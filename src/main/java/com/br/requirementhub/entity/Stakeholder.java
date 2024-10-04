@@ -7,7 +7,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import lombok.Data;
 
@@ -24,5 +26,5 @@ public class Stakeholder {
 
     @ManyToMany(mappedBy = "stakeholders")
     @JsonIgnore
-    private Set<Requirement> requirements = new HashSet<>();
+    private List<Requirement> requirements = new ArrayList<>();
 }

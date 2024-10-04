@@ -21,6 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class UserService {
 
     private final UserRepository repository;
@@ -83,4 +84,7 @@ public class UserService {
         return user.getNotifications().stream().map(Requirement::getId).collect(Collectors.toList());
     }
 
+    public void deleteNotification(Long userId, Long requirementId) {
+        repository.deleteNotification(userId, requirementId);
+    }
 }
