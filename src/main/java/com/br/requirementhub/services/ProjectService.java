@@ -56,14 +56,16 @@ public class ProjectService {
         }
     }
 
-
     public List<ProjectResponseDTO> listProjectsByUserId(Long userId) {
         Role userRole = userService.findUserRoleById(userId);
 
         List<Project> projects;
-        if (userRole == Role.GERENTE_DE_PROJETOS || userRole == Role.ADMIN) {
+        if (userRole == Role.ADMIN) {
             projects = projectRepository.findAll();
-        } else {
+        } else if (userRole == Role.GERENTE_DE_PROJETOS) {
+            projects = projectRepository.findByManager(userId.toString());
+        }
+        else {
             List<Long> projectIds = teamService.findProjectIdsByUserId(userId);
             projects = projectRepository.findAllById(projectIds);
         }
