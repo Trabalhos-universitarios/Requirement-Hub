@@ -13,6 +13,7 @@ import com.br.requirementhub.services.RequirementService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -148,10 +149,9 @@ public class RequirementController {
 
     @PatchMapping("/approve/{id}")
     public ResponseEntity<RequirementResponseDTO> approveRequirement(
-            @PathVariable Long id,
-            @RequestBody CommentsRequestDto commentsRequestDto
+            @PathVariable Long id
     ) {
-        RequirementResponseDTO updatedEntity = requirementService.approveRequirement(id, commentsRequestDto);
+        RequirementResponseDTO updatedEntity = requirementService.approveRequirement(id);
         return ResponseEntity.ok(updatedEntity);
     }
 }
