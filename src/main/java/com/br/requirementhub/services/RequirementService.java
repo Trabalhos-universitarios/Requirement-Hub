@@ -466,7 +466,7 @@ public class RequirementService {
         }
     }
 
-    private void createNotificationToUsers(Requirement requirement) {
+    public void createNotificationToUsers(Requirement requirement) {
         List<User> responsible = requirement.getResponsible();
         for (User user : responsible) {
             List<Object[]> notification = requirementRepository.findNotificationByRequirementAndUser(
