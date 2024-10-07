@@ -6,11 +6,15 @@ import com.br.requirementhub.dtos.comments.CommentsReactResponseDto;
 import com.br.requirementhub.dtos.comments.CommentsRequestDto;
 import com.br.requirementhub.entity.CommentReaction;
 import com.br.requirementhub.entity.Comments;
+import com.br.requirementhub.entity.Requirement;
 import com.br.requirementhub.entity.User;
 import com.br.requirementhub.exceptions.NotFoundException;
+import com.br.requirementhub.exceptions.RequirementNotFoundException;
 import com.br.requirementhub.repository.CommentReactionRepository;
 import com.br.requirementhub.repository.CommentsRepository;
+import com.br.requirementhub.repository.RequirementRepository;
 import com.br.requirementhub.repository.UserRepository;
+import com.br.requirementhub.enums.Status;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,9 +32,19 @@ public class CommentsService {
 
     private final CommentReactionRepository commentReactionRepository;
 
+    private final RequirementService requirementService;
+
+    private final RequirementRepository requirementRepository;
+
     public CommentsCreateResponseDto saveComment(CommentsRequestDto commentDto) {
+        Requirement requirement = requirementRepository.findById(commentDto.getRequirement().getId())
+                .orElseThrow(() -> new RequirementNotFoundException("Requirement not found: " + commentDto.getRequirement().getId()));
         Comments comments = convertToEntity(commentDto);
         comments = commentsRepository.save(comments);
+
+        if(requirement.getStatus().equals(Status.ACTIVE.toString())){
+            requirementService.createNotificationToUsers(requirement);
+        }
         return convertToResponseDTO(comments);
     }
 
