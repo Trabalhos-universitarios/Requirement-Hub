@@ -15,12 +15,15 @@ Date: 2024
 
 ## Principais tecnologias utilizadas: <br/>
 <p>
-    <li><img align="center" alt="Angular" height="30" width="40" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/angularjs/angularjs-original.svg" /> - Angular</li>
-    <li><img align="center" alt="Material" height="30" width="40" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/angularmaterial/angularmaterial-original.svg" /> - Angular Material</li>
-    <li><img align="center" alt="NPM" height="30" width="40" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/npm/npm-original-wordmark.svg"/> - NPM</li>
-    <li><img align="center" alt="Docker" height="30" width="40" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg"/> - Docker</li>
-    <li><img align="center" alt="AWS" height="30" width="40" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/amazonwebservices/amazonwebservices-plain-wordmark.svg"/> - AWS</li>
-
+    <li><img align="center" alt="Angular" height="30" width="40" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/java/java-original.svg" /> - Java</li><br>
+    <li><img align="center" alt="Angular" height="30" width="40" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/spring/spring-original.svg" /> - Spring</li><br>
+    <li><img align="center" alt="Material" height="30" width="40" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postgresql/postgresql-original.svg" /> - Postgres SQL</li><br>
+    <li><img align="center" alt="NPM" height="30" width="40" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/maven/maven-original.svg"/> - Maven</li><br>
+    <li><img align="center" alt="NPM" height="30" width="40" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postman/postman-original.svg"/> - Postman</li><br>
+    <li><img align="center" alt="NPM" height="30" width="40" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/junit/junit-original.svg"/> - JUnit 5</li><br>
+    <li><img align="center" alt="NPM" height="30" width="40" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/swagger/swagger-original.svg"/> - Swagger</li><br>
+    <li><img align="center" alt="Docker" height="30" width="40" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg"/> - Docker</li><br>
+    <li><img align="center" alt="AWS" height="30" width="40" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/amazonwebservices/amazonwebservices-plain-wordmark.svg"/> - AWS</li><br>
 </p>
 
 ## Resumo do projeto
@@ -79,35 +82,100 @@ qualidade do software entregue. Apresentamos na revisão de literatura acontecim
 
 ## Como executar o projeto
 
-### Front End (Quando tiver concluído)
-Para que o código funcione corretamente deve-se ser instalados as seguintes ferramentas:
-- Node em <a>https://nodejs.org/en/download/</a>
-- Angular CLI em <a>https://v17.angular.io/cli</a>
-- Angular Material em <a>https://material.angular.io/guide/getting-started</a>
-
-Certifique-se de que o ```npm``` foi instalado junto, geralmente ele é instalado jundo com o node, para isso de o seguinte comando no terminal
-````
-npm --v
-````
-Após a instalação e configuração do Node, deve-se instalar as seguintes ferramentas através do terminal:
-- Angular CLI
-```
-npm i @angular/cli
-```
-- Angular Material
-```
-ng add @angular/material
-```
-
 ### Back End
-- O back-end está localizado no seguinte repositório <a>https://github.com/Trabalhos-universitarios/Requirement-Hub-API</a>
-  lá encontrará um passo a passo de como executar o projeto.
-## Passos executar projeto
-Feito isso, agiora é rodar o comando ````ng serve```` no seu termninal, e o projeto angular deve
-subir na rota ````https://localhost/4200```` ao acessar essa rota você deve ser direcionado para tela
-de login
+Para que o código funcione corretamente deve-se ser instalados as seguintes ferramentas:
+- JDK em [Java Downloads | ORACLE](https://www.oracle.com/br/java/technologies/downloads/)
+- Um compilador "recomendamos IntelliJ" em [IntelliJ IDEA: The Java IDE for Professional Developers by JetBrains](https://www.jetbrains.com/idea/download/#section=windows)
+- PostgreSQL em [PostgreSQL | Downloads](https://www.postgresql.org/download/)
+- Postman em ou similar [Postman | Download Postman App](https://www.postman.com/downloads/)
 
+### Front End
+- O front-end está localizado no seguinte repositório [Requirement Hub UI](https://github.com/Trabalhos-universitarios/Requirement-Hub-UI)
+  lá encontrará um passo a passo de como executar o projeto.
+
+## Passos executar projeto
+Próximo passo agora é configurar o arquivo ``application.properties`` com as informações do seu banco de dados, para isso, abra o arquivo e altere as seguintes linhas de acordo com as informações do seu banco de dados:
+````java
+spring.datasource.url=jdbc:postgresql://endereco_do_seu_banco:porta/nome_do_seu_banco
+spring.datasource.username=//seu_usuario
+spring.datasource.password=//sua_senha
+````
+Feito isso, agora é rodar o projeto spring e acessar o seguinte endereço no seu postman:
+````
+http://localhost:8080
+````
+Com isso, você poderá acessar o sistema e realizar as funcionalidades disponíveis.
+
+### Criando usuário e senha via postman
+Para criar um usuário e senha não é possível via postman, é necessário criar um usuário e senha manualmente no banco de dados, para isso, siga os seguintes passos:
+1. Abra o banco de dados e acesse a tabela ``users``.
+2. Clique em ``Insert`` e insira um novo usuário e senha.
+3. Clique em ``Apply`` e a alteração será salva.
+4. Pronto, usuário e senha criados com sucesso. <img margin-top="15px" align="center" height="20px" width="20" src="/src/assets/readme/ok.png">
+ Se preferir, poder usar o seguinte script para criar um usuário e senha:
+ ````sql
+INSERT INTO public."_user"
+  (id, "name", "password", "role", username, image)
+VALUES(nextval('_user_id_seq'::regclass), '', '', 0, '', '');
+````
+
+### Fazer login via postman e recuperar o token JWT
+Para fazer login via postman e recuperar o token JWT, siga os seguintes passos:
+1. Abra o postman e crie uma nova requisição do tipo ``POST``.
+2. No campo de URL, insira o seguinte endereço: ``localhost:8080/auth/authenticate``.
+3. No campo de body, selecione a opção ``raw`` e insira o seguinte JSON:
+````json
+{
+    "username": "username",
+    "password": "password"
+}
+````
+4. Clique em ``Send`` e a requisição será enviada.
+5. Pronto, você receberá um token JWT como resposta. <img margin-top="15px" align="center" height="20px" width="20" src="/src/assets/readme/ok.png">
+
+Ou se preferir pode logar direto pelo front-end, para isso, siga os seguintes passos:
+
+1. Su a aplicação back-end já estiver rodando, execute a aplicação front-end Angular confi=orme passo a passo no repositório [Requirement Hub UI](https://github.com/Trabalhos-universitarios/Requirement-Hub-UI)
+2. Abra o front-end no andereço ``http://localhost:4200`` e clique em ``Login``.
+2. Insira o usuário e senha criados anteriormente.
+3. Clique em ``Login`` e pronto, você estará logado no sistema. <img margin-top="15px" align="center" height="20px" width="20" src="/src/assets/readme/ok.png">
+
+### Tela de login front-end
 ![img.png](src/assets/readme/login.png)
+
+## Regras de acesso
+O sistema permite o acesso de 4 tipos de usuário, são eles:
+* Administrador - tem acesso total ao sistema
+* Gerente de projeto - tem acesso total ao(s) projeto(s) relacionado
+* Membro de projeto - tem acesso parcial ao(s) projeto(s) relacionado
+* Usuário comum - tem acesso limitado ao(s) projeto(s) relacionado
+
+Roles:
+* 0 - Gerente de projeto
+* 1 - Analista de requisitos
+* 2 - Analista de negócios
+* 3 - Usuário comum (Ex developer, tester, etc)
+* 4 - Administrador
+
+## Prmissões por Role
+* Administrador - tem acesso a todos os projetos e pode criar, deletar e editar qualquer usuário do sistema
+* Gerente de projeto - tem acesso aos projetos relacionados a ele, poder ceir projetos, cadastrar membros e gerenciar os membros do projeto dentre outras funcionalidades voltadas a projeto, como aprovar ou rejeitar um requisito.
+* Analista de requisitos - tem acesso aos projetos relacionados a ele, poder cadastrar requisitos, artefatos, módulos, documentos, validar requisitos, revisar requisitos, não pode aprovar requisitos.
+* Analista de negócios - tem acesso aos projetos relacionados a ele, com acessos limitados.
+* Usuário comum - tem acesso aos projetos relacionados a ele, com acessos limitados.
+
+## Regras de negócio
+As regras de negócio do projeto estão localizadas no seguinte diretório: ``src/main/java/com/requirementhub/business``.
+Lá você encontrará todas as regras de negócio implementadas no projeto, como mais detalhes das regras de acesso.
+
+
+### Documentação da API
+A documentação da API pode ser acessada através do Swagger após a api já estar rodando, no seguinte endereço:
+````
+http://localhost:8080/swagger-ui.html
+````
+``OBS:`` Para acessar a documentação da API é necessário com a api rodando na mesma porta, ou seja, se a api estiver
+rodando na porta ``8080``, a documentação estará disponível no endereço ``http://localhost:8080/swagger-ui.html``.
 
 Se já tiver cadastrado usuário e senha, é só logar e acessar o sistema, caso contrário
 contate o administrador do sietema para que seja atribuído ao usuário um usuário e senha.

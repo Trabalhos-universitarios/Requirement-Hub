@@ -34,11 +34,10 @@ public class SecurityFilter {
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(authConfig -> {
 
-                    authConfig.requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll();
                     authConfig.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll();
 
 
-                    authConfig.requestMatchers(HttpMethod.POST, "/auth/authenticate").permitAll();
+                    authConfig.requestMatchers(HttpMethod.POST, "/auth/login").permitAll();
                     authConfig.requestMatchers(HttpMethod.POST, "/auth/register").hasRole(ADMIN.name());
                     //authConfig.requestMatchers(HttpMethod.POST, "/auth/register").permitAll();
 
