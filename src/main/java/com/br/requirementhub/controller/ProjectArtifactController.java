@@ -7,13 +7,18 @@ import com.br.requirementhub.utils.DecodeBase64;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import java.io.IOException;
+import java.util.List;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.io.IOException;
-import java.util.List;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(path = "/project-artifacts", produces = "application/json")
@@ -56,14 +61,10 @@ public class ProjectArtifactController {
     })
     @PostMapping("")
     public ResponseEntity<ProjectArtifactResponseDTO> create(@RequestBody ProjectArtifactRequestDTO request) throws IOException {
-
-        // Remove o prefixo MIME do conteúdo base64, se presente
         String contentBase64 = request.getContentBase64();
         if (contentBase64 != null && contentBase64.startsWith("data:")) {
             contentBase64 = contentBase64.split(",")[1];
         }
-
-        // Decodifica o conteúdo base64
         byte[] content = DecodeBase64.decode(contentBase64);
         request.setContent(content);
 

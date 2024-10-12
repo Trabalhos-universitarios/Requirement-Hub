@@ -73,7 +73,7 @@ public class RequirementService {
                 .orElse(null);
     }
 
-    public List<RequirementResponseDTO> getRequirementsByProjectRelated(Long id) {
+    public List<RequirementResponseDTO> getRequirementByIdentifierAndProjectRelated(Long id) {
         Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new ProjectNotFoundException("Project not found with id: " + id));
 

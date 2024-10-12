@@ -6,9 +6,11 @@ import com.br.requirementhub.entity.User;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class CommentsRequestDto {
 
     private String description;
