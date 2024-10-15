@@ -40,3 +40,5 @@ jobs:
         run: docker rm -f requirementhub
       - name: Run docker container
         run: docker run -d -p 8080:8080 --name requirementhub eliasfernandescout/requirementhub
+      - name: Remove old docker image
+        run: docker image prune -f
