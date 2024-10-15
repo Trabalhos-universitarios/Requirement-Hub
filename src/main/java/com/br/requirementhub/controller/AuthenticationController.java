@@ -41,7 +41,7 @@ public class AuthenticationController {
             @ApiResponse(responseCode = "401", description = "Unauthorized"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @PostMapping(path = "/login", consumes = "application/json", produces = "application/json")
+    @PostMapping(path = "/authenticate", consumes = "application/json", produces = "application/json")
     public ResponseEntity<AuthenticationResponseDTO> authenticate(@RequestBody AuthenticationRequestDTO request) {
         return ResponseEntity.ok(service.login(request));
     }
