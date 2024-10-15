@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -40,3 +40,5 @@ jobs:
         run: docker rm -f requirementhub
       - name: Run docker container
         run: docker run -d -p 8080:8080 --name requirementhub eliasfernandescout/requirementhub
+      - name: Remove old docker image
+        run: docker image prune -f
