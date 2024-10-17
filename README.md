@@ -177,6 +177,7 @@ http://localhost:8080/swagger-ui.html
 ``OBS:`` Para acessar a documentação da API é necessário com a api rodando na mesma porta, ou seja, se a api estiver
 rodando na porta ``8080``, a documentação estará disponível no endereço ``http://localhost:8080/swagger-ui.html``.
 
+## Acessar o sistema
 Se já tiver cadastrado usuário e senha, é só logar e acessar o sistema, caso contrário
 contate o administrador do sietema para que seja atribuído ao usuário um usuário e senha.
 
