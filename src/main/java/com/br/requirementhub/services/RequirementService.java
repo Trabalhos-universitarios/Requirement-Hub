@@ -166,11 +166,16 @@ public class RequirementService {
     public RequirementResponseDTO assignDeveloper(Long id, Long developerAssigned) {
         Requirement requirement = requirementRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Requirement not found"));
-        requirement.setDeveloperAssigned(developerAssigned); // Atualiza o campo developerAssigned
-        requirement = requirementRepository.save(requirement); // Salva no banco
+
+        if (developerAssigned == 0) {
+            requirement.setDeveloperAssigned(null);
+        } else {
+            requirement.setDeveloperAssigned(developerAssigned);
+        }
+
+        requirement = requirementRepository.save(requirement);
         return convertToResponseDTO(requirement);
     }
-
 
     public RequirementResponseDTO sendToApprovalFlowRequirementId(Long id) {
         Requirement requirement = requirementRepository.findById(id)
