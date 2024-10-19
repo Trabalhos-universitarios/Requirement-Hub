@@ -17,6 +17,7 @@ public class RequirementUpdateRequestDTO {
     private String priority;
     private String type;
     private Integer effort;
+    private Long developerAssigned;
     private String description;
     private Long projectRelated;
     private List<Stakeholder> stakeholders;

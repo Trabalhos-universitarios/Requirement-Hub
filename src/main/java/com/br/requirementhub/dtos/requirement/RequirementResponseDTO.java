@@ -16,6 +16,7 @@ public class RequirementResponseDTO {
     private String type;
     private String status;
     private Integer effort;
+    private Long developerAssigned;
     private Long projectId;
     private String dateCreated;
     private List<Long> artifactIds;
