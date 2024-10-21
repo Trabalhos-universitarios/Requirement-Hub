@@ -48,6 +48,9 @@ public class Requirement {
     @Column(name = "date_created")
     private LocalDateTime dateCreated = LocalDateTime.now();
 
+    @Column(name = "developer_assigned")
+    private Long developerAssigned;
+
     @OneToMany(mappedBy = "requirement")
     private List<Comments> comments;
 

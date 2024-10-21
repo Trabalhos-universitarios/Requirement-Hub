@@ -4,8 +4,10 @@ public enum Status {
     BLOCKED,
     ACTIVE,
     PENDING,
-    DELETED,
-    APPROVING,
     CREATED,
     REJECTED,
+    IN_PROGRESS,
+    IN_TEST,
+    IN_APPROVAL,
+    IN_IMPLANTATION
 }
