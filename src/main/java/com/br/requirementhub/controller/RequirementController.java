@@ -7,6 +7,7 @@ import com.br.requirementhub.dtos.requirement.RequirementResponseDTO;
 import com.br.requirementhub.dtos.requirement.RequirementUpdateRequestDTO;
 import com.br.requirementhub.dtos.requirementArtifact.RequirementArtifactResponseDTO;
 import com.br.requirementhub.entity.RequirementArtifact;
+import com.br.requirementhub.enums.Status;
 import com.br.requirementhub.repository.RequirementArtifactRepository;
 import com.br.requirementhub.services.RequirementArtifactService;
 import com.br.requirementhub.services.RequirementService;
@@ -223,6 +224,26 @@ public class RequirementController {
         RequirementResponseDTO updatedEntity = requirementService.sendToApprovalFlowRequirementId(id);
         return ResponseEntity.ok(updatedEntity);
     }
+
+    @Operation(summary = "Update requirement status by id")
+    @PatchMapping("/status/{id}/{status}")
+    public ResponseEntity<RequirementResponseDTO> updateRequirementStatus(
+            @PathVariable Long id,
+            @PathVariable String status) {
+
+        RequirementResponseDTO updatedEntity = requirementService.updateRequirementStatus(id, status);
+        return ResponseEntity.ok(updatedEntity);
+    }
+
+    @Operation(summary = "Assign developer requirement by id")
+    @PatchMapping("/assign-developer/{id}/{developerAssigned}")
+    public ResponseEntity<RequirementResponseDTO> assignDeveloper(
+            @PathVariable Long id,
+            @PathVariable Long developerAssigned) {
+        RequirementResponseDTO updatedEntity = requirementService.assignDeveloper(id, developerAssigned);
+        return ResponseEntity.ok(updatedEntity);
+    }
+
 
     @Operation(summary = "Blocked requirement by id")
     @ApiResponses(value = {

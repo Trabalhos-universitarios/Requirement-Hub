@@ -153,6 +153,30 @@ public class RequirementService {
         requirementAfter.setStatus(Status.CREATED.toString());
     }
 
+    public RequirementResponseDTO updateRequirementStatus(Long id, String status) {
+        Requirement requirement = requirementRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Requirement not found"));
+
+        requirement.setStatus(status);
+        Requirement updatedRequirement = requirementRepository.save(requirement);
+
+        return convertToResponseDTO(updatedRequirement);
+    }
+
+    public RequirementResponseDTO assignDeveloper(Long id, Long developerAssigned) {
+        Requirement requirement = requirementRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Requirement not found"));
+
+        if (developerAssigned == 0) {
+            requirement.setDeveloperAssigned(null);
+        } else {
+            requirement.setDeveloperAssigned(developerAssigned);
+        }
+
+        requirement = requirementRepository.save(requirement);
+        return convertToResponseDTO(requirement);
+    }
+
     public RequirementResponseDTO sendToApprovalFlowRequirementId(Long id) {
         Requirement requirement = requirementRepository.findById(id)
                 .orElseThrow(() -> new RequirementNotFoundException("Requirement not found: " + id));
@@ -519,6 +543,7 @@ public class RequirementService {
         dto.setType(requirement.getType());
         dto.setStatus(requirement.getStatus());
         dto.setEffort(requirement.getEffort());
+        dto.setDeveloperAssigned(requirement.getDeveloperAssigned());
         dto.setProjectId(requirement.getProjectRelated().getId());
         dto.setDateCreated(requirement.getDateCreated().toString());
         return dto;
@@ -624,6 +649,7 @@ public class RequirementService {
         requirement.setPriority(dto.getPriority());
         requirement.setType(dto.getType());
         requirement.setEffort(dto.getEffort());
+        requirement.setDeveloperAssigned(dto.getDeveloperAssigned());
         Project project = projectRepository.findById(dto.getProjectRelated().getId())
                 .orElseThrow(
                         () -> new ProjectNotFoundException("Project not found with id: " + dto.getProjectRelated()));
@@ -639,6 +665,7 @@ public class RequirementService {
         requirement.setPriority(dto.getPriority());
         requirement.setType(dto.getType());
         requirement.setEffort(dto.getEffort());
+        requirement.setDeveloperAssigned(dto.getDeveloperAssigned());
         Project project = projectRepository.findById(dto.getProjectRelated())
                 .orElseThrow(
                         () -> new ProjectNotFoundException("Project not found with id: " + dto.getProjectRelated()));
